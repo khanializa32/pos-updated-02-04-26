@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GroupSubTax;
+use App\Tax;
 use App\TaxRate;
 use App\Utils\TaxUtil;
 use Illuminate\Http\Request;
@@ -42,7 +43,7 @@ class TaxRateController extends Controller
 
             $tax_rates = TaxRate::where('business_id', $business_id)
                         ->where('is_tax_group', '0')
-                        ->select(['name', 'amount', 'id', 'for_tax_group']);
+                        ->select(['name', 'amount', 'code', 'id', 'for_tax_group']);
 
             return Datatables::of($tax_rates)
                 ->addColumn(
@@ -57,9 +58,10 @@ class TaxRateController extends Controller
                 )
                 ->editColumn('name', '@if($for_tax_group == 1) {{$name}} <small>(@lang("lang_v1.for_tax_group_only"))</small> @else {{$name}} @endif')
                 ->editColumn('amount', '{{@num_format($amount)}}')
+                ->editColumn('code', '{{$code}}')
                 ->removeColumn('for_tax_group')
                 ->removeColumn('id')
-                ->rawColumns([0, 2])
+                ->rawColumns([0, 3,2])
                 ->make(false);
         }
 
@@ -77,7 +79,9 @@ class TaxRateController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('tax_rate.create');
+        $taxes = Tax::pluck('name', 'code');
+
+        return view('tax_rate.create', compact('taxes'));
     }
 
     /**
@@ -97,6 +101,7 @@ class TaxRateController extends Controller
             $input['business_id'] = $request->session()->get('user.business_id');
             $input['created_by'] = $request->session()->get('user.id');
             $input['amount'] = $this->taxUtil->num_uf($input['amount']);
+            $input['code'] = $request->code;
             $input['for_tax_group'] = ! empty($request->for_tax_group) ? 1 : 0;
 
             $tax_rate = TaxRate::create($input);
@@ -142,8 +147,10 @@ class TaxRateController extends Controller
             $business_id = request()->session()->get('user.business_id');
             $tax_rate = TaxRate::where('business_id', $business_id)->find($id);
 
+            $taxes = Tax::pluck('name', 'code');
+
             return view('tax_rate.edit')
-                ->with(compact('tax_rate'));
+                ->with(compact('tax_rate', 'taxes'));
         }
     }
 
@@ -168,6 +175,7 @@ class TaxRateController extends Controller
                 $tax_rate = TaxRate::where('business_id', $business_id)->findOrFail($id);
                 $tax_rate->name = $input['name'];
                 $tax_rate->amount = $this->taxUtil->num_uf($input['amount']);
+                $tax_rate->code = $request->code;
                 $tax_rate->for_tax_group = ! empty($request->for_tax_group) ? 1 : 0;
                 $tax_rate->save();
 

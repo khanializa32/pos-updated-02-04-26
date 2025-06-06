@@ -37,6 +37,7 @@
                         <tr>
                             <th>@lang( 'tax_rate.name' )</th>
                             <th>@lang( 'tax_rate.rate' )</th>
+                            <th>@lang( 'Código' )</th>
                             <th>@lang( 'messages.action' )</th>
                         </tr>
                     </thead>

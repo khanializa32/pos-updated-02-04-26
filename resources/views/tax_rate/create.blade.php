@@ -9,15 +9,30 @@
     </div>
 
     <div class="modal-body">
-      <div class="form-group">
-        {!! Form::label('name', __( 'tax_rate.name' ) . ':*') !!}
-          {!! Form::text('name', null, ['class' => 'form-control', 'required', 'placeholder' => __( 'tax_rate.name' )]); !!}
-      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            {!! Form::label('name', __( 'tax_rate.name' ) . ':*') !!}
+              {!! Form::text('name', null, ['class' => 'form-control', 'required', 'placeholder' => __( 'tax_rate.name' )]); !!}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            {!! Form::label('code', __( 'Tipo de Impuesto' ) . ':*') !!}
+              {!! Form::select('code', $taxes, null, ['class' => 'form-control', 'required', 'placeholder' => __( 'Seleccione el tipo de impuesto' )]); !!}
 
-      <div class="form-group">
-        {!! Form::label('amount', __( 'tax_rate.rate' ) . ':*') !!} @show_tooltip(__('lang_v1.tax_exempt_help'))
-          {!! Form::text('amount', null, ['class' => 'form-control input_number', 'required']); !!}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            {!! Form::label('amount', __( 'tax_rate.rate' ) . ':*') !!} @show_tooltip(__('lang_v1.tax_exempt_help'))
+              {!! Form::text('amount', null, ['class' => 'form-control input_number', 'required']); !!}
+          </div>
+        </div>
       </div>
+      
+
+      
 
       <div class="form-group">
         <div class="checkbox">

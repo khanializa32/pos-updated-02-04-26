@@ -10,10 +10,25 @@ use Illuminate\Http\Request;
 class InvoiceSchemeController extends Controller
 {
     protected $number_types;
+    protected $type_documents;
 
     public function __construct()
     {
         $this->number_types = ['sequential' => __('invoice.sequential'), 'random'=> __('invoice.random')];
+        $this->type_documents = array(
+            "1" => "Factura de Venta Nacional",
+            "3" => "Factura de Contingencia",
+            "4" => "Nota Crédito",
+            "5" => "Nota Débito",
+            "9" => "Nomina Individual",
+            "10" => "Nomina Individual de Ajuste",
+            "11" => "Documento Soporte Electrónico",
+            "14" => "Eventos (ApplicationResponse)",
+            "15" => "Documento equivalente electrónico del tiquete de máquina registradora con sistema P.O.S.",
+            "25" => "Nota de Ajuste de tipo debito al Documento Equivalente",
+            "26" => "Nota de Ajuste de tipo crédito al Documento Equivalente"
+        );
+        
     }
 
     /**
@@ -89,7 +104,8 @@ class InvoiceSchemeController extends Controller
         }
 
         $number_types = $this->number_types;
-        return view('invoice_scheme.create')->with(compact('number_types'));
+        $type_documents = $this->type_documents;
+        return view('invoice_scheme.create')->with(compact('number_types', 'type_documents'));
     }
 
     /**
@@ -105,7 +121,7 @@ class InvoiceSchemeController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits', 'number_type']);
+            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits', 'number_type', 'type_document_id','is_fe','end_number','resolution','start_date','end_date']);
             $business_id = $request->session()->get('user.business_id');
             $input['business_id'] = $business_id;
 
@@ -164,9 +180,9 @@ class InvoiceSchemeController extends Controller
         $invoice = InvoiceScheme::where('business_id', $business_id)->find($id);
 
         $number_types = $this->number_types;
-
+        $type_documents = $this->type_documents;
         return view('invoice_scheme.edit')
-            ->with(compact('invoice', 'number_types'));
+            ->with(compact('invoice', 'number_types', 'type_documents'));
     }
 
     /**
@@ -183,7 +199,7 @@ class InvoiceSchemeController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits', 'number_type']);
+            $input = $request->only(['name', 'scheme_type', 'prefix', 'start_number', 'total_digits', 'number_type', 'type_document_id','is_fe','end_number','resolution','start_date','end_date']);
 
             $input['start_number'] = ($input['number_type'] == 'aleatory') ? '' : $input['start_number'];
 

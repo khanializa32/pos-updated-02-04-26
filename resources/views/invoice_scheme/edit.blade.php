@@ -34,14 +34,14 @@
                         <div id="preview_format">@lang('invoice.not_selected')</div>
                     </div>
                 </div>
-                <div class="col-sm-12">
+                <div class="col-sm-8">
                     <div class="form-group">
                         {!! Form::label('name', __( 'invoice.name' ) . ':*') !!}
                         {!! Form::text('name', $invoice->name, ['class' => 'form-control', 'required', 'placeholder' => __( 'invoice.name' ) ]); !!}
                     </div>
                 </div>
 
-                <div class="col-sm-12">
+                <div class="col-sm-4">
                     <div class="form-group">
                         {!! Form::label('invoice_number_type', __( 'invoice.number_type' ) . ':*') !!} @show_tooltip(__('invoice.number_type_tooltip'))
                         {!! Form::select('number_type', $number_types, $invoice->number_type, ['class' => 'form-control select2', 'id' => 'invoice_number_type']); !!}
@@ -50,7 +50,7 @@
 
 
                 <div id="invoice_format_settings">
-                    <div class="col-sm-6">
+                    <div class="col-sm-5">
                         <div class="form-group">
                             {!! Form::label('prefix', __( 'invoice.prefix' ) . ':') !!}
                             <div class="input-group col-md-12 col-sm-12">
@@ -61,28 +61,76 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6 sequential_field @if($invoice->number_type == 'random') hide @endif">
+                    <div class="col-sm-3 sequential_field @if($invoice->number_type == 'random') hide @endif">
                         <div class="form-group">
                             {!! Form::label('start_number', __( 'invoice.start_number' ) . ':') !!}
                             <div class="input-group col-md-12 col-sm-12">
-                                <span class="input-group-addon">
+                                {{-- <span class="input-group-addon">
                                     <i class="fa fa-info"></i>
-                                </span>
+                                </span> --}}
                                 {!! Form::number('start_number', $invoice->start_number, ['class' => 'form-control', 'required', 'min' => 0 ]); !!}
                             </div>
                         </div>
                     </div>
-                    <div class="clearfix">
-                        <div class="col-sm-6">
+                    <div class="col-sm-4 sequential_field @if($invoice->number_type == 'random') hide @endif">
+                        <div class="form-group">
+                            {!! Form::label('end_number', __( 'Hasta*' ) . ':') !!}
+                            <div class="input-group col-md-12 col-sm-12">
+                                {!! Form::number('end_number', $invoice->end_number, ['class' => 'form-control', 'required', 'min' => 0 ]); !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 sequential_field @if($invoice->number_type == 'random') hide @endif">
+                        <div class="form-group">
+                            {!! Form::label('resolution', __( 'Resolución' ) . ':') !!}
+                            <div class="input-group col-md-12 col-sm-12">
+                                {!! Form::text('resolution', $invoice->resolution, ['class' => 'form-control']); !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 sequential_field @if($invoice->number_type == 'random') hide @endif">
+                        <div class="form-group">
+                            {!! Form::label('start_date', __( 'Fecha desde' ) . ':') !!}
+                            <div class="input-group col-md-12 col-sm-12">
+                                {!! Form::date('start_date', $invoice->start_date, ['class' => 'form-control' ]); !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4 sequential_field @if($invoice->number_type == 'random') hide @endif">
+                        <div class="form-group">
+                            {!! Form::label('end_date', __( 'Fecha hasta' ) . ':') !!}
+                            <div class="input-group col-md-12 col-sm-12">
+                                {!! Form::date('end_date', $invoice->end_date, ['class' => 'form-control' ]); !!}
+                            </div>
+                        </div>
+                    </div>
+                    {{-- <div class="clearfix"> --}}
+                        <div class="col-sm-4">
                             <div class="form-group">
                                 {!! Form::label('total_digits', __( 'invoice.total_digits' ) . ':') !!}
                                 <div class="input-group col-md-12 col-sm-12">
                                     <span class="input-group-addon">
                                         <i class="fa fa-info"></i>
                                     </span>
-                                    {!! Form::select('total_digits', ['4' => '4', '5' => '5', '6' => '6', '7' => '7',
+                                    {!! Form::select('total_digits', ['1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5', '6' => '6', '7' => '7',
                                     '8' => '8', '9'=>'9', '10' => '10'], $invoice->total_digits, ['class' => 'form-control', 'required']); !!}
                                 </div>
+                            </div>
+                        </div>
+                    {{-- </div> --}}
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            {!! Form::label('is_fe', __( 'Es fac. Electrónica?' ) . ':*') !!}
+                            <div class="input-group col-md-12 col-sm-12">
+                                {!! Form::select('is_fe', ['si' => 'Si', 'no' => 'No'], $invoice->is_fe, ['class' => 'form-control', 'required']); !!}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            {!! Form::label('type_document_id', __( 'Tipo de documento' ) . ':*') !!}
+                            <div class="input-group col-md-12 col-sm-12">
+                                {!! Form::select('type_document_id', $type_documents, $invoice->type_document_id, ['class' => 'form-control', 'required', 'placeholder' => 'Seleccione un tipo de documento']); !!}
                             </div>
                         </div>
                     </div>
