@@ -255,6 +255,9 @@ class ContactController extends Controller
                     return $row->name;
                 }
             })
+            ->editColumn('dv', function ($row) {
+                return $row->dv;
+            })
             ->editColumn('created_at', '{{@format_date($created_at)}}')
             ->removeColumn('opening_balance_paid')
             ->removeColumn('type')
@@ -274,7 +277,7 @@ class ContactController extends Controller
                     ->orWhereRaw("CONCAT(COALESCE(address_line_1, ''), ', ', COALESCE(address_line_2, ''), ', ', COALESCE(city, ''), ', ', COALESCE(state, ''), ', ', COALESCE(country, '') ) like ?", ["%{$keyword}%"]);
                 });
             })
-            ->rawColumns(['action', 'opening_balance', 'pay_term', 'due', 'return_due', 'name', 'balance'])
+            ->rawColumns(['action', 'dv', 'opening_balance', 'pay_term', 'due', 'return_due', 'name', 'balance'])
             ->make(true);
     }
 
@@ -477,6 +480,9 @@ class ContactController extends Controller
 
                 return $html;
             })
+            ->editColumn('dv', function ($row) {
+                return $row->dv;
+            })
             ->editColumn('pay_term', '
                 @if(!empty($pay_term_type) && !empty($pay_term_number))
                     {{$pay_term_number}}
@@ -524,7 +530,7 @@ class ContactController extends Controller
             $contacts->removeColumn('total_rp');
         }
 
-        return $contacts->rawColumns(['action', 'opening_balance', 'credit_limit', 'pay_term', 'due', 'return_due', 'name', 'balance'])
+        return $contacts->rawColumns(['action', 'dv', 'opening_balance', 'credit_limit', 'pay_term', 'due', 'return_due', 'name', 'balance'])
                         ->make(true);
     }
 

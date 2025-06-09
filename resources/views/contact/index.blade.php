@@ -5,7 +5,7 @@
 @endphp
 @if (!empty($api_key))
     @section('css')
-        @include('contact.partials.google_map_styles')
+        {{-- @include('contact.partials.google_map_styles') --}}
     @endsection
 @endif
 @section('content')
@@ -154,21 +154,7 @@
         <input type="hidden" value="{{ $type }}" id="contact_type">
        
        
-       
-       
-       
-       
-       
 
-
-
-
-
-
-
-
-        
-        
                 @component('components.widget', [
             'class' => 'box-primary',
             'title' => __('contact.all_your_contact', ['contacts' => __('lang_v1.' . $type . 's')]),
@@ -203,6 +189,7 @@
                             <tr>
                                 <th class="tw-w-full">@lang('messages.action')</th>
                                 <th>@lang('lang_v1.contact_id')</th>
+                                <th>dv</th>
                                 @if ($type == 'supplier')
                                     <th>@lang('business.business_name')</th>
                                     <th>@lang('contact.name')</th>
@@ -291,6 +278,7 @@
                                 </td>
                                 <td class="footer_contact_due"></td>
                                 <td class="footer_contact_return_due"></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
