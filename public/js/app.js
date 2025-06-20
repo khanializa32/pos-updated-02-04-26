@@ -597,28 +597,28 @@ $(document).ready(function() {
             })
             .validate({
                 rules: {
-                    contact_id: {
-                        remote: {
-                            url: '/contacts/check-contacts-id',
-                            type: 'post',
-                            data: {
-                                contact_id: function() {
-                                    return $('#contact_id').val();
-                                },
-                                hidden_id: function() {
-                                    if ($('#hidden_id').length) {
-                                        return $('#hidden_id').val();
-                                    } else {
-                                        return '';
-                                    }
-                                },
-                            },
-                        },
-                    },
+                    // contact_id: {
+                    //     remote: {
+                    //         url: '/contacts/check-contacts-id',
+                    //         type: 'post',
+                    //         data: {
+                    //             contact_id: function() {
+                    //                 return $('#contact_id').val();
+                    //             },
+                    //             hidden_id: function() {
+                    //                 if ($('#hidden_id').length) {
+                    //                     return $('#hidden_id').val();
+                    //                 } else {
+                    //                     return '';
+                    //                 }
+                    //             },
+                    //         },
+                    //     },
+                    // },
                 },
                 messages: {
                     contact_id: {
-                        remote: LANG.contact_id_already_exists,
+                        remote: 'El documento del tercero ya existe',
                     },
                 },
                 submitHandler: function(form) {
@@ -702,6 +702,170 @@ $(document).ready(function() {
             }
         });
     });
+
+    $(document).on('change', '#department_id', function(e) {
+        e.preventDefault();
+
+        var optionSelected = $(this).find("option:selected");
+        var valueSelected  = optionSelected.val();
+
+
+        if (valueSelected) {
+            // Habilitar el select de estados
+            $('#municipality_id').prop('disabled', false);
+            
+            // Limpiar opciones actuales y agregar opción de carga
+            $('#municipality_id').empty().append('<option value="">Cargando...</option>');
+            var form = $(this);
+            var data = form.serialize();
+            
+            // Hacer la petición AJAX
+            $.ajax({
+                url: '/contacts/getMunicipalitiesByDepartmentId', // Reemplaza con tu endpoint real
+                type: 'POST',
+                dataType: 'json',
+                data: { department_id: valueSelected,data },
+                success: function(response) {
+                    // Limpiar y agregar opción por defecto
+                    $('#municipality_id').empty().append('<option value="">Seleccione un estado</option>');
+                    
+                    // Agregar las opciones devueltas por el servidor
+                    if (response.length > 0) {
+                        $.each(response, function(index, estado) {
+                            $('#municipality_id').append('<option value="' + estado.id + '">' + estado.name + '</option>');
+                        });
+                    } else {
+                        $('#municipality_id').append('<option value="">No hay estados disponibles</option>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    $('#municipality_id').empty().append('<option value="">Error al cargar estados</option>');
+                }
+            });
+        } else {
+            // Si no se seleccionó un país, deshabilitar y resetear el select de estados
+            $('#municipality_id').prop('disabled', true).empty().append('<option value="">Seleccione primero un país</option>');
+        }
+    });
+
+    $(document).on('click', '#search_contact_id', function(e) {
+        e.preventDefault();
+        if(document.getElementById('contact_id').value != "" && document.getElementById('type_document_identification_id').value != "")
+        {
+
+            swal({
+                title: "Buscar empresas",
+                text: "Desea buscar esta empresa?",
+                icon: 'success',
+                buttons: true,
+                dangerMode: true,
+            }).then(willDelete => {
+                if (willDelete) {
+                    let nit = document.getElementById('contact_id').value
+                    let type_document_identification_id = document.getElementById('type_document_identification_id').value
+                    
+
+                    const myHeaders = new Headers();
+                    myHeaders.append("Accept", "application/json");
+                    myHeaders.append("Content-Type", "application/json");
+                    myHeaders.append("Authorization", "Bearer 7f67fbba91001812c960d792bab0ea8005d349dc440f0bc60e9100337ab2750d");
+
+                    const raw = JSON.stringify({
+                    // "rues": true,
+                    "identification_number": nit,
+                    "type_document_identification_id": type_document_identification_id
+                    });
+
+                    const requestOptions = {
+                    method: "POST",
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: "follow"
+                    };
+
+                    fetch("https://api.nextpyme.plus/api/ubl2.1/rut-rues", requestOptions)
+                    .then((response) => response.json())
+                    .then((result) => {
+                        if(result.success == true){
+                            //limpiar campos
+                            document.getElementById('first_name').value = ''
+                            document.getElementById('dv').value = ''
+                            document.getElementById('last_name').value = ''
+                            document.getElementById('supplier_business_name').value = ''
+                            document.getElementById('email').value = ''
+
+                            /** ================= */
+                            document.getElementById('department_id').value = result.data.department_id;
+                            document.getElementById('municipality_id').value = result.data.municipality_id;
+                            document.getElementById('address_line_1').value = result.data.address;
+                            document.getElementById('email').value = result.data.email;
+                            document.getElementById('dv').textContent = result.data.dv;
+                            (result.data.email)  ? document.getElementById('email').style.borderColor = "#00cdee" : "";
+
+                            if(type_document_identification_id != "6")
+                            {
+                                const resultado = separarNombresApellidos(result.data.bussinnes_name);
+                                document.getElementById('first_name').value = resultado.primerNombre+" "+resultado.segundoNombre;
+                                (resultado.primerApellido)  ? document.getElementById('first_name').style.borderColor = "#00cdee" : "";
+                                document.getElementById('last_name').value = resultado.primerApellido+" "+resultado.segundoApellido;
+                                (resultado.primerApellido)  ? document.getElementById('last_name').style.borderColor = "#00cdee" : "";
+                                document.getElementById('inlineRadio1').click();
+                            }else{
+                                document.getElementById('supplier_business_name').value = result.data.bussinnes_name;
+                                (result.data.bussinnes_name)  ? document.getElementById('supplier_business_name').style.borderColor = "#00cdee" : "";
+                                document.getElementById('inlineRadio2').click();
+                            }
+
+
+                        }else{
+
+                            toastr.error(result.message);  
+                        }
+                    })
+                    .catch((error) => console.error(error));
+                    
+
+                }
+            });
+        }else{
+            toastr.error('Los campos tipo de documento y/o nit deben ser proporcionados para consultar'); 
+        }
+
+    });
+
+    function separarNombresApellidos(nombreCompleto) {
+        const partes = nombreCompleto.trim().split(/\s+/); // divide por espacios múltiples
+        const cantidad = partes.length;
+
+        let primerNombre = null;
+        let segundoNombre = null;
+        let primerApellido = null;
+        let segundoApellido = null;
+
+        if (cantidad === 4) {
+            [primerNombre, segundoNombre, primerApellido, segundoApellido] = partes;
+        } else if (cantidad === 3) {
+            [primerNombre, segundoNombre, primerApellido] = partes;
+        } else if (cantidad === 2) {
+            [primerNombre, primerApellido] = partes;
+        } else if (cantidad === 1) {
+            primerNombre = partes[0];
+        } else if (cantidad > 4) {
+            // Asumimos los dos primeros son nombres, los últimos dos son apellidos
+            primerNombre = partes[0];
+            segundoNombre = partes[1];
+            primerApellido = partes[partes.length - 2];
+            segundoApellido = partes[partes.length - 1];
+        }
+
+        return {
+            primerNombre,
+            segundoNombre,
+            primerApellido,
+            segundoApellido
+        };
+    }
 
     //Start: CRUD for product variations
     //Variations table

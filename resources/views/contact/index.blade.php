@@ -278,6 +278,7 @@
                                 </td>
                                 <td class="footer_contact_due"></td>
                                 <td class="footer_contact_return_due"></td>
+                                {{-- <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -287,8 +288,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
-                                <td></td>
+                                <td></td> --}}
                             </tr>
                         </tfoot>
                     </table>

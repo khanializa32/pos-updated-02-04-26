@@ -174,7 +174,7 @@ return [
     'search_product' => 'Buscar Producto',
     'product_sell_report' => 'Informe de Ventas',
     'unit_sale_price' => 'Precio Unitario',
-    'contact_id' => 'NIT /CC',
+    'contact_id' => 'NIT',//modificado
     'category_code_help' => 'El código de categoría es el mismo que el <b> código HSN </b>',
     'sub_heading_line' => 'Linea de la subtitulo :_number_', /* modified */
     'date_label' => 'Etiqueta de fecha',

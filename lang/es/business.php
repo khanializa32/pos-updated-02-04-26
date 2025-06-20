@@ -2,7 +2,7 @@
 
  return [
      'register_and_get_started_in_minutes' => 'Registrarse y Comience en Minutos',
-     'business_name' => 'Empresa', /* modified */
+     'business_name' => 'Razón Social', /* modified */
      'start_date' => 'Fecha de Inicio',
      'currency' => 'Moneda',
      'currency_placeholder' => 'Seleccione el tipo de moneda',

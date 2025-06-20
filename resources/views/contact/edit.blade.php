@@ -28,7 +28,7 @@
 
       <div class="row">
 
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="form-group">
               {!! Form::label('type', __('contact.contact_type') . ':*' ) !!}
               <div class="input-group">
@@ -39,7 +39,7 @@
               </div>
           </div>
         </div>
-        <div class="col-md-4 mt-15">
+        <div class="col-md-3">
             <label class="radio-inline">
                 <input type="radio" name="contact_type_radio" @if($contact->contact_type == 'individual') checked @endif id="inlineRadio1" value="individual">
                 @lang('lang_v1.individual')
@@ -49,21 +49,31 @@
                 @lang('business.business')
             </label>
         </div>
-        <div class="col-md-4">
-          <div class="form-group">
-              {!! Form::label('contact_id', __('lang_v1.contact_id') . ':') !!}
-              <div class="input-group">
-                  <span class="input-group-addon">
-                      <i class="fa fa-id-badge"></i>
-                  </span>
-                  <input type="hidden" id="hidden_id" value="{{$contact->id}}">
-                  {!! Form::text('contact_id', $contact->contact_id, ['class' => 'form-control','placeholder' => __('lang_v1.contact_id')]); !!}
-              </div>
-              <p class="help-block">
-                @lang('lang_v1.leave_empty_to_autogenerate')
-            </p>
-          </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                {!! Form::label('type_document_identification_id', __('Tipo de documento') . ':') !!}
+                {!! Form::select('type_document_identification_id', $type_document_identifications,$contact->type_document_identification_id, ['class' => 'form-control','id' => 'type_document_identification_id' ,'required']); !!}
+            </div>
         </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                {!! Form::label('contact_id', __('NIT') . ':*') !!}
+                <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
+                data-container="body" data-toggle="popover" data-placement="auto bottom" 
+                data-content="Digite el Numero de Identificacion, Persona natural o Juridica" data-html="true" data-trigger="hover"></i> 
+                <div class="input-group">
+                    
+                    {!! Form::text('contact_id', $contact->contact_id, ['class' => 'form-control','placeholder' => __('lang_v1.contact_id'), 'required']); !!}
+                    <span class="input-group-addon" >
+                        <b id="dv">{{ $contact->dv }}</b>
+                    </span>
+                    <span class="input-group-addon" style="cursor: pointer; background-color: #007bff; color: white;" id="search_contact_id">
+                        <i class="fa fa-search"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <div class="col-md-4 customer_fields">
           <div class="form-group">
               {!! Form::label('customer_group_id', __('lang_v1.customer_group') . ':') !!}
@@ -75,7 +85,7 @@
               </div>
           </div>
         </div>
-        <div class="clearfix customer_fields"></div>
+        {{-- <div class="clearfix customer_fields"></div> --}}
         <div class="col-md-4 business" @if($contact->contact_type == 'individual' || empty($contact->contact_type)) style="display: none;"  @endif>
           <div class="form-group">
               {!! Form::label('supplier_business_name', __('business.business_name') . ':') !!}
@@ -89,33 +99,33 @@
           </div>
         </div>
         <div class="clearfix"></div>
-        <div class="col-md-3 individual"  @if($contact->contact_type == 'business' || empty($contact->contact_type)) style="display: none;"  @endif>
+            {{-- <div class="col-md-3 individual"  @if($contact->contact_type == 'business' || empty($contact->contact_type)) style="display: none;"  @endif>
                 <div class="form-group">
                     {!! Form::label('prefix', __( 'business.prefix' ) . ':') !!}
                     {!! Form::text('prefix', $contact->prefix, ['class' => 'form-control', 'placeholder' => __( 'business.prefix_placeholder' ) ]); !!}
                 </div>
-            </div>
+            </div> --}}
             <div class="col-md-3 individual" @if($contact->contact_type == 'business' || empty($contact->contact_type)) style="display: none;"  @endif>
                 <div class="form-group">
                     {!! Form::label('first_name', __( 'business.first_name' ) . ':*') !!}
                     {!! Form::text('first_name', $contact->first_name, ['class' => 'form-control', 'required', 'placeholder' => __( 'business.first_name' ) ]); !!}
                 </div>
             </div>
-            <div class="col-md-3 individual" @if($contact->contact_type == 'business' || empty($contact->contact_type)) style="display: none;"  @endif>
+            {{-- <div class="col-md-3 individual" @if($contact->contact_type == 'business' || empty($contact->contact_type)) style="display: none;"  @endif>
                 <div class="form-group">
                     {!! Form::label('middle_name', __( 'lang_v1.middle_name' ) . ':') !!}
                     {!! Form::text('middle_name', $contact->middle_name, ['class' => 'form-control', 'placeholder' => __( 'lang_v1.middle_name' ) ]); !!}
                 </div>
-            </div>
+            </div> --}}
             <div class="col-md-3 individual" @if($contact->contact_type == 'business' || empty($contact->contact_type)) style="display: none;"  @endif>
                 <div class="form-group">
                     {!! Form::label('last_name', __( 'business.last_name' ) . ':') !!}
                     {!! Form::text('last_name', $contact->last_name, ['class' => 'form-control', 'placeholder' => __( 'business.last_name' ) ]); !!}
                 </div>
             </div>
-            <div class="clearfix"></div>
+            {{-- <div class="clearfix"></div> --}}
 
-      <div class="col-md-3">
+      <div class="col-md-4">
         <div class="form-group">
             {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
             <div class="input-group">
@@ -126,7 +136,7 @@
             </div>
         </div>
       </div>
-      <div class="col-md-3">
+      {{-- <div class="col-md-3">
         <div class="form-group">
             {!! Form::label('alternate_number', __('contact.alternate_contact_number') . ':') !!}
             <div class="input-group">
@@ -136,8 +146,8 @@
                 {!! Form::text('alternate_number', $contact->alternate_number, ['class' => 'form-control', 'placeholder' => __('contact.alternate_contact_number')]); !!}
             </div>
         </div>
-      </div>
-      <div class="col-md-3">
+      </div> --}}
+      {{-- <div class="col-md-3">
         <div class="form-group">
             {!! Form::label('landline', __('contact.landline') . ':') !!}
             <div class="input-group">
@@ -147,8 +157,8 @@
                 {!! Form::text('landline', $contact->landline, ['class' => 'form-control', 'placeholder' => __('contact.landline')]); !!}
             </div>
         </div>
-      </div>
-      <div class="col-md-3">
+      </div> --}}
+      <div class="col-md-4">
             <div class="form-group">
                 {!! Form::label('email', __('business.email') . ':') !!}
                 <div class="input-group">
@@ -159,6 +169,52 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="identification_number">Registro Mercatil:</label>
+                            <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-id-card"></i>
+                    </span>
+                    <input class="form-control" placeholder="Matricula"   type="text" id="registration_number" value="00000">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                {!! Form::label('type_regime_id', __('Tipo de régimen') . ':') !!}
+                {!! Form::select('type_regime_id', $type_regimes,$contact->type_regimen_id, ['class' => 'form-control','id'=>'type_regime_id']); !!}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                {!! Form::label('type_liability_id', __('Responsabilidad Tributaria') . ':') !!}
+                {!! Form::select('type_liability_id', $type_liabilities,$contact->type_liability_id, ['class' => 'form-control', 'id' => 'type_liability_id']); !!}
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="form-group">
+                {!! Form::label('department_id', __('Departamento') . ':') !!}
+                {!! Form::select('department_id', $departments,$contact->department_id, ['class' => 'form-control department_id','id'=>'department_id','placeholder' => __('Seleccione un departamento')]); !!}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                {!! Form::label('municipality_id', __('Municipio') . ':') !!}
+                {!! Form::select('municipality_id', $municipalities,$contact->municipality_id, ['class' => 'form-control']); !!}
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <div class="form-group">
+                {!! Form::label('address_line_1', 'Dirección:') !!}
+                {!! Form::text('address_line_1', $contact->address_line_1, ['class' => 'form-control', 'placeholder' => __('lang_v1.address_line_1'), 'rows' => 3]); !!}
+            </div>
+          </div>
 
         <div class="col-sm-4">
             <div class="form-group individual" @if($contact->contact_type == 'business') style="display: none;"  @endif>
@@ -282,24 +338,19 @@
           </div>
         </div>
           
-      <div class="col-md-12">
+      {{-- <div class="col-md-12">
         <hr/>
-      </div>
+      </div> --}}
       
-      <div class="col-md-6">
-        <div class="form-group">
-            {!! Form::label('address_line_1', __('lang_v1.address_line_1') . ':') !!}
-            {!! Form::text('address_line_1', $contact->address_line_1, ['class' => 'form-control', 'placeholder' => __('lang_v1.address_line_1'), 'rows' => 3]); !!}
-        </div>
-      </div>
-      <div class="col-md-6">
+      
+      {{-- <div class="col-md-6">
         <div class="form-group">
             {!! Form::label('address_line_2', __('lang_v1.address_line_2') . ':') !!}
             {!! Form::text('address_line_2', $contact->address_line_2, ['class' => 'form-control', 
                 'placeholder' => __('lang_v1.address_line_2'), 'rows' => 3]); !!}
         </div>
-      </div>
-      <div class="clearfix"></div>
+      </div> --}}
+      {{-- <div class="clearfix"></div>
       <div class="col-md-3">
         <div class="form-group">
             {!! Form::label('city', __('business.city') . ':') !!}
@@ -348,21 +399,21 @@
       <div class="clearfix"></div>
       <div class="col-md-12">
         <hr/>
-      </div>
+      </div> --}}
       @php
-        $custom_labels = json_decode(session('business.custom_labels'), true);
-        $contact_custom_field1 = !empty($custom_labels['contact']['custom_field_1']) ? $custom_labels['contact']['custom_field_1'] : __('lang_v1.contact_custom_field1');
-        $contact_custom_field2 = !empty($custom_labels['contact']['custom_field_2']) ? $custom_labels['contact']['custom_field_2'] : __('lang_v1.contact_custom_field2');
-        $contact_custom_field3 = !empty($custom_labels['contact']['custom_field_3']) ? $custom_labels['contact']['custom_field_3'] : __('lang_v1.contact_custom_field3');
-        $contact_custom_field4 = !empty($custom_labels['contact']['custom_field_4']) ? $custom_labels['contact']['custom_field_4'] : __('lang_v1.contact_custom_field4');
-        $contact_custom_field5 = !empty($custom_labels['contact']['custom_field_5']) ? $custom_labels['contact']['custom_field_5'] : __('lang_v1.custom_field', ['number' => 5]);
-        $contact_custom_field6 = !empty($custom_labels['contact']['custom_field_6']) ? $custom_labels['contact']['custom_field_6'] : __('lang_v1.custom_field', ['number' => 6]);
-        $contact_custom_field7 = !empty($custom_labels['contact']['custom_field_7']) ? $custom_labels['contact']['custom_field_7'] : __('lang_v1.custom_field', ['number' => 7]);
-        $contact_custom_field8 = !empty($custom_labels['contact']['custom_field_8']) ? $custom_labels['contact']['custom_field_8'] : __('lang_v1.custom_field', ['number' => 8]);
-        $contact_custom_field9 = !empty($custom_labels['contact']['custom_field_9']) ? $custom_labels['contact']['custom_field_9'] : __('lang_v1.custom_field', ['number' => 9]);
-        $contact_custom_field10 = !empty($custom_labels['contact']['custom_field_10']) ? $custom_labels['contact']['custom_field_10'] : __('lang_v1.custom_field', ['number' => 10]);
+        // $custom_labels = json_decode(session('business.custom_labels'), true);
+        // $contact_custom_field1 = !empty($custom_labels['contact']['custom_field_1']) ? $custom_labels['contact']['custom_field_1'] : __('lang_v1.contact_custom_field1');
+        // $contact_custom_field2 = !empty($custom_labels['contact']['custom_field_2']) ? $custom_labels['contact']['custom_field_2'] : __('lang_v1.contact_custom_field2');
+        // $contact_custom_field3 = !empty($custom_labels['contact']['custom_field_3']) ? $custom_labels['contact']['custom_field_3'] : __('lang_v1.contact_custom_field3');
+        // $contact_custom_field4 = !empty($custom_labels['contact']['custom_field_4']) ? $custom_labels['contact']['custom_field_4'] : __('lang_v1.contact_custom_field4');
+        // $contact_custom_field5 = !empty($custom_labels['contact']['custom_field_5']) ? $custom_labels['contact']['custom_field_5'] : __('lang_v1.custom_field', ['number' => 5]);
+        // $contact_custom_field6 = !empty($custom_labels['contact']['custom_field_6']) ? $custom_labels['contact']['custom_field_6'] : __('lang_v1.custom_field', ['number' => 6]);
+        // $contact_custom_field7 = !empty($custom_labels['contact']['custom_field_7']) ? $custom_labels['contact']['custom_field_7'] : __('lang_v1.custom_field', ['number' => 7]);
+        // $contact_custom_field8 = !empty($custom_labels['contact']['custom_field_8']) ? $custom_labels['contact']['custom_field_8'] : __('lang_v1.custom_field', ['number' => 8]);
+        // $contact_custom_field9 = !empty($custom_labels['contact']['custom_field_9']) ? $custom_labels['contact']['custom_field_9'] : __('lang_v1.custom_field', ['number' => 9]);
+        // $contact_custom_field10 = !empty($custom_labels['contact']['custom_field_10']) ? $custom_labels['contact']['custom_field_10'] : __('lang_v1.custom_field', ['number' => 10]);
       @endphp
-      <div class="col-md-3">
+      {{-- <div class="col-md-3">
         <div class="form-group">
             {!! Form::label('custom_field1', $contact_custom_field1 . ':') !!}
             {!! Form::text('custom_field1', $contact->custom_field1, ['class' => 'form-control', 
@@ -431,7 +482,7 @@
             {!! Form::text('custom_field10', $contact->custom_field10, ['class' => 'form-control', 
                 'placeholder' => $contact_custom_field10]); !!}
         </div>
-      </div>
+      </div> --}}
       <div class="clearfix"></div>
       <div class="col-md-12 shipping_addr_div"><hr></div>
       <div class="col-md-8 col-md-offset-2 shipping_addr_div mb-10" >
@@ -442,18 +493,18 @@
       </div>
       {!! Form::hidden('position', $contact->position, ['id' => 'position']); !!}
         @php
-            $shipping_custom_label_1 = !empty($custom_labels['shipping']['custom_field_1']) ? $custom_labels['shipping']['custom_field_1'] : '';
+            // $shipping_custom_label_1 = !empty($custom_labels['shipping']['custom_field_1']) ? $custom_labels['shipping']['custom_field_1'] : '';
 
-            $shipping_custom_label_2 = !empty($custom_labels['shipping']['custom_field_2']) ? $custom_labels['shipping']['custom_field_2'] : '';
+            // $shipping_custom_label_2 = !empty($custom_labels['shipping']['custom_field_2']) ? $custom_labels['shipping']['custom_field_2'] : '';
 
-            $shipping_custom_label_3 = !empty($custom_labels['shipping']['custom_field_3']) ? $custom_labels['shipping']['custom_field_3'] : '';
+            // $shipping_custom_label_3 = !empty($custom_labels['shipping']['custom_field_3']) ? $custom_labels['shipping']['custom_field_3'] : '';
 
-            $shipping_custom_label_4 = !empty($custom_labels['shipping']['custom_field_4']) ? $custom_labels['shipping']['custom_field_4'] : '';
+            // $shipping_custom_label_4 = !empty($custom_labels['shipping']['custom_field_4']) ? $custom_labels['shipping']['custom_field_4'] : '';
 
-            $shipping_custom_label_5 = !empty($custom_labels['shipping']['custom_field_5']) ? $custom_labels['shipping']['custom_field_5'] : '';
+            // $shipping_custom_label_5 = !empty($custom_labels['shipping']['custom_field_5']) ? $custom_labels['shipping']['custom_field_5'] : '';
         @endphp
 
-        @if(!empty($custom_labels['shipping']['is_custom_field_1_contact_default']) && !empty($shipping_custom_label_1))
+        {{-- @if(!empty($custom_labels['shipping']['is_custom_field_1_contact_default']) && !empty($shipping_custom_label_1))
             @php
                 $label_1 = $shipping_custom_label_1 . ':';
             @endphp
@@ -512,7 +563,7 @@
                     {!! Form::text('shipping_custom_field_details[shipping_custom_field_5]', !empty($contact->shipping_custom_field_details['shipping_custom_field_5']) ? $contact->shipping_custom_field_details['shipping_custom_field_5'] : null, ['class' => 'form-control','placeholder' => $shipping_custom_label_5]); !!}
                 </div>
             </div>
-        @endif
+        @endif --}}
         @php
           $common_settings = session()->get('business.common_settings');
         @endphp

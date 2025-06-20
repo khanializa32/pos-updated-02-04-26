@@ -6,6 +6,7 @@ use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\CustomerGroup;
+use App\Department;
 use App\Notifications\CustomerNotification;
 use App\PurchaseLine;
 use App\Transaction;
@@ -22,6 +23,10 @@ use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\ContactCreatedOrModified;
+use App\Municipality;
+use App\TypeDocumentIdentification;
+use App\TypeLiability;
+use App\TypeRegime;
 
 class ContactController extends Controller
 {
@@ -568,11 +573,65 @@ class ContactController extends Controller
 
         $module_form_parts = $this->moduleUtil->getModuleData('contact_form_part');
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        // $municipalities = municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+
         //Added check because $users is of no use if enable_contact_assign if false
         $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
 
         return view('contact.create')
-            ->with(compact('types', 'customer_groups', 'selected_type', 'module_form_parts', 'users'));
+            ->with(compact('types', 'customer_groups', 'selected_type', 'module_form_parts', 'users', 'type_document_identifications', 'departments', 'type_regimes', 'type_liabilities'));
+    }
+
+    public function getMunicipalitiesByDepartmentId(Request $request)
+    {
+        try {
+            $municipalities = Municipality::where('department_id',$request->department_id)->get();
+            return json_encode($municipalities);
+        } catch (\Throwable $th) {
+            return json_encode($th->getMessage());
+        }
+    }
+
+    private function calcularDigitoVerificacion($myNit) {
+        $vpri = array();
+        $x = 0;
+        $y = 0;
+        $z = 0;
+
+        $myNit = str_replace(array(" ", ",", ".", "-"), "", $myNit);
+
+        if (!is_numeric($myNit)) { return false; }
+
+        $vpri[1] = 3;
+        $vpri[2] = 7;
+        $vpri[3] = 13;
+        $vpri[4] = 17;
+        $vpri[5] = 19;
+        $vpri[6] = 23;
+        $vpri[7] = 29;
+        $vpri[8] = 37;
+        $vpri[9] = 41;
+        $vpri[10] = 43;
+        $vpri[11] = 47;
+        $vpri[12] = 53;
+        $vpri[13] = 59;
+        $vpri[14] = 67;
+        $vpri[15] = 71;
+    
+        $z = strlen($myNit);
+        $x = 0;
+    
+        for ($i = 0; $i < $z; $i++) {
+            $y = substr($myNit, $i, 1);
+            $x += $y * $vpri[$z - $i];
+        }
+        $y = $x % 11;
+        return ($y > 1) ? 11 - $y : $y;
     }
 
     /**
@@ -594,25 +653,30 @@ class ContactController extends Controller
                 return $this->moduleUtil->expiredResponse();
             }
 
-            $input = $request->only(['type', 'supplier_business_name',
-                'prefix', 'first_name', 'middle_name', 'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'address_line_1', 'address_line_2', 'customer_group_id', 'zip_code', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'custom_field5', 'custom_field6', 'custom_field7', 'custom_field8', 'custom_field9', 'custom_field10', 'email', 'shipping_address', 'position', 'dob', 'shipping_custom_field_details', 'assigned_to_users', ]);
+            $input = $request->only(['type', 'supplier_business_name','department_id','municipality_id','country_id','type_document_identification_id','type_regime_id','merchant_registration','liability_id',
+                 'first_name',  'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'landline', 'alternate_number', 'city', 'state', 'country', 'address_line_1', 'address_line_2', 'customer_group_id', 'zip_code', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'custom_field5', 'custom_field6', 'custom_field7', 'custom_field8', 'custom_field9', 'custom_field10', 'email', 'shipping_address', 'position', 'dob', 'shipping_custom_field_details', 'assigned_to_users', ]);
 
             $name_array = [];
 
-            if (! empty($input['prefix'])) {
-                $name_array[] = $input['prefix'];
-            }
+            // if (! empty($input['prefix'])) {
+            //     $name_array[] = $input['prefix'];
+            // }
             if (! empty($input['first_name'])) {
                 $name_array[] = $input['first_name'];
             }
-            if (! empty($input['middle_name'])) {
-                $name_array[] = $input['middle_name'];
-            }
+            // if (! empty($input['middle_name'])) {
+            //     $name_array[] = $input['middle_name'];
+            // }
             if (! empty($input['last_name'])) {
                 $name_array[] = $input['last_name'];
             }
 
             $input['contact_type'] = $request->input('contact_type_radio');
+
+            $input['dv'] = $this->calcularDigitoVerificacion($input['contact_id']);
+            $input['country'] = 'Colombia';
+            $input['state'] = $input['department_id'] ? Department::find($input['department_id'])->name : null;
+            $input['city'] = $input['municipality_id'] ? Municipality::find($input['municipality_id'])->name : null;
 
             $input['name'] = trim(implode(' ', $name_array));
 
@@ -764,8 +828,14 @@ class ContactController extends Controller
             //Added check because $users is of no use if enable_contact_assign if false
             $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
 
+            $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+            // $countries = Country::pluck('name','id');
+            $departments = Department::pluck('name','id');
+            $municipalities = municipality::pluck('name','id');
+            $type_regimes = TypeRegime::pluck('name','id');
+            $type_liabilities = TypeLiability::pluck('name','id');
             return view('contact.edit')
-                ->with(compact('contact', 'types', 'customer_groups', 'opening_balance', 'users'));
+                ->with(compact('contact', 'types', 'customer_groups', 'opening_balance', 'users','municipalities','type_document_identifications', 'departments', 'type_regimes', 'type_liabilities'));
         }
     }
 
@@ -784,35 +854,38 @@ class ContactController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['type', 'supplier_business_name', 'prefix', 'first_name', 'middle_name', 'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'address_line_1', 'address_line_2', 'zip_code', 'dob', 'alternate_number', 'city', 'state', 'country', 'landline', 'customer_group_id', 'contact_id', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'custom_field5', 'custom_field6', 'custom_field7', 'custom_field8', 'custom_field9', 'custom_field10', 'email', 'shipping_address', 'position', 'shipping_custom_field_details', 'export_custom_field_1', 'export_custom_field_2', 'export_custom_field_3', 'export_custom_field_4', 'export_custom_field_5',
+                $input = $request->only(['department_id','municipality_id','country_id','type_document_identification_id','type_regime_id','merchant_registration','liability_id','type', 'supplier_business_name',  'first_name',  'last_name', 'tax_number', 'pay_term_number', 'pay_term_type', 'mobile', 'address_line_1', 'zip_code', 'dob', 'alternate_number', 'city', 'state', 'country', 'landline', 'customer_group_id', 'contact_id', 'email', 'shipping_address', 'position', 'shipping_custom_field_details', 'export_custom_field_1', 'export_custom_field_2', 'export_custom_field_3', 'export_custom_field_4', 'export_custom_field_5',
                     'export_custom_field_6', 'assigned_to_users', ]);
 
                 $name_array = [];
 
-                if (! empty($input['prefix'])) {
-                    $name_array[] = $input['prefix'];
-                }
+                // if (! empty($input['prefix'])) {
+                //     $name_array[] = $input['prefix'];
+                // }
                 if (! empty($input['first_name'])) {
                     $name_array[] = $input['first_name'];
                 }
-                if (! empty($input['middle_name'])) {
-                    $name_array[] = $input['middle_name'];
-                }
+                // if (! empty($input['middle_name'])) {
+                //     $name_array[] = $input['middle_name'];
+                // }
                 if (! empty($input['last_name'])) {
                     $name_array[] = $input['last_name'];
                 }
 
                 $input['contact_type'] = $request->input('contact_type_radio');
 
-
+                $input['dv'] = $this->calcularDigitoVerificacion($input['contact_id']);
+                $input['country'] = 'Colombia';
+                $input['state'] = $input['department_id'] ? Department::find($input['department_id'])->name : null;
+                $input['city'] = $input['municipality_id'] ? Municipality::find($input['municipality_id'])->name : null;
 
                 $input['name'] = trim(implode(' ', $name_array));
 
                 $input['is_export'] = ! empty($request->input('is_export')) ? 1 : 0;
 
-                if (! $input['is_export']) {
-                    unset($input['export_custom_field_1'], $input['export_custom_field_2'], $input['export_custom_field_3'], $input['export_custom_field_4'], $input['export_custom_field_5'], $input['export_custom_field_6']);
-                }
+                // if (! $input['is_export']) {
+                //     unset($input['export_custom_field_1'], $input['export_custom_field_2'], $input['export_custom_field_3'], $input['export_custom_field_4'], $input['export_custom_field_5'], $input['export_custom_field_6']);
+                // }
 
                 if (! empty($input['dob'])) {
                     $input['dob'] = $this->commonUtil->uf_date($input['dob']);
@@ -838,6 +911,7 @@ class ContactController extends Controller
 
                 $output = ['success' => false,
                     'msg' => __('messages.something_went_wrong'),
+                    'err' =>$e->getMessage()
                 ];
             }
 

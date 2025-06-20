@@ -152,6 +152,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/contacts/check-contacts-id', [ContactController::class, 'checkContactId']);
     Route::get('/contacts/customers', [ContactController::class, 'getCustomers']);
     Route::resource('contacts', ContactController::class);
+    Route::post('/contacts/getMunicipalitiesByDepartmentId', [ContactController::class, 'getMunicipalitiesByDepartmentId']);
+
+    // Route::get('/departments', [ContactController::class, 'departmets'])->name('departmets.index');
+    // Route::get('/departments/{id}/municipality', [ContactController::class, 'municipalityByDepartment'])->name('departmets.municipality');
 
     Route::get('taxonomies-ajax-index-page', [TaxonomyController::class, 'getTaxonomyIndexPage']);
     Route::resource('taxonomies', TaxonomyController::class);

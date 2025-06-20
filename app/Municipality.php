@@ -13,7 +13,7 @@ class Municipality extends Model
         'department_id', 'name', 'code', 'codefacturador',
     ];
 
-    protected $with = [
-        'department',
-    ];
+    // protected $with = [
+    //     'department',
+    // ];
 }
