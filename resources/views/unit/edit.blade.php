@@ -21,6 +21,11 @@
         </div>
 
         <div class="form-group col-sm-12">
+          {!! Form::label('code_dian','Código DIAN:*') !!}
+          {!! Form::text('code_dian', $unit->code_dian, ['class' => 'form-control', 'disabled', 'required']); !!}
+        </div>
+
+        <div class="form-group col-sm-12">
           {!! Form::label('allow_decimal', __( 'unit.allow_decimal' ) . ':*') !!}
             {!! Form::select('allow_decimal', ['1' => __('messages.yes'), '0' => __('messages.no')], $unit->allow_decimal, ['placeholder' => __( 'messages.please_select' ), 'required', 'class' => 'form-control']); !!}
         </div>

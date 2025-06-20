@@ -76,6 +76,7 @@
                             <tr>
                                 <th>@lang('unit.name')</th>
                                 <th>@lang('unit.short_name')</th>
+                                <th>Dian</th>
                                 <th>@lang('unit.allow_decimal') @show_tooltip(__('tooltip.unit_allow_decimal'))</th>
                                 <th>@lang('messages.action')</th>
                             </tr>

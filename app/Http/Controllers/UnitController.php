@@ -42,7 +42,7 @@ class UnitController extends Controller
 
             $unit = Unit::where('business_id', $business_id)
                         ->with(['base_unit'])
-                        ->select(['actual_name', 'short_name', 'allow_decimal', 'id',
+                        ->select(['actual_name', 'short_name','code_dian', 'allow_decimal', 'id',
                             'base_unit_id', 'base_unit_multiplier', ]);
 
             return Datatables::of($unit)
@@ -115,7 +115,7 @@ class UnitController extends Controller
         }
 
         try {
-            $input = $request->only(['actual_name', 'short_name', 'allow_decimal']);
+            $input = $request->only(['actual_name', 'short_name', 'allow_decimal','code_dian']);
             $input['business_id'] = $request->session()->get('user.business_id');
             $input['created_by'] = $request->session()->get('user.id');
 
@@ -194,12 +194,13 @@ class UnitController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['actual_name', 'short_name', 'allow_decimal']);
+                $input = $request->only(['actual_name', 'short_name', 'allow_decimal','code_dian']);
                 $business_id = $request->session()->get('user.business_id');
 
                 $unit = Unit::where('business_id', $business_id)->findOrFail($id);
                 $unit->actual_name = $input['actual_name'];
                 $unit->short_name = $input['short_name'];
+                $unit->code_dian = $input['code_dian'];
                 $unit->allow_decimal = $input['allow_decimal'];
                 if ($request->has('define_base_unit')) {
                     if (! empty($request->input('base_unit_id')) && ! empty($request->input('base_unit_multiplier'))) {

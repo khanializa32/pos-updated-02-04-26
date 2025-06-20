@@ -19,6 +19,11 @@
           {!! Form::label('short_name', __( 'unit.short_name' ) . ':*') !!}
             {!! Form::text('short_name', null, ['class' => 'form-control', 'placeholder' => __( 'unit.short_name' ), 'required']); !!}
         </div>
+        
+        <div class="form-group col-sm-12">
+          {!! Form::label('code_dian','Código DIAN:*') !!}
+            {!! Form::text('code_dian', null, ['class' => 'form-control', 'disabled', 'required']); !!}
+        </div>
 
         <div class="form-group col-sm-12">
           {!! Form::label('allow_decimal', __( 'unit.allow_decimal' ) . ':*') !!}
