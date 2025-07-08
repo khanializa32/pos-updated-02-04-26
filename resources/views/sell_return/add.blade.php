@@ -121,16 +121,34 @@
 				$discount_type = !empty($sell->return_parent->discount_type) ? $sell->return_parent->discount_type : $sell->discount_type;
 				$discount_amount = !empty($sell->return_parent->discount_amount) ? $sell->return_parent->discount_amount : $sell->discount_amount;
 				@endphp
-				<div class="col-sm-4">
+				<div class="col-sm-3">
 					<div class="form-group">
 						{!! Form::label('discount_type', __( 'purchase.discount_type' ) . ':') !!}
 						{!! Form::select('discount_type', [ '' => __('lang_v1.none'), 'fixed' => __( 'lang_v1.fixed' ), 'percentage' => __( 'lang_v1.percentage' )], $discount_type, ['class' => 'form-control']); !!}
 					</div>
 				</div>
-				<div class="col-sm-4">
+				<div class="col-sm-3">
 					<div class="form-group">
 						{!! Form::label('discount_amount', __( 'purchase.discount_amount' ) . ':') !!}
 						{!! Form::text('discount_amount', @num_format($discount_amount), ['class' => 'form-control input_number']); !!}
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="form-group">
+						{!! Form::label('discrepancyresponsecode', __( 'Motivo de rechazo' ) . ':') !!}
+						{!! Form::select('discrepancyresponsecode', [ 
+							1 => 'Devolución parcial de los bienes y/o no aceptación parcial del servicio', 
+							2 => 'Anulación de factura electrónica', 
+							3 => 'Rebaja o descuento parcial o total',
+							4 => 'Ajuste de precio',
+							5 => 'Otros'
+							],$sell->discrepancyresponsecode, ['class' => 'form-control','required']); !!}
+					</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="form-group">
+						{!! Form::label('discrepancyresponsedescription', __( 'Descripción del rechazo' ) . ':') !!}
+						{!! Form::text('discrepancyresponsedescription', $sell->discrepancyresponsedescription, ['class' => 'form-control','required']); !!}
 					</div>
 				</div>
 			</div>

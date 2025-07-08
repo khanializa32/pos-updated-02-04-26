@@ -11,12 +11,14 @@
         <h4>@lang('lang_v1.sell_return_details'):</h4>
         <strong>@lang('lang_v1.return_date'):</strong> {{@format_date($sell->return_parent->transaction_date)}}<br>
         <strong>@lang('contact.customer'):</strong> {{ $sell->contact->name }} <br>
-        <strong>@lang('purchase.business_location'):</strong> {{ $sell->location->name }}
+        <strong>@lang('purchase.business_location'):</strong> {{ $sell->location->name }}<br>
+        <strong>Regla DIAN:</strong> {{ $sell->return_parent->status_code }} - <span class="text-warning">{{ $sell->return_parent->rules }}</span><br>
       </div>
       <div class="col-sm-6 col-xs-6">
         <h4>@lang('lang_v1.sell_details'):</h4>
         <strong>@lang('sale.invoice_no'):</strong> {{ $sell->invoice_no }} <br>
-        <strong>@lang('messages.date'):</strong> {{@format_date($sell->transaction_date)}}
+        <strong>@lang('messages.date'):</strong> {{@format_date($sell->transaction_date)}}<br>
+        <strong>Cude:</strong> {{$sell->cufe}}
       </div>
     </div>
     <br>

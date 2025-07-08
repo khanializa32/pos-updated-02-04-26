@@ -34,6 +34,7 @@ use App\BusinessLocation;
 use App\Category;
 use App\Contact;
 use App\CustomerGroup;
+use App\Department;
 use App\InvoiceLayout;
 use App\InvoiceScheme;
 use App\Media;
@@ -63,6 +64,12 @@ use Stripe\Charge;
 use Stripe\Stripe;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\SellCreatedOrModified;
+
+// use App\Services\DianService;
+use App\TypeDocumentIdentification;
+use App\TypeLiability;
+use App\TypeRegime;
+use App\Services\DianService as UtilsDianService;
 
 class SellPosController extends Controller
 {
@@ -261,8 +268,19 @@ class SellPosController extends Controller
         //Added check because $users is of no use if enable_contact_assign if false
         $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        // $municipalities = municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+        
         return view('sale_pos.create')
             ->with(compact(
+                'type_document_identifications',
+                'departments',
+                'type_regimes',
+                'type_liabilities',
                 'edit_discount',
                 'edit_price',
                 'business_locations',
@@ -295,6 +313,27 @@ class SellPosController extends Controller
                 'invoice_layouts',
                 'users',
             ));
+    }
+
+    private function convert_numeric($number)
+    {
+        return  str_replace(',', '', $number);
+    }
+
+    private function tax($number,$percent)
+    {
+        $base = 1000;
+        // $porcentaje = 19;
+        $factor = 1 + ($percent / 100);
+
+        $resultado = $number * $factor;
+
+        return  $resultado - $number;
+    }
+
+    private function round_number($valor) {
+        
+        return round($valor,2);
     }
 
     /**
@@ -604,7 +643,10 @@ class SellPosController extends Controller
                 }
 
                 $msg = trans('sale.pos_sale_added');
+                $msg = '';
                 $receipt = '';
+                $message = null;
+                $response = null;
                 $invoice_layout_id = $request->input('invoice_layout_id');
                 $print_invoice = false;
                 if (!$is_direct_sale) {
@@ -617,8 +659,76 @@ class SellPosController extends Controller
                         }
                     } elseif ($input['status'] == 'final') {
                         $print_invoice = true;
+
+                        // dd($request->invoice_scheme_id	);
+
+                        // Llamar al servicio para enviar la factura
+                        if($request->invoice_scheme_id	 != ''){
+                            $invoice_scheme = InvoiceScheme::where('id',$request->invoice_scheme_id	)->where('business_id',$business_id)->first();
+
+                        }else{
+                            $invoice_scheme = InvoiceScheme::where('is_default',1)->where('business_id',$business_id)->first();
+                            
+                        }
+
+                        if($invoice_scheme->is_fe == 'si'){
+                            $DianService = new UtilsDianService();
+                            if($invoice_scheme->type_document_id == 1)
+                            {
+                                $response = $DianService->send_invoice(
+                                    $invoice_scheme->id, 
+                                    $business_id, 
+                                    $contact_id, 
+                                    $input, $transaction
+                                );
+                                
+                            }elseif($invoice_scheme->type_document_id == 15){
+                                // $response = $invoiceService->send_epos($invoice_scheme->id, $business_id, $contact_id, $input, $transaction);
+    
+                            }else{
+                                $response = null;
+                            }
+                            // dd($response);
+    
+                            // if($response['success'] == true)
+                            // {
+                            //     $message = $response['response'];
+                            //     dd($message);
+                            // }else{
+                            //     if(isset($response['msg']))
+                            //     {
+                            //         if(  $response['msg'] == 'The given data was invalid.')
+                            //         {
+                                        
+                            //             foreach ($response['ErrorMessage'] as $field => $msgArray) {
+                            //                 $message .= "*".$msgArray[0]."<br>"; // Captura el primer mensaje
+                            //             }
+                            //         }
+                                    
+                            //     }
+                            //     $message = $response['msg'].' '.$message;
+                            // }
+
+                            $output = [
+                                'success' => 1, 
+                                // 'msg' => $msg, 
+                                'msg' => ($response) ? $response : $msg, 
+                                // 'msg_error_dian' => $response_invoice['ErrorMessage'], 
+                                'invoice' => ($response) ? $response : '' , 
+                                'receipt' => $receipt,
+                                // 'input_curl'=> $data, 
+                                // 'response' => $respuesta['errors']
+                            ];
+    
+                            
+                           
+                        }else{
+                            $response = null;
+                        }
                     }
                 }
+
+
 
                 if ($transaction->is_suspend == 1 && empty($pos_settings['print_on_suspend'])) {
                     $print_invoice = false;
@@ -656,6 +766,9 @@ class SellPosController extends Controller
 
             $output = ['success' => 0,
                 'msg' => $msg,
+                'error' => $e->getMessage(),
+                'error_line' => $e->getLine(),
+                'error_file' => $e->getFile(),
             ];
         }
 

@@ -7,13 +7,18 @@ use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\CustomerGroup;
+use App\Department;
 use App\InvoiceScheme;
 use App\Media;
+use App\Municipality;
 use App\Product;
 use App\SellingPriceGroup;
 use App\TaxRate;
 use App\Transaction;
 use App\TransactionSellLine;
+use App\TypeDocumentIdentification;
+use App\TypeLiability;
+use App\TypeRegime;
 use App\TypesOfService;
 use App\Variation;
 use App\User;
@@ -26,6 +31,7 @@ use App\Warranty;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -363,7 +369,13 @@ class SellController extends Controller
                         if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
                             $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> '.__('messages.view').'</a></li>';
                         }
-                        if (! $only_shipments) {
+                        if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
+                            if($row->e_invoice == 'si')
+                            {
+                                $html .= '<li><a href="'.route('resend',$row->id).'"   ><i class="fas fa-paper-plane" ></i> '.__('Reenviar correo').'</a></li>';
+                            }
+                        }
+                        if (! $only_shipments && $row->is_valid !=true) {
                             if ($row->is_direct_sale == 0) {
                                 if (auth()->user()->can('sell.update')) {
                                     $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
@@ -509,6 +521,20 @@ class SellController extends Controller
 
                     return $total_remaining_html;
                 })
+                ->addColumn('is_valid', function ($row) {
+                    if($row->is_valid == 1 && $row->e_invoice == 'si')
+                    {
+                        // $is_valid = '<img src="'.asset('assets/images/d3pos/logoDian.webp').'" style="max-width:3rem;"/>';
+                        $is_valid = '<span style="color:#009166;font-weight:bolder;">Enviado</span>';
+                    }else if($row->is_valid == 0 && $row->e_invoice == 'si'){
+                        // $is_valid = '<span style="color:#cf2e2e;font-weight:bolder;">Pendiente</span>';
+                        return '<button class="badge-p-warning pulse-warning btn-send-dian" data-id="' . $row->id . '"><span class="icon">!</span> Enviar</button>';
+                    }else{
+                        $is_valid = '';
+                    }
+
+                    return $is_valid;
+                })
                 ->addColumn('return_due', function ($row) {
                     $return_due_html = '';
                     if (! empty($row->return_exists)) {
@@ -595,7 +621,7 @@ class SellController extends Controller
                         }
                     }, ]);
 
-            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status'];
+            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid'];
 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);
@@ -627,6 +653,7 @@ class SellController extends Controller
 
         $payment_types = $this->transactionUtil->payment_types(null, true, $business_id);
 
+        $total_invoices_not_sended = Transaction::where('business_id',$business_id)->where('e_invoice','si')->where('is_valid','!=',1)->count();
 
         return view('sell.index')
         ->with(compact('business_locations', 'customers', 'is_woocommerce', 'sales_representative', 'is_cmsn_agent_enabled', 'commission_agents', 'service_staffs', 'is_tables_enabled', 'is_service_staff_enabled', 'is_types_service_enabled', 'shipping_statuses', 'sources', 'payment_types'));
@@ -752,8 +779,21 @@ class SellController extends Controller
 
         $change_return = $this->dummyPaymentLine;
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $municipalities = Municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+
         return view('sell.create')
             ->with(compact(
+                'type_document_identifications',
+                'countries',
+                'departments',
+                'municipalities',
+                'type_regimes',
+                'type_liabilities',
                 'business_details',
                 'taxes',
                 'walk_in_customer',
@@ -884,6 +924,59 @@ class SellController extends Controller
                 'sales_orders',
                 'line_taxes'
             ));
+    }
+
+    public function resend($id)
+    {
+        $business_id = request()->session()->get('user.business_id');
+
+        $query = Transaction::where('business_id', $business_id)
+                    ->where('id', $id)
+                    ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                        $q->whereNull('parent_sell_line_id');
+                    }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+
+        if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+            $query->where('transactions.created_by', request()->session()->get('user.id'));
+        }
+
+        $sell = $query->firstOrFail();
+
+        $invoice_schemes = InvoiceScheme::findOrFail($sell->invoice_scheme->id);
+
+        $num_character = strlen($invoice_schemes->prefix);
+        $string = $sell->invoice_no;
+        $part1 = substr($string, 0, $num_character);
+        $num_fact = substr($string, 4);
+
+        $part1;
+        $num_fact; 
+        return view('sale_pos.resend', compact('sell', 'invoice_schemes','num_fact'));
+    }
+
+    public function send_invoice(Request $request)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $business_data = Business::find($business_id);
+            // return $business_data;
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'accept' => 'application/json',
+                'Authorization' => 'bearer '.$business_data->token
+            ])->post(env('APP_API_FE').'/api/send-email-customer/NO', [
+                'company_idnumber' => $business_data->nit,
+                'prefix' => $request->prefix,
+                'number' => $request->number,
+            ]);
+            $res = $response->object();
+
+            return redirect()->back()->with('success', $res->message);
+   
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('success', $th->getMessage());;
+        }
+        
     }
 
     /**
@@ -1190,8 +1283,20 @@ class SellController extends Controller
         //Added check because $users is of no use if enable_contact_assign if false
         $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $municipalities = municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+
         return view('sell.edit')
-            ->with(compact('business_details', 'taxes', 'sell_details', 'transaction', 'commission_agent', 'types', 'customer_groups', 'pos_settings', 'waiters', 'invoice_schemes', 'default_invoice_schemes', 'redeem_details', 'edit_discount', 'edit_price', 'shipping_statuses', 'warranties', 'statuses', 'sales_orders', 'payment_types', 'accounts', 'payment_lines', 'change_return', 'is_order_request_enabled', 'customer_due', 'users'));
+            ->with(compact('type_document_identifications',
+                // 'countries',
+                'departments',
+                'municipalities',
+                'type_regimes',
+                'type_liabilities','business_details', 'taxes', 'sell_details', 'transaction', 'commission_agent', 'types', 'customer_groups', 'pos_settings', 'waiters', 'invoice_schemes', 'default_invoice_schemes', 'redeem_details', 'edit_discount', 'edit_price', 'shipping_statuses', 'warranties', 'statuses', 'sales_orders', 'payment_types', 'accounts', 'payment_lines', 'change_return', 'is_order_request_enabled', 'customer_due', 'users'));
     }
 
     /**

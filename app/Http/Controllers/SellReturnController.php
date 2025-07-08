@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BusinessLocation;
 use App\Contact;
 use App\Events\TransactionPaymentDeleted;
+use App\InvoiceScheme;
 use App\Transaction;
 use App\TransactionSellLine;
 use App\User;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
+use App\Services\DianService as UtilsDianService;
 
 class SellReturnController extends Controller
 {
@@ -88,6 +90,7 @@ class SellReturnController extends Controller
                         'transactions.id',
                         'transactions.transaction_date',
                         'transactions.invoice_no',
+                        'transactions.is_valid',
                         'contacts.name',
                         'contacts.supplier_business_name',
                         'transactions.final_total',
@@ -148,8 +151,10 @@ class SellReturnController extends Controller
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu">
                         <li><a href="#" class="btn-modal" data-container=".view_modal" data-href="{{action(\'App\Http\Controllers\SellReturnController@show\', [$parent_sale_id])}}"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</a></li>
-                        <li><a href="{{action(\'App\Http\Controllers\SellReturnController@add\', [$parent_sale_id])}}" ><i class="fa fa-edit" aria-hidden="true"></i> @lang("messages.edit")</a></li>
-                        <li><a href="{{action(\'App\Http\Controllers\SellReturnController@destroy\', [$id])}}" class="delete_sell_return" ><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</a></li>
+                        @if($is_valid != 1)
+                            <li><a href="{{action(\'App\Http\Controllers\SellReturnController@add\', [$parent_sale_id])}}" ><i class="fa fa-edit" aria-hidden="true"></i> @lang("messages.edit")</a></li>
+                            <li><a href="{{action(\'App\Http\Controllers\SellReturnController@destroy\', [$id])}}" class="delete_sell_return" ><i class="fa fa-trash" aria-hidden="true"></i> @lang("messages.delete")</a></li>
+                        @endif
                         <li><a href="#" class="print-invoice" data-href="{{action(\'App\Http\Controllers\SellReturnController@printInvoice\', [$id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a></li>
 
                     @if($payment_status != "paid")
@@ -179,6 +184,14 @@ class SellReturnController extends Controller
 
                     return '<span class="display_currency payment_due" data-currency_symbol="true" data-orig-value="'.$due.'">'.$due.'</sapn>';
                 })
+                ->addColumn('send_dian', function ($row) {
+                    if($row->is_valid == 1)
+                    {
+                        return '<span class="badge rounded-pill bg-info">Enviado</span>';
+                    }else{
+                        return '<button class="btn btn-warning btn-sm btn-send-dian" data-id="' . $row->id . '">Enviar</button>';
+                    }
+                })
                 ->setRowAttr([
                     'data-href' => function ($row) {
                         if (auth()->user()->can('sell.view')) {
@@ -187,7 +200,7 @@ class SellReturnController extends Controller
                             return '';
                         }
                     }, ])
-                ->rawColumns(['final_total', 'action', 'parent_sale', 'payment_status', 'payment_due', 'name'])
+                ->rawColumns(['final_total', 'action', 'parent_sale', 'payment_status', 'payment_due', 'name', 'send_dian'])
                 ->make(true);
         }
         $business_locations = BusinessLocation::forDropdown($business_id, false);
@@ -196,6 +209,52 @@ class SellReturnController extends Controller
         $sales_representative = User::forDropdown($business_id, false, false, true);
 
         return view('sell_return.index')->with(compact('business_locations', 'customers', 'sales_representative'));
+    }
+
+    public function send_dian($id)
+    {
+        // if (! auth()->user()->can('access_sell_return') && ! auth()->user()->can('access_own_sell_return')) {
+        //     abort(403, 'Unauthorized action.');
+        // }
+
+        $business_id = request()->session()->get('user.business_id');
+        //Check if subscribed or not
+        if (! $this->moduleUtil->isSubscribed($business_id)) {
+            return $this->moduleUtil->expiredResponse();
+        }
+
+        $sell = Transaction::where('business_id', $business_id)
+                            ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
+                            ->find($id);
+        $invoice_parent = Transaction::where('business_id', $business_id)
+        ->with(['sell_lines', 'location', 'return_parent', 'contact', 'tax', 'sell_lines.sub_unit', 'sell_lines.product', 'sell_lines.product.unit'])
+        ->find($sell->return_parent_id);
+
+        foreach ($sell->sell_lines as $key => $value) {
+            if (! empty($value->sub_unit_id)) {
+                $formated_sell_line = $this->transactionUtil->recalculateSellLineTotals($business_id, $value);
+                $sell->sell_lines[$key] = $formated_sell_line;
+            }
+
+            $sell->sell_lines[$key]->formatted_qty = $this->transactionUtil->num_f($value->quantity, false, null, true);
+        }
+
+        $response_invoice = UtilsDianService::send_credit_note(
+            $business_id, 
+            $sell->contact_id,  
+            $invoice_parent,
+            $sell
+        );
+        $output = ['success' => 1,
+                    'msg' =>$response_invoice['msg'],
+                    'redirect' =>action([\App\Http\Controllers\SellReturnController::class, 'index'])
+                    // 'data' => $response_invoice
+                ];
+        // dd($response_invoice['msg']);
+        // dd($response_invoice);
+        // return redirect()->back()->with('success', $response_invoice['msg']);
+        return $output;
+      
     }
 
     /**
@@ -283,15 +342,15 @@ class SellReturnController extends Controller
                 $user_id = $request->session()->get('user.id');
 
                 DB::beginTransaction();
-
-                $sell_return = $this->transactionUtil->addSellReturn($input, $business_id, $user_id);
+                $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',4)->first();
+                $sell_return = $this->transactionUtil->addSellReturn($input, $business_id, $user_id,true, $invoice_scheme->id);
 
                 $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);
 
                 DB::commit();
 
                 $output = ['success' => 1,
-                    'msg' => __('lang_v1.success'),
+                    'msg' => "Nota credito generada correctamente",
                     'receipt' => $receipt,
                 ];
             }
@@ -307,6 +366,9 @@ class SellReturnController extends Controller
 
             $output = ['success' => 0,
                 'msg' => $msg,
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ];
         }
 

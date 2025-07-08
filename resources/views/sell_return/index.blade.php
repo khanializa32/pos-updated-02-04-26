@@ -134,6 +134,7 @@
             columns: [
                 { data: 'transaction_date', name: 'transaction_date'  },
                 { data: 'invoice_no', name: 'invoice_no'},
+                { data: 'send_dian', name: 'send_dian'},
                 { data: 'parent_sale', name: 'T1.invoice_no'},
                 { data: 'name', name: 'contacts.name'},
                 { data: 'business_location', name: 'bl.name'},
@@ -188,6 +189,32 @@
                         }
                     },
                 });
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-send-dian', function() {
+        let button = $(this);
+        let id = $(this).data('id');
+
+        let originalContent = button.html();
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...');
+
+        $.ajax({
+            url: "{{ route('send_credit_note_dian', ':id') }}".replace(':id', id), 
+            type: "GET",
+            data: {
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(response) {
+                if (response.redirect) {
+                    toastr.success(response.msg);
+                    sell_return_table.ajax.reload();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error al enviar:", error);
+                button.prop('disabled', false).html(originalContent);
             }
         });
     });

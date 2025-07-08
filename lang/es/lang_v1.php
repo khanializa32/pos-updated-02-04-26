@@ -702,7 +702,7 @@ return [
     'marital_status' => 'Estado Civil',
     'blood_group' => 'Grupo Sanguíneo',
     'divorced' => 'Divorciado',
-    'contact_no' => 'Número de contacto',
+    'contact_no' => 'Teléfono', /* modified */
     'fb_link' => 'Link de Facebook',
     'twitter_link' => 'Link de Twitter',
     'social_media' => 'Redes sociales :number',

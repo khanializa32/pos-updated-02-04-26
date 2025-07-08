@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Utils;
+namespace App\Services;
 
 use Illuminate\Support\Facades\File;
 use App\Business;
@@ -15,7 +15,7 @@ use Carbon\Carbon;
 // use App\Utils\ProductUtil;
 
 
-class ElectronicDocumentsUtil
+class DianService
 {
     /**
      * Leer un archivo JSON desde una ruta específica
@@ -995,7 +995,7 @@ class ElectronicDocumentsUtil
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer '.$business_data->token
+                'Authorization: Bearer '.$business_data->dian_token
             ),
             ));
 
@@ -1197,8 +1197,8 @@ class ElectronicDocumentsUtil
 
         $i_echeme = '';
 
-        $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document',4)->first();
-        $i_echeme = $invoice_scheme->type_document;
+        $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',4)->first();
+        $i_echeme = $invoice_scheme->type_document_id;
 
         $business_data = Business::find($business_id);
 
@@ -1504,7 +1504,7 @@ class ElectronicDocumentsUtil
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer '.$business_data->token
+                'Authorization: Bearer '.$business_data->dian_token
             ),
             ));
 
@@ -1513,7 +1513,7 @@ class ElectronicDocumentsUtil
             curl_close($curl);
 
             $respuesta = json_decode($response);
-            // return $respuesta;
+            // dd($respuesta);
             $ErrorRules = '';
             $StatusCode = '';
             $MgsResponse = '';

@@ -25,14 +25,14 @@
 			</small>
             <small class="text-red" style="font-size: 100%; float: right; ">
 				@if($product->enable_stock)
-				{{ @num_format($product->qty_available) }} 
+				{{ number_format($product->qty_available,1) }} 
 				@else
 					--
 				@endif
 			</small>
 			
 			<small class="text-muted" style="font-size: 100%; float: left; ">
-				$ {{$product->selling_price}}
+				$ {{number_format($product->selling_price, 1)}}
 			</small><br>
 			
 		</div>

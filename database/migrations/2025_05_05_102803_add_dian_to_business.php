@@ -27,6 +27,10 @@ return new class extends Migration
             $table->string('dian_token')->nullable()->after('type_regime_id');
             $table->string('dian_active')->nullable()->after('dian_token');
             $table->enum('tax_enable', ['active','inactive'])->default('inactive')->after('dian_token');
+
+            $table->unsignedBigInteger('department_id')->nullable()->after('dian_token');
+
+            $table->unsignedBigInteger('municipality_id')->nullable()->after('department_id');
         });
     }
 

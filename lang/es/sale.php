@@ -22,7 +22,7 @@
      'unit_price' => 'Precio Unitario',
      'qty' => 'Cantidad',
      'subtotal' => 'Subtotal', /* modified */
-     'recent_transactions' => 'Tus transacciones recientes',
+     'recent_transactions' => 'Transacciones recientes',
      'pos_sale_added' => 'Venta Creada',
      'price_inc_tax' => 'Precio Unitario',
      'tax' => 'Impuesto',
@@ -33,8 +33,8 @@
      'no_recent_transactions' => 'Sin transacciones recientes',
      'final' => 'Factura',
      'invoice_no' => 'Factura No.',
-     'customer_name' => 'Nombre del Cliente',
-     'payment_status' => 'Estado del Pago',
+     'customer_name' => 'Tercero', /* modified */
+     'payment_status' => 'Estado', /* modified */
      'status' => 'Estado',
      'total_amount' => 'Valor Total',
      'total_paid' => 'Total Pagado',

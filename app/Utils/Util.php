@@ -154,15 +154,94 @@ class Util
             }
         }
 
-        $payment_types = ['cash' => __('lang_v1.cash'), 'card' => __('lang_v1.card'), 'cheque' => __('lang_v1.cheque'), 'bank_transfer' => __('lang_v1.bank_transfer'), 'other' => __('lang_v1.other')];
-
-        $payment_types['custom_pay_1'] = ! empty($custom_labels['payments']['custom_pay_1']) ? $custom_labels['payments']['custom_pay_1'] : __('lang_v1.custom_payment', ['number' => 1]);
-        $payment_types['custom_pay_2'] = ! empty($custom_labels['payments']['custom_pay_2']) ? $custom_labels['payments']['custom_pay_2'] : __('lang_v1.custom_payment', ['number' => 2]);
-        $payment_types['custom_pay_3'] = ! empty($custom_labels['payments']['custom_pay_3']) ? $custom_labels['payments']['custom_pay_3'] : __('lang_v1.custom_payment', ['number' => 3]);
-        $payment_types['custom_pay_4'] = ! empty($custom_labels['payments']['custom_pay_4']) ? $custom_labels['payments']['custom_pay_4'] : __('lang_v1.custom_payment', ['number' => 4]);
-        $payment_types['custom_pay_5'] = ! empty($custom_labels['payments']['custom_pay_5']) ? $custom_labels['payments']['custom_pay_5'] : __('lang_v1.custom_payment', ['number' => 5]);
-        $payment_types['custom_pay_6'] = ! empty($custom_labels['payments']['custom_pay_6']) ? $custom_labels['payments']['custom_pay_6'] : __('lang_v1.custom_payment', ['number' => 6]);
-        $payment_types['custom_pay_7'] = ! empty($custom_labels['payments']['custom_pay_7']) ? $custom_labels['payments']['custom_pay_7'] : __('lang_v1.custom_payment', ['number' => 7]);
+        $payment_types = [
+            'cash' => __('lang_v1.cash'), 
+            'card' => __('lang_v1.card'), 
+            'cheque' => __('lang_v1.cheque'), 
+            'bank_transfer' => __('lang_v1.bank_transfer'), 
+            'other' => __('lang_v1.other'), 
+            
+            '2' => 'Crédito ACH',
+            '3' => 'Débito ACH',
+            '4' => 'Reversión débito de demanda ACH',
+            '5' => 'Reversión crédito de demanda ACH',
+            '6' => 'Crédito de demanda ACH',
+            '7' => 'Débito de demanda ACH',
+            '8' => 'Mantener',
+            '9' => 'Clearing Nacional o Regional',
+            '11' => 'Reversión Crédito Ahorro',
+            '12' => 'Reversión Débito Ahorro',
+            '13' => 'Crédito Ahorro',
+            '14' => 'Débito Ahorro',
+            '15' => 'Bookentry Crédito',
+            '16' => 'Bookentry Débito',
+            '17' => 'Concentración de la demanda en efectivo /Desembolso Crédito (CCD)',
+            '18' => 'Concentración de la demanda en efectivo / Desembolso (CCD) débito',
+            '19' => 'Crédito Pago negocio corporativo (CTP)',
+            //pendiente cheque en code
+            '21' => 'Poyecto bancario',
+            '22' => 'Proyecto bancario certificado',
+            '23' => 'Cheque bancario',
+            '24' => 'Nota cambiaria esperando aceptación',
+            '25' => 'Cheque certificado',
+            '26' => 'Cheque Local',
+            '27' => 'Débito Pago Neogcio Corporativo (CTP)',
+            '28' => 'Crédito Negocio Intercambio Corporativo (CTX)',
+            '29' => 'Débito Negocio Intercambio Corporativo (CTX)',
+            '30' => 'Transferecia Crédito',
+            '31' => 'Transferencia Débito',
+            '32' => 'Concentración Efectivo / Desembolso Crédito plus (CCD+)',
+            '33' => 'Concentración Efectivo / Desembolso Débito plus (CCD+)',
+            '34' => 'Pago y depósito pre acordado (PPD)',
+            '35' => 'Concentración efectivo ahorros / Desembolso Crédito (CCD)',
+            '36' => 'Concentración efectivo ahorros / Desembolso Drédito (CCD)',
+            '37' => 'Pago Negocio Corporativo Ahorros Crédito (CTP)',
+            '38' => 'Pago Neogcio Corporativo Ahorros Débito (CTP)',
+            '39' => 'Crédito Negocio Intercambio Corporativo (CTX)',
+            '40' => 'Débito Negocio Intercambio Corporativo (CTX)',
+            '41' => 'Concentración efectivo/Desembolso Crédito plus (CCD+) ',
+            '42' => 'Consiganción bancaria',
+            '43' => 'Concentración efectivo / Desembolso Débito plus (CCD+)',
+            '44' => 'Nota cambiaria',
+            '45' => 'Transferencia Crédito Bancario',
+            '46' => 'Transferencia Débito Interbancario',
+            '47' => 'Transferencia Débito Bancaria',
+            '48' => 'Tarjeta Crédito',
+            '49' => 'Tarjeta Débito',
+            '50' => 'Postgiro',
+            '51' => 'Telex estándar bancario francés',
+            '52' => 'Pago comercial urgente',
+            '53' => 'Pago Tesorería Urgente',
+            '54' => 'Nota promisoria',
+            '55' => 'Nota promisoria firmada por el acreedor',
+            '56' => 'Nota promisoria firmada por el acreedor, avalada por el banco',
+            '57' => 'Nota promisoria firmada por el acreedor, avalada por un tercero',
+            '58' => 'Nota promisoria firmada pro el banco',
+            '59' => 'Nota promisoria firmada por un banco avalada por otro banco',
+            '60' => 'Nota promisoria firmada',
+            '61' => 'Nota promisoria firmada por un tercero avalada por un banco',
+            '62' => 'Retiro de nota por el por el acreedor',
+            '63' => 'Retiro de nota por el por el acreedor sobre un banco',
+            '64' => 'Retiro de nota por el acreedor, avalada por otro banco',
+            '65' => 'Retiro de nota por el acreedor, sobre un banco avalada por un tercero',
+            '66' => 'Retiro de una nota por el acreedor sobre un tercero',
+            '67' => 'Retiro de una nota por el acreedor sobre un tercero avalada por un banco',
+            '68' => 'Nota bancaria tranferible',
+            '69' => 'Cheque local traferible',
+            '70' => 'Giro referenciado',
+            '71' => 'Giro urgente',
+            '72' => 'Giro formato abierto',
+            '73' => 'Método de pago solicitado no usuado',
+            '74' => 'Clearing entre partners',
+            '75' => 'Acuerdo mutuo'
+        ];
+        // $payment_types['custom_pay_1'] = ! empty($custom_labels['payments']['custom_pay_1']) ? $custom_labels['payments']['custom_pay_1'] : __('lang_v1.custom_payment', ['number' => 1]);
+        // $payment_types['custom_pay_2'] = ! empty($custom_labels['payments']['custom_pay_2']) ? $custom_labels['payments']['custom_pay_2'] : __('lang_v1.custom_payment', ['number' => 2]);
+        // $payment_types['custom_pay_3'] = ! empty($custom_labels['payments']['custom_pay_3']) ? $custom_labels['payments']['custom_pay_3'] : __('lang_v1.custom_payment', ['number' => 3]);
+        // $payment_types['custom_pay_4'] = ! empty($custom_labels['payments']['custom_pay_4']) ? $custom_labels['payments']['custom_pay_4'] : __('lang_v1.custom_payment', ['number' => 4]);
+        // $payment_types['custom_pay_5'] = ! empty($custom_labels['payments']['custom_pay_5']) ? $custom_labels['payments']['custom_pay_5'] : __('lang_v1.custom_payment', ['number' => 5]);
+        // $payment_types['custom_pay_6'] = ! empty($custom_labels['payments']['custom_pay_6']) ? $custom_labels['payments']['custom_pay_6'] : __('lang_v1.custom_payment', ['number' => 6]);
+        // $payment_types['custom_pay_7'] = ! empty($custom_labels['payments']['custom_pay_7']) ? $custom_labels['payments']['custom_pay_7'] : __('lang_v1.custom_payment', ['number' => 7]);
 
         //Unset payment types if not enabled in business location
         if (! empty($location)) {

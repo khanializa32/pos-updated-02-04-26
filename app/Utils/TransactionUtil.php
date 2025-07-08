@@ -51,6 +51,22 @@ class TransactionUtil extends Util
         $pay_term_number = isset($input['pay_term_number']) ? $input['pay_term_number'] : null;
         $pay_term_type = isset($input['pay_term_type']) ? $input['pay_term_type'] : null;
 
+        if(empty(!$invoice_scheme_id))
+        {
+            $is_fe = InvoiceScheme::findOrFail($invoice_scheme_id);
+            $invoice_e = '';
+            if(!empty($is_fe) && $is_fe->is_fe == 'si')
+            {
+                $invoice_e = 'si';
+            }else{
+                $invoice_e = 'no';
+            }
+        }else{
+            $invoice_e = 'no';
+        }
+
+        // dd($invoice_no);
+
         //if pay term empty set contact pay term
         if (empty($pay_term_number) || empty($pay_term_type)) {
             $contact = Contact::find($input['contact_id']);
@@ -65,7 +81,12 @@ class TransactionUtil extends Util
             'sub_status' => ! empty($input['sub_status']) ? $input['sub_status'] : null,
             'contact_id' => $input['contact_id'],
             'customer_group_id' => ! empty($input['customer_group_id']) ? $input['customer_group_id'] : null,
-            'invoice_no' => $invoice_no,
+            'invoice_no' => $invoice_no['invoice_no'],
+            'prefix' => $invoice_no['prefix'],
+            'number_invoice' => $invoice_no['count'],
+            'resolution' => $invoice_no['resolution'],
+            'invoice_scheme_id' => !empty($invoice_scheme_id) ? $invoice_scheme_id: 0,
+            'e_invoice' => $invoice_e,
             'ref_no' => '',
             'source' => ! empty($input['source']) ? $input['source'] : null,
             'total_before_tax' => $invoice_total['total_before_tax'],
@@ -187,9 +208,30 @@ class TransactionUtil extends Util
             $pay_term_type = $contact->pay_term_type;
         }
 
+        if(empty(!$invoice_scheme_id))
+        {
+            $is_fe = InvoiceScheme::findOrFail($invoice_scheme_id);
+            $invoice_e = '';
+            if(!empty($is_fe) && $is_fe->is_fe == 'si')
+            {
+                $invoice_e = 'si';
+            }else{
+                $invoice_e = 'no';
+            }
+        }else{
+            $invoice_e = 'no';
+        }
+
         $update_date = [
             'status' => $input['status'],
             'invoice_no' => ! empty($input['invoice_no']) ? $input['invoice_no'] : $invoice_no,
+
+            'prefix' => empty($invoice_no_array) ? '' : $invoice_no_array['prefix'],
+            'number_invoice' => empty($invoice_no_array) ? '' : $invoice_no_array['count'],
+            'resolution' => empty($invoice_no_array) ? '' : $invoice_no_array['resolution'],
+            'invoice_scheme_id' => empty($invoice_no_array) ? '' : $invoice_scheme_id,
+            'e_invoice' => $invoice_e,
+
             'contact_id' => $input['contact_id'],
             'customer_group_id' => $input['customer_group_id'],
             'total_before_tax' => $invoice_total['total_before_tax'],
@@ -947,6 +989,12 @@ class TransactionUtil extends Util
         return $payment_lines;
     }
 
+    private function separarLetrasYNumeros($input) {
+        $letras = preg_replace('/[^a-zA-Z]/', '', $input);
+        $numeros = preg_replace('/[^0-9]/', '', $input);
+        return $letras;
+    }
+
     /**
      * Gives the receipt details in proper format.
      *
@@ -963,6 +1011,8 @@ class TransactionUtil extends Util
         $il = $invoice_layout;
 
         $transaction = Transaction::find($transaction_id);
+        $prefix = $this->separarLetrasYNumeros($transaction->invoice_no);
+        $invoice_scheme = InvoiceScheme::where('is_fe','=','si')->where('prefix','=',$prefix)->where('business_id',$business_details->id)->first();
         $transaction_type = $transaction->type;
 
         $output = [
@@ -979,6 +1029,32 @@ class TransactionUtil extends Util
             'table_unit_price_label' => $il->table_unit_price_label,
             'table_subtotal_label' => $il->table_subtotal_label,
         ];
+
+        $output['cufe'] = $transaction->cufe;
+        $output['qrstr'] = $transaction->qrstr;
+        $output['nit'] = $business_details->nit;
+        $output['dv'] = $business_details->dv;
+        $output['type_document'] = $business_details->type_document;
+        $output['type_organization'] = $business_details->type_organization;
+        $output['type_regime'] = $business_details->type_regime;
+
+        if($invoice_scheme != null)
+        {
+            
+            $output['resolution'] = $invoice_scheme->resolution;
+            $output['resolution_prefix'] = $invoice_scheme->prefix;
+            $output['resolution_start_number'] = $invoice_scheme->start_number;
+            $output['resolution_end_number'] = $invoice_scheme->end_number;
+            $output['resolution_date'] = $invoice_scheme->start_date;
+            $output['resolution_end_date'] = $invoice_scheme->end_date;
+            
+        }else{
+            $output['resolution'] = '-';
+            $output['resolution_prefix'] = '-';
+            $output['resolution_start_number'] = '-';
+            $output['resolution_end_number'] = '-';
+            $output['resolution_date'] = '-';
+        }
 
         //Display name
         $output['display_name'] = $output['business_name'];
@@ -2326,19 +2402,79 @@ class TransactionUtil extends Util
             $scheme->invoice_count = $scheme->invoice_count + 1;
             $scheme->save();
 
-            return $invoice_no;
+            // return $invoice_no;
+            return array(
+                'id' => 1,
+                'prefix' => $prefix,
+                'count' => $count,
+                'resolution' => $scheme->resolution,
+                'invoice_no' => $invoice_no
+            );
         } elseif ($status == 'draft') {
             $ref_count = $this->setAndGetReferenceCount('draft', $business_id);
             $invoice_no = $this->generateReferenceNumber('draft', $ref_count, $business_id);
 
-            return $invoice_no;
+            // return $invoice_no;
+            return array(
+                'id' => 2,
+                'invoice_no' => $invoice_no,
+                'prefix' => '',
+                'count' => '',
+                'resolution' => ''
+            );
         } elseif ($sale_type == 'sales_order') {
             $ref_count = $this->setAndGetReferenceCount('sales_order', $business_id);
             $invoice_no = $this->generateReferenceNumber('sales_order', $ref_count, $business_id);
 
-            return $invoice_no;
+            // return $invoice_no;
+            return array(
+                'id' => 3,
+                'invoice_no' => $invoice_no,
+                'prefix' => '',
+                'count' => '',
+                'resolution' => ''
+            );
+        } elseif ($sale_type == 'sell_return') {
+            
+            $scheme = InvoiceScheme::where('business_id', $business_id)
+                                    ->find($invoice_scheme_id);
+        
+
+        $prefix = $scheme->prefix;
+
+        //Count
+        if($scheme->number_type == 'sequential'){
+            $count = $scheme->start_number + $scheme->invoice_count;
+        } elseif($scheme->number_type == 'random'){
+            $max = (int)str_pad(1, $scheme->total_digits, '1');
+            $count = rand(1000, 9*$max);
+        }
+        $count = str_pad($count, $scheme->total_digits, '0', STR_PAD_LEFT);
+
+        //Prefix + count
+        $invoice_no = $prefix.$count;
+
+        //Increment the invoice count
+        $scheme->invoice_count = $scheme->invoice_count + 1;
+        $scheme->save();
+
+        // return $invoice_no;
+        return array(
+            'id' => 3,
+            'prefix' => $prefix,
+            'count' => $count,
+            'resolution' => $scheme->resolution,
+            'invoice_no' => $invoice_no
+        );
         } else {
-            return Str::random(5);
+            // return Str::random(5);
+            return array(
+                'id' => 4,
+                'invoice_no' => Str::random(5),
+                'prefix' => '',
+                'count' => '',
+                'resolution' => ''
+            );
         }
     }
 
@@ -5043,6 +5179,112 @@ class TransactionUtil extends Util
                     'transactions.is_direct_sale',
                     'transactions.invoice_no',
                     'transactions.invoice_no as invoice_no_text',
+                    'transactions.cufe',
+                    'transactions.is_valid',
+                    'transactions.rules',
+                    'transactions.e_invoice',
+                    'contacts.name',
+                    'contacts.mobile',
+                    'contacts.contact_id',
+                    'contacts.supplier_business_name',
+                    'transactions.status',
+                    'transactions.payment_status',
+                    'transactions.final_total',
+                    'transactions.tax_amount',
+                    'transactions.discount_amount',
+                    'transactions.discount_type',
+                    'transactions.total_before_tax',
+                    'transactions.rp_redeemed',
+                    'transactions.rp_redeemed_amount',
+                    'transactions.rp_earned',
+                    'transactions.types_of_service_id',
+                    'transactions.shipping_status',
+                    'transactions.pay_term_number',
+                    'transactions.pay_term_type',
+                    'transactions.additional_notes',
+                    'transactions.staff_note',
+                    'transactions.shipping_details',
+                    'transactions.document',
+                    'transactions.shipping_custom_field_1',
+                    'transactions.shipping_custom_field_2',
+                    'transactions.shipping_custom_field_3',
+                    'transactions.shipping_custom_field_4',
+                    'transactions.shipping_custom_field_5',
+                    'transactions.custom_field_1',
+                    'transactions.custom_field_2',
+                    'transactions.custom_field_3',
+                    'transactions.custom_field_4',
+                    DB::raw('DATE_FORMAT(transactions.transaction_date, "%Y/%m/%d") as sale_date'),
+                    DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by"),
+                    DB::raw('(SELECT SUM(IF(TP.is_return = 1,-1*TP.amount,TP.amount)) FROM transaction_payments AS TP WHERE
+                        TP.transaction_id=transactions.id) as total_paid'),
+                    'bl.name as business_location',
+                    DB::raw('COUNT(SR.id) as return_exists'),
+                    DB::raw('(SELECT SUM(TP2.amount) FROM transaction_payments AS TP2 WHERE
+                        TP2.transaction_id=SR.id ) as return_paid'),
+                    DB::raw('COALESCE(SR.final_total, 0) as amount_return'),
+                    'SR.id as return_transaction_id',
+                    'tos.name as types_of_service_name',
+                    'transactions.service_custom_field_1',
+                    DB::raw('COUNT( DISTINCT tsl.id) as total_items'),
+                    DB::raw("CONCAT(COALESCE(ss.surname, ''),' ',COALESCE(ss.first_name, ''),' ',COALESCE(ss.last_name,'')) as waiter"),
+                    'tables.name as table_name',
+                    DB::raw('SUM(tsl.quantity - tsl.so_quantity_invoiced) as so_qty_remaining'),
+                    'transactions.is_export',
+                    DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person")
+                );
+
+        if ($sale_type == 'sell') {
+            $sells->where('transactions.status', 'final');
+        }
+
+        return $sells;
+    }
+
+    public function getListDIANSells($business_id, $sale_type = 'sell')
+    {
+        $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
+                // ->leftJoin('transaction_payments as tp', 'transactions.id', '=', 'tp.transaction_id')
+                ->leftJoin('transaction_sell_lines as tsl', function ($join) {
+                    $join->on('transactions.id', '=', 'tsl.transaction_id')
+                        ->whereNull('tsl.parent_sell_line_id');
+                })
+                ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
+                ->leftJoin('users as ss', 'transactions.res_waiter_id', '=', 'ss.id')
+                ->leftJoin('users as dp', 'transactions.delivery_person', '=', 'dp.id')
+                ->leftJoin('res_tables as tables', 'transactions.res_table_id', '=', 'tables.id')
+                ->join(
+                    'business_locations AS bl',
+                    'transactions.location_id',
+                    '=',
+                    'bl.id'
+                )
+                ->leftJoin(
+                    'transactions AS SR',
+                    'transactions.id',
+                    '=',
+                    'SR.return_parent_id'
+                )
+                ->leftJoin(
+                    'types_of_services AS tos',
+                    'transactions.types_of_service_id',
+                    '=',
+                    'tos.id'
+                )
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', $sale_type)
+                ->where('transactions.e_invoice','si')
+                ->select(
+                    'transactions.id',
+                    'transactions.transaction_date',
+                    'transactions.type',
+                    'transactions.is_direct_sale',
+                    'transactions.invoice_no',
+                    'transactions.invoice_no as invoice_no_text',
+                    'transactions.cufe',
+                    'transactions.is_valid',
+                    'transactions.e_invoice',
+                    'transactions.rules',
                     'contacts.name',
                     'contacts.mobile',
                     'contacts.contact_id',
@@ -6029,7 +6271,7 @@ class TransactionUtil extends Util
         return $parent_payment;
     }
 
-    public function addSellReturn($input, $business_id, $user_id, $uf_number = true)
+    public function addSellReturn($input, $business_id, $user_id, $uf_number = true,$invoice_scheme_id)
     {
         $discount = [
             'discount_type' => $input['discount_type'] ?? 'fixed',
@@ -6063,6 +6305,8 @@ class TransactionUtil extends Util
             'tax_amount' => $invoice_total['tax'],
             'total_before_tax' => $invoice_total['total_before_tax'],
             'final_total' => $invoice_total['final_total'],
+            'discrepancyresponsecode' => $input['discrepancyresponsecode'] ?? null,
+            'discrepancyresponsedescription' => $input['discrepancyresponsedescription'] ?? null,
         ];
 
         if (! empty($input['transaction_date'])) {
@@ -6073,7 +6317,16 @@ class TransactionUtil extends Util
         if (empty($sell_return_data['invoice_no']) && empty($sell_return)) {
             //Update reference count
             $ref_count = $this->setAndGetReferenceCount('sell_return', $business_id);
-            $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
+            // $sell_return_data['invoice_no'] = $this->generateReferenceNumber('sell_return', $ref_count, $business_id);
+            $res = $this->getInvoiceNumber($business_id, null, null, $invoice_scheme_id, 'sell_return');
+            if($res['id'] == 3)
+            {
+                $sell_return_data['invoice_no'] = $res['invoice_no'];
+                $sell_return_data['prefix'] = $res['prefix'];
+                $sell_return_data['number_invoice'] = $res['count'];
+                $sell_return_data['resolution'] = $res['resolution'];
+
+            }
         }
 
         if (empty($sell_return)) {
@@ -6404,13 +6657,13 @@ class TransactionUtil extends Util
                 DB::raw("SUM(IF(pay_method='bank_transfer', IF(transaction_type='sell', amount, 0), 0)) as total_bank_transfer_payment"),
                 DB::raw("SUM(IF(pay_method='other', IF(transaction_type='sell', amount, 0), 0)) as total_other_payment"),
                 DB::raw("SUM(IF(pay_method='advance', IF(transaction_type='sell', amount, 0), 0)) as total_advance_payment"),
-                DB::raw("SUM(IF(pay_method='custom_pay_1', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_1"),
-                DB::raw("SUM(IF(pay_method='custom_pay_2', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_2"),
-                DB::raw("SUM(IF(pay_method='custom_pay_3', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_3"),
-                DB::raw("SUM(IF(pay_method='custom_pay_4', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_4"),
-                DB::raw("SUM(IF(pay_method='custom_pay_5', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_5"),
-                DB::raw("SUM(IF(pay_method='custom_pay_6', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_6"),
-                DB::raw("SUM(IF(pay_method='custom_pay_7', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_7")
+                // DB::raw("SUM(IF(pay_method='custom_pay_1', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_1"),
+                // DB::raw("SUM(IF(pay_method='custom_pay_2', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_2"),
+                // DB::raw("SUM(IF(pay_method='custom_pay_3', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_3"),
+                // DB::raw("SUM(IF(pay_method='custom_pay_4', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_4"),
+                // DB::raw("SUM(IF(pay_method='custom_pay_5', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_5"),
+                // DB::raw("SUM(IF(pay_method='custom_pay_6', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_6"),
+                // DB::raw("SUM(IF(pay_method='custom_pay_7', IF(transaction_type='sell', amount, 0), 0)) as total_custom_pay_7")
             )->groupBy('cash_registers.id');
 
         if(!empty($permitted_locations)){

@@ -334,9 +334,13 @@ class ProductController extends Controller
         $pos_module_data = $this->moduleUtil->getModuleData('get_filters_for_list_product_screen');
 
         $is_admin = $this->productUtil->is_admin(auth()->user());
+        $data = [
+            'inventory' => null,
+        ];
 
         return view('product.index')
             ->with(compact(
+                'data',
                 'rack_enabled',
                 'categories',
                 'brands',

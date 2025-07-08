@@ -238,6 +238,13 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/pos/get-featured-products/{location_id}', [SellPosController::class, 'getFeaturedProducts']);
     Route::get('/reset-mapping', [SellController::class, 'resetMapping']);
 
+    Route::get('/sells/resend/{id}', [SellController::class, 'resend'])->name('resend');
+    Route::post('/sells/send_invoice', [SellController::class, 'send_invoice'])->name('send_invoice');
+    
+    Route::get('/sells/resend_invoice/{id}', [SellPosController::class, 'resend_invoice'])->name('resend_invoice');
+    Route::post('/sells/resend_invoice_dian/{id}', [SellPosController::class, 'resend_invoice_data'])->name('resend_invoice_data');
+    Route::get('/sells/downloadPdfInvoiceFE/{id}', [SellPosController::class, 'downloadPdfInvoiceFE'])->name('downloadPdfInvoiceFE');
+
     Route::resource('pos', SellPosController::class);
 
     Route::resource('roles', RoleController::class);
@@ -378,6 +385,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('sell-return/get-product-row', [SellReturnController::class, 'getProductRow']);
     Route::get('/sell-return/print/{id}', [SellReturnController::class, 'printInvoice']);
     Route::get('/sell-return/add/{id}', [SellReturnController::class, 'add']);
+    Route::get('/sell-return/send_credit_note_dian/{id}', [SellReturnController::class, 'send_dian'])->name('send_credit_note_dian');
 
     //Backup
     Route::get('backup/download/{file_name}', [BackUpController::class, 'download']);

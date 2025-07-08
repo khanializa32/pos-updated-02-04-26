@@ -4,9 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Business;
 use App\Currency;
+use App\Department;
+use App\Municipality;
 use App\Notifications\TestEmailNotification;
 use App\System;
 use App\TaxRate;
+use App\TypeDocumentIdentification;
+use App\TypeLiability;
+use App\TypeOrganization;
+use App\TypeRegime;
 use App\Unit;
 use App\User;
 use App\Utils\BusinessUtil;
@@ -104,7 +110,22 @@ class BusinessController extends Controller
 
         $system_settings = System::getProperties(['superadmin_enable_register_tc', 'superadmin_register_tc'], true);
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $municipalities = Municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+        $type_organizations = TypeOrganization::pluck('name','id');
+
         return view('business.register', compact(
+            'type_document_identifications',
+            
+            'departments',
+            'municipalities',
+            'type_regimes',
+            'type_liabilities',
+            'type_organizations',
             'currencies',
             'timezone_list',
             'months',
@@ -335,7 +356,17 @@ class BusinessController extends Controller
 
         $payment_types = $this->moduleUtil->payment_types(null, false, $business_id);
 
-        return view('business.settings', compact('business', 'currencies', 'tax_rates', 'timezone_list', 'months', 'accounting_methods', 'commission_agent_dropdown', 'units_dropdown', 'date_formats', 'shortcuts', 'pos_settings', 'modules', 'theme_colors', 'email_settings', 'sms_settings', 'mail_drivers', 'allow_superadmin_email_settings', 'custom_labels', 'common_settings', 'weighing_scale_setting', 'payment_types'));
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $municipalities = Municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+        $type_organizations = TypeOrganization::pluck('name','id');
+
+        return view('business.settings', compact(
+            'business', 'currencies', 'tax_rates', 'timezone_list', 'months', 'accounting_methods', 'commission_agent_dropdown', 'units_dropdown', 'date_formats', 'shortcuts', 'pos_settings', 'modules', 'theme_colors', 'email_settings', 'sms_settings', 'mail_drivers', 'allow_superadmin_email_settings', 'custom_labels', 'common_settings', 'weighing_scale_setting', 'payment_types',
+             'type_document_identifications', 'departments', 'municipalities', 'type_regimes', 'type_liabilities', 'type_organizations'
+            ));
     }
 
     /**
@@ -356,7 +387,7 @@ class BusinessController extends Controller
                 return $notAllowed;
             }
 
-            $business_details = $request->only(['name', 'start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
+            $business_details = $request->only(['department_id','municipality_id','merchant_registration','type_organization_id','type_regime_id','type_document_identification_id','nit','name','dv', 'dian_token','start_date', 'currency_id', 'tax_label_1', 'tax_number_1', 'tax_label_2', 'tax_number_2', 'default_profit_percent', 'default_sales_tax', 'default_sales_discount', 'sell_price_tax', 'sku_prefix', 'time_zone', 'fy_start_month', 'accounting_method', 'transaction_edit_days', 'sales_cmsn_agnt', 'item_addition_method', 'currency_symbol_placement', 'on_product_expiry',
                 'stop_selling_before', 'default_unit', 'expiry_type', 'date_format',
                 'time_format', 'ref_no_prefixes', 'theme_color', 'email_settings',
                 'sms_settings', 'rp_name', 'amount_for_unit_rp',
