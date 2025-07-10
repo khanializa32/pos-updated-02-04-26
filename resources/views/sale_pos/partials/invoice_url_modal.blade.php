@@ -16,7 +16,7 @@
 		    	@lang('messages.close')
 		    </button>
 
-		    <a href="{{$url}}" id="view_invoice_url" target="_blank" rel="noopener" class="tw-dw-btn tw-dw-btn-warning tw-text-black">
+		    <a href="{{$url}}" id="view_invoice_url" target="_blank" rel="noopener" class="tw-dw-btn tw-dw-btn-primary tw-text-white">
 				@lang('messages.view')
 			</a>
 		</div>

@@ -19,7 +19,7 @@
 				@forelse($sales as $sale)
 					@if($sale->is_suspend)
 						<div class="col-xs-6 col-sm-3">
-							<div class="small-box bg-green">
+							<div class="small-box bg-yellow">
 					            <div class="inner text-center">
 						            @if(!empty($sale->additional_notes))
 						            	<p><i class="fa fa-edit"></i> {{$sale->additional_notes}}</p>
@@ -38,13 +38,13 @@
 					              @endif
 					            </div>
 								@if(auth()->user()->can('sell.update') || auth()->user()->can('direct_sell.update'))
-									<a href="{{action([\App\Http\Controllers\SellPosController::class, 'edit'], ['po' => $sale->id]).$subtype}}" class="small-box-footer bg-yellow p-10">
+									<a href="{{action([\App\Http\Controllers\SellPosController::class, 'edit'], ['po' => $sale->id]).$subtype}}" class="small-box-footer bg-blue p-10">
 									@lang('sale.edit_sale') <i class="fa fa-arrow-circle-right"></i>
 									</a>
 								@endif
 								@if(auth()->user()->can('sell.delete') || auth()->user()->can('direct_sell.delete'))
 									<a href="{{action([\App\Http\Controllers\SellPosController::class, 'destroy'], ['po' => $sale->id])}}" class="small-box-footer delete-sale bg-red is_suspended">
-										@lang('Eliminar') <i class="fas fa-trash"></i>
+										@lang('messages.delete') <i class="fas fa-trash"></i>
 					            	</a>
 								@endif
 								@if(!auth()->user()->can('sell.update') && auth()->user()->can('edit_pos_payment'))

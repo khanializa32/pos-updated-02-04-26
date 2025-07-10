@@ -2,7 +2,73 @@
 	<div class="col-md-12">
 		<p><strong>@lang('sale.invoice_no'):</strong> {{$transaction->invoice_no}}</p>
 	</div>
-	<div class="col-md-4">
+	<div class="col-md-4" style=" width:auto;" > 
+		{{-- aquiiiiii --}}
+		<div class="form-group">
+
+			<div class="input-group">
+				<span class="input-group-addon">
+					<i class="fa fa-user"></i>
+				</span>
+				<input type="hidden" id="default_customer_id" 
+				value="{{ $walk_in_customer['id'] ?? ''}}" >
+				<input type="hidden" id="default_customer_name" 
+				value="{{ $walk_in_customer['name'] ?? ''}}" >
+				<input type="hidden" id="default_customer_balance" 
+				value="{{ $walk_in_customer['balance'] ?? ''}}" >
+				<input type="hidden" id="default_customer_address" 
+				value="{{ $walk_in_customer['shipping_address'] ?? ''}}" >
+				
+				@if(!empty($walk_in_customer['price_calculation_type']) && $walk_in_customer['price_calculation_type'] == 'selling_price_group')
+					<input type="hidden" id="default_selling_price_group" 
+				value="{{ $walk_in_customer['selling_price_group_id'] ?? ''}}" >
+				@endif
+				 
+				{!! Form::select('contact_id', 
+					[], null, ['class' => 'form-control mousetrap tw-w-full', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); 
+				!!}
+				
+				<span class="input-group-btn">
+					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
+					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="bi bi-pencil-square text-primary fa-lg"></i>
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+						<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+						<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
+						</svg>
+					</button>
+				</span>
+			</div>
+
+			<small class="text-danger hide contact_due_text"><strong>@lang('account.customer_due'):</strong> <span></span></small>
+		</div>
+	</div>
+
+	<div class="col-md-8" style="width: auto">
+		<div class="form-group">
+			<div class="input-group">
+				<div class="input-group-btn">
+					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fas fa-search-plus"></i></button>
+				</div>
+                {{-- Removed mousetrap class as it was causing issue with barcode scanning --}}
+				{!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
+				'autofocus' => true,
+				]); !!}
+				<span class="input-group-btn">
+
+					<!-- Show button for weighing scale modal -->
+					@if(isset($pos_settings['enable_weighing_scale']) && $pos_settings['enable_weighing_scale'] == 1)
+						<button type="button" class="btn btn-default bg-white btn-flat" id="weighing_scale_btn" data-toggle="modal" data-target="#weighing_scale_modal" 
+						title="@lang('lang_v1.weighing_scale')"><i class="fa fa-digital-tachograph text-primary fa-lg"></i></button>
+					@endif
+					
+
+					{{-- <button type="button" class="btn btn-default bg-white btn-flat pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button> --}}
+				</span>
+			</div>
+		</div>
+	</div>
+
+	{{-- <div class="col-md-4">
 		<div class="form-group" style="width: 100% !important">
 			<div class="input-group">
 				<span class="input-group-addon">
@@ -22,14 +88,14 @@
 			</div>
 			<small class="text-danger @if(empty($customer_due)) hide @endif contact_due_text"><strong>@lang('account.customer_due'):</strong> <span>{{$customer_due ?? ''}}</span></small>
 		</div>
-	</div>
-	<div class="col-md-8">
+	</div> --}}
+	{{-- <div class="col-md-8">
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-btn">
 					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fas fa-search-plus"></i></button>
 				</div>
-                {{-- Removed mousetrap class as it was causing issue with barcode scanning --}}
+                {{-- Removed mousetrap class as it was causing issue with barcode scanning
 				{!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
 				'autofocus' => true,
 				]); !!}
@@ -45,7 +111,7 @@
 				</span>
 			</div>
 		</div>
-	</div>
+	</div> --}}
 </div>
 <div class="row">
 	@if(!empty($pos_settings['show_invoice_layout']))
@@ -143,13 +209,13 @@
 	@endif
 	<!-- Call restaurant module if defined -->
     @if(in_array('tables' ,$enabled_modules) || in_array('service_staff' ,$enabled_modules))
-    	<span id="restaurant_module_span" 
+    	{{-- <span id="restaurant_module_span" 
     		data-transaction_id="{{$transaction->id}}">
       		<div class="col-md-3"></div>
-    	</span>
+    	</span> --}}
     @endif
 	@if(in_array('kitchen' ,$enabled_modules))
-		<div class="col-md-3">
+		{{-- <div class="col-md-3">
 			<div class="form-group">
 				<div class="checkbox">
 				<label>
@@ -157,7 +223,7 @@
 				</label>
 				</div>
 			</div>
-		</div>
+		</div> --}}
     @endif
     @if(in_array('subscription', $enabled_modules))
 		<div class="col-md-4 col-sm-6">
@@ -192,7 +258,8 @@
 			<thead>
 				<tr>
 					<th class="tex-center @if(!empty($pos_settings['inline_service_staff'])) col-md-3 @else col-md-4 @endif">	
-						@lang('sale.product') @show_tooltip(__('lang_v1.tooltip_sell_product_column'))
+						@lang('sale.product')
+						 {{-- @show_tooltip(__('lang_v1.tooltip_sell_product_column')) --}}
 					</th>
 					<th class="text-center col-md-3">
 						@lang('sale.qty')
@@ -205,9 +272,9 @@
 					<th class="text-center col-md-2 {{$hide_tax}}">
 						@lang('sale.price_inc_tax')
 					</th>
-					<th class="text-center col-md-2">
+					{{-- <th class="text-center col-md-2">
 						@lang('sale.subtotal')
-					</th>
+					</th> --}}
 					<th class="text-center"><i class="fas fa-times" aria-hidden="true"></i></th>
 				</tr>
 			</thead>

@@ -1,5 +1,6 @@
 var global_brand_id = null;
 var global_p_category_id = null;
+var global_is_clear_local_storage = false;
 $(document).ready(function() {
     customer_set = false;
     //Prevent enter key function except texarea
@@ -149,6 +150,8 @@ $(document).ready(function() {
         // }
         if ($('.contact_due_text').length) {
             get_contact_due(data.id);
+            // store on customer change
+            saveFormDataToLocalStorage();
         }
     });
 
@@ -224,8 +227,8 @@ $(document).ready(function() {
                     }
 
                     var is_draft=false;
-                    if($('input#status') && ($('input#status').val()=='quotation' || 
-                    $('input#status').val()=='draft')) {
+                    if($('#status') && ($('#status').val()=='quotation' || 
+                    $('#status').val()=='draft')) {
                         var is_draft=true;
                     }
 
@@ -251,8 +254,9 @@ $(document).ready(function() {
                     for_so = true;
                 }
                 var is_draft=false;
-                if($('input#status') && ($('input#status').val()=='quotation' || 
-                $('input#status').val()=='draft')) {
+                
+                if($('#status') && ($('#status').val()=='quotation' || 
+                $('#status').val()=='draft')) {
                     var is_draft=true;
                 }
 
@@ -300,9 +304,10 @@ $(document).ready(function() {
 
     //Update line total and check for quantity not greater than max quantity
     $('table#pos_table tbody').on('change', 'input.pos_quantity', function() {
-        if (sell_form_validator) {
-            sell_form.valid();
-        }
+        // comment line becouse it validate form at increment and decrement item
+        // if (sell_form_validator) {
+        //     sell_form.valid();
+        // }
         if (pos_form_validator) {
             pos_form_validator.element($(this));
         }
@@ -1295,7 +1300,7 @@ $(document).ready(function() {
     });
 
     //Quick add product
-    $(document).on('click', 'button.pos_add_quick_product', function() {
+    $(document).on('click', '.pos_add_quick_product', function() {
         var url = $(this).data('href');
         var container = $(this).data('container');
         $.ajax({
@@ -1674,9 +1679,18 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
         }
 
         var is_draft=false;
-        if($('input#status') && ($('input#status').val()=='quotation' || 
-        $('input#status').val()=='draft')) {
+        if($('#status') && ($('#status').val()=='quotation' || 
+        $('#status').val()=='draft')) {
             is_draft=true;
+        }
+
+        var is_serial_no = false;
+
+        if (
+            $('input[name="is_serial_no"]').length > 0 &&
+            $('input[name="is_serial_no"]').val() == 1
+        ) {
+            is_serial_no = true;
         }
         
         $.ajax({
@@ -1687,6 +1701,7 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                 product_row: product_row,
                 customer_id: customer_id,
                 is_direct_sell: is_direct_sell,
+                is_serial_no: is_serial_no,
                 price_group: price_group,
                 purchase_line_id: purchase_line_id,
                 weighing_scale_barcode: weighing_scale_barcode,
@@ -1801,6 +1816,16 @@ function pos_total_row() {
     //$('span.unit_price_total').html(unit_price_total);
     $('span.price_total').html(__currency_trans_from_en(price_total, false));
     calculate_billing_details(price_total);
+
+    if (
+        $('input[name="is_serial_no"]').length > 0 &&
+        $('input[name="is_serial_no"]').val() == 1
+    ) {
+        update_serial_no();
+    }
+    // store on any update
+    saveFormDataToLocalStorage();
+
 }
 
 function get_subtotal() {
@@ -1964,6 +1989,8 @@ function calculate_balance_due() {
 
     __highlight(bal_due * -1, $('span.balance_due'));
     __highlight(change_return * -1, $('span.change_return_span'));
+    // store payment details
+    saveFormDataToLocalStorage();
 }
 
 function isValidPosForm() {
@@ -2071,6 +2098,10 @@ function reset_pos_form(){
     $('.contact_due_text').addClass('hide');
 
     $(document).trigger('sell_form_reset');
+
+    // Set global_is_clear_local_storage to true to clear local storage
+    global_is_clear_local_storage = true;
+    saveFormDataToLocalStorage();
 }
 
 function set_default_customer() {
@@ -3176,3 +3207,108 @@ $(document).on('change', '#res_waiter_id', function(e){
         
     }
 })
+
+// update serial number of product item
+function update_serial_no(){
+    $('.product_row').each(function (index) {
+        // Add the serial number to the first <td> of each row (index + 1 to start from 1)
+        if ($(this).find('td:first').hasClass('serial_no')) {
+            $(this).find('td:first').text(index + 1);
+        }
+    });
+}
+
+
+/**
+ * Saves the serialized form data from #add_pos_sell_form into LocalStorage.
+ */
+function saveFormDataToLocalStorage() {
+
+
+    // Check if global_is_clear_local_storage is true and reset it to false if so
+    if(global_is_clear_local_storage){
+        localStorage.setItem("pos_form_data_array", JSON.stringify([]));
+        global_is_clear_local_storage = false;
+        return false; // Exit the function early if global_is_clear_local_storage was true
+    }
+
+    // var storedArrayData = JSON.parse(localStorage.getItem("pos_form_data_array"));
+
+    // console.log("All data afer clear:", storedArrayData);
+
+    let form = $('form#add_pos_sell_form'); // Select the form by ID
+    // Check if the form exists in the DOM
+    if (form.length === 0) {
+        console.error("Error: Form #add_pos_sell_form not found.");
+        return;
+    }
+    // Serialize form data into an array of objects: [{name: 'input_name', value: 'input_value'}, ...]
+    let formArray = form.serializeArray();
+
+    // Find if "price_total" already exists in the array
+    let priceIndex = formArray.findIndex(item => item.name === "price_total");
+
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[priceIndex].value = get_subtotal();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "price_total", value: get_subtotal() });
+    }
+
+    // Find if "order_tax" already exists in the array
+    let textIndex = formArray.findIndex(item => item.name === "order_tax");
+
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[textIndex].value = $("#order_tax").text().trim();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "order_tax", value: $("#order_tax").text().trim()});
+    }
+
+    // Find if "shipping_charges_amount" already exists in the array
+    let shipping_charges_amount = formArray.findIndex(item => item.name === "shipping_charges_amount");
+
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[shipping_charges_amount].value = $("#shipping_charges_amount").text().trim();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "shipping_charges_amount", value: $("#shipping_charges_amount").text().trim()});
+    }
+
+    // Find if "total_paying_input" already exists in the array
+    let total_paying_input = formArray.findIndex(item => item.name === "total_paying_input");
+    
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[total_paying_input].value = $("#total_paying_input").val();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "total_paying_input", value: $("#total_paying_input").val()});
+    }
+
+    // Find if "change_return" already exists in the array
+    let change_return = formArray.findIndex(item => item.name === "change_return");
+    if (priceIndex !== -1) {
+        // If exists, update the value
+        formArray[change_return].value = $("#change_return").val();
+    } else {
+        // If not exists, push new entry
+        formArray.push({ name: "change_return", value: $("#change_return").val()});
+    }
+     // Find if "in_balance_due" already exists in the array
+     let in_balance_due = formArray.findIndex(item => item.name === "in_balance_due");
+     if (priceIndex !== -1) {
+         // If exists, update the value
+         formArray[in_balance_due].value = $("#in_balance_due").val();
+     } else {
+         // If not exists, push new entry
+         formArray.push({ name: "in_balance_due", value: $("#in_balance_due").val()});
+     }
+    // Store serialized data in LocalStorage as a JSON string
+    localStorage.setItem("pos_form_data_array", JSON.stringify(formArray));
+
+    // console.log("Form data successfully saved to LocalStorage.");
+}
