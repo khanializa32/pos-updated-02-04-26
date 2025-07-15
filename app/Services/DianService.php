@@ -13,6 +13,7 @@ use App\TransactionPayment;
 use Carbon\Carbon;
 // use App\Utils\TransactionUtil;
 // use App\Utils\ProductUtil;
+use Illuminate\Support\Facades\Http;
 
 
 class DianService
@@ -1493,6 +1494,192 @@ class DianService
 
             curl_setopt_array($curl, array(
             CURLOPT_URL => env('APP_API_FE').'/api/ubl2.1/credit-note',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $jsonData,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'Authorization: Bearer '.$business_data->dian_token
+            ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+            $respuesta = json_decode($response);
+            // dd($respuesta);
+            $ErrorRules = '';
+            $StatusCode = '';
+            $MgsResponse = '';
+
+            if(!isset($respuesta->success) || $respuesta->success){
+                if(isset($respuesta->ResponseDian))
+                {
+                    
+
+                    $response_dian =  $respuesta->ResponseDian;
+                    $IsValid = $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->IsValid;
+                    $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
+                    $cufe = $respuesta->cude;
+                    $QRStr = $respuesta->QRStr;
+                    $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
+                    
+
+                    if($IsValid == "true")
+                    {
+                        //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
+                        $transaction = Transaction::find($sell_return->id);
+                        $transaction->cufe = $cufe;
+                        $transaction->is_valid = true;
+                        $transaction->qrstr = $QRStr;
+                        $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                        $transaction->status_code = $StatusCode;
+                        $transaction->save();
+
+                        $MgsResponse = 'Nota Crédito aceptada por la DIAN';                   
+                    }else{
+                        $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
+                        $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
+                        if($StatusCode == '99')
+                        {
+                            $transaction = Transaction::find($sell_return->id);
+                            $transaction->cufe = $cufe;
+                            $transaction->is_valid = false;
+                            $transaction->qrstr = $QRStr;
+                            $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                            $transaction->status_code = $StatusCode;
+                            $transaction->save();
+                            $MgsResponse = 'Nota Crédito procesada anteriormente';  
+                        }
+                    }
+
+                    $output = [
+                        'success' => 1, 
+                        'msg' => $MgsResponse, 
+                        'input_curl'=> $data, 
+                        'input_factura'=> $input, 
+                        'response' => ($respuesta) ? $respuesta : '',  
+                        'cufe' => ($cufe) ? $cufe : '',
+                        'IsValid' => ($IsValid) ? $IsValid : '',
+                        'QRStr' => ($QRStr) ? $QRStr : '',
+                        'ErrorMessage' => $ErrorRules
+                    ];
+                    return $output;
+                }else{
+
+                    
+                    $output = [
+                        'success' => 0, 
+                        'msg' => $respuesta->error[0], 
+                        'input_curl'=> $data, 
+                    ];
+                    return $output;
+                }
+            }else{
+                $output = [
+                    'success' => 1, 
+                    'msg' => $respuesta->message, 
+                ];
+                return $output;
+            }
+
+        }else{
+
+
+            $output = [
+                'success' => 1, 
+                'msg' => 'No es una factura electrónica', 
+                // 'receipt' => $receipt
+            ];
+            return $output;
+        }
+
+    }
+
+    public static function send_radian($business_id, $cufe, $event_id)
+    {
+        $output = [];
+        $isValid = false;
+
+        $business_data = Business::find($business_id);
+        //validamos cuantos eventos se han enviado
+        $response = Http::withHeaders([
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Bearer '.$business_data->dian_token
+        
+        ])->post(env('APP_API_FE').'/api/ubl2.1/status/events-document/'.$cufe, [
+            // 'event_id' => $event_id,
+            // 'billing_reference' => array(
+            //     'cufe' => $cufe
+            // )
+        ]);
+
+        $responseData = $response->json();
+        $isValid = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['IsValid'];
+        $isValidBool = ($isValid === "true"); 
+
+        $isValid = false;
+
+        if (isset($responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['IsValid'])) {
+            $isValid = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['IsValid'] === "true";
+        }
+
+        if ($isValid) {
+            // La factura tiene eventos válidos
+            // Procesar los eventos...
+        } else {
+            // No hay eventos válidos o hubo un error
+            $statusCode = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['StatusCode'];
+            $statusDesc = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['StatusDescription'];
+            $output = [
+                'success' => 0, 
+                'msg' => $statusDesc, 
+            ];
+            return $output;
+            // Log::warning("Factura sin eventos válidos. Código: $statusCode, Descripción: $statusDesc");
+        }
+
+
+
+
+
+        $i_echeme = '';
+
+        $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',4)->first();
+        $i_echeme = $invoice_scheme->type_document_id;
+
+        
+
+        //validamos si se va a enviar factua electronica o no
+        if($i_echeme == '4' && $input['status'] == "final" && $input['type'] == "sell")//final
+        {
+
+            
+
+                $data = array(
+                    "event_id" => $event_id,
+                    "billing_reference" => array(
+                        "cufe" => $cufe
+                    ),
+                    
+                );
+            
+            // return $data;
+
+            $jsonData = json_encode($data);
+            // return $jsonData;
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => env('APP_API_FE').'/api/ubl2.1/send-event-data',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,

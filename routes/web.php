@@ -528,6 +528,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone'])
     Route::get('/get-total-unread', [HomeController::class, 'getTotalUnreadNotifications']);
     Route::get('/purchases/print/{id}', [PurchaseController::class, 'printInvoice']);
     Route::get('/purchases/{id}', [PurchaseController::class, 'show']);
+    Route::get('/purchases/{id}/radian', [PurchaseController::class, 'radian']);
+    Route::get('/purchases/{id}/send_radian', [PurchaseController::class, 'send_radian'])->name('purchase.send_radian');
     Route::get('/download-purchase-order/{id}/pdf', [PurchaseOrderController::class, 'downloadPdf'])->name('purchaseOrder.downloadPdf');
     Route::get('/sells/{id}', [SellController::class, 'show']);
     Route::get('/sells/{transaction_id}/print', [SellPosController::class, 'printInvoice'])->name('sell.printInvoice');

@@ -36,6 +36,9 @@
             &nbsp;{{ __('purchase.download_document') }}
         </a>
       @endif
+      @if($purchase->cufe)
+        <span class="label label-success">CUFE: {{$purchase->cufe}}</span>
+      @endif
     </div>
 
     <div class="col-sm-4 invoice-col">
@@ -65,6 +68,7 @@
           <br>@lang('business.email'): {{$purchase->location->email}}
         @endif
       </address>
+      
     </div>
 
     <div class="col-sm-4 invoice-col">
@@ -414,6 +418,7 @@
         @endif
       </p>
     </div>
+    
   </div>
   @if(!empty($activities))
   <div class="row">

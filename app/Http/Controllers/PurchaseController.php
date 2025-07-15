@@ -7,6 +7,7 @@ use App\Business;
 use App\BusinessLocation;
 use App\Contact;
 use App\CustomerGroup;
+use App\Department;
 use App\Product;
 use App\PurchaseLine;
 use App\TaxRate;
@@ -23,6 +24,10 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
 use App\Events\PurchaseCreatedOrModified;
+use App\Municipality;
+use App\TypeDocumentIdentification;
+use App\TypeLiability;
+use App\TypeRegime;
 
 class PurchaseController extends Controller
 {
@@ -115,6 +120,9 @@ class PurchaseController extends Controller
                         $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i>'.__('messages.view').'</a></li>';
                     }
                     if (auth()->user()->can('purchase.view')) {
+                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'radian'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-arrow-alt-circle-up"></i>Eventos RADIAN</a></li>';
+                    }
+                    if (auth()->user()->can('purchase.view')) {
                         $html .= '<li><a href="#" class="print-invoice" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'printInvoice'], [$row->id]).'"><i class="fas fa-print" aria-hidden="true"></i>'.__('messages.print').'</a></li>';
                     }
                     if (auth()->user()->can('purchase.update')) {
@@ -125,6 +133,8 @@ class PurchaseController extends Controller
                     }
 
                     $html .= '<li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'show']).'?purchase_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fas fa-barcode"></i>'.__('barcode.labels').'</a></li>';
+                    // $html .= '<li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'radian']).'?purchase_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fas fa-barcode"></i>Eventos RADIAN</a></li>';
+                    
 
                     if (auth()->user()->can('purchase.view') && ! empty($row->document)) {
                         $document_name = ! empty(explode('_', $row->document, 2)[1]) ? explode('_', $row->document, 2)[1] : $row->document;
@@ -218,8 +228,21 @@ class PurchaseController extends Controller
         $suppliers = Contact::suppliersDropdown($business_id, false);
         $orderStatuses = $this->productUtil->orderStatuses();
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $municipalities = Municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+
+        $data = [
+            // 'inventory' => null,
+            'total_purchase' => null,
+            'purchase_due' => null,
+        ];
+
         return view('purchase.index')
-            ->with(compact('business_locations', 'suppliers', 'orderStatuses'));
+            ->with(compact('business_locations', 'suppliers', 'orderStatuses', 'data', 'type_document_identifications', 'departments', 'municipalities', 'type_regimes', 'type_liabilities'));
     }
 
     /**
@@ -278,8 +301,15 @@ class PurchaseController extends Controller
 
         $common_settings = ! empty(session('business.common_settings')) ? session('business.common_settings') : [];
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $municipalities = Municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+
         return view('purchase.create')
-            ->with(compact('taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes', 'common_settings'));
+            ->with(compact('taxes', 'orderStatuses', 'business_locations', 'currency_details', 'default_purchase_status', 'customer_groups', 'types', 'shortcuts', 'payment_line', 'payment_types', 'accounts', 'bl_attributes', 'common_settings', 'type_document_identifications', 'departments', 'municipalities', 'type_regimes', 'type_liabilities'));
     }
 
     /**
@@ -302,7 +332,7 @@ class PurchaseController extends Controller
                 return $this->moduleUtil->expiredResponse(action([\App\Http\Controllers\PurchaseController::class, 'index']));
             }
 
-            $transaction_data = $request->only(['ref_no', 'status', 'contact_id', 'transaction_date', 'total_before_tax', 'location_id', 'discount_type', 'discount_amount', 'tax_id', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'purchase_order_ids']);
+            $transaction_data = $request->only(['ref_no', 'status', 'cufe', 'contact_id', 'transaction_date', 'total_before_tax', 'location_id', 'discount_type', 'discount_amount', 'tax_id', 'tax_amount', 'shipping_details', 'shipping_charges', 'final_total', 'additional_notes', 'exchange_rate', 'pay_term_number', 'pay_term_type', 'purchase_order_ids']);
 
             $exchange_rate = $transaction_data['exchange_rate'];
 
@@ -508,6 +538,79 @@ class PurchaseController extends Controller
 
         return view('purchase.show')
                 ->with(compact('taxes', 'purchase', 'payment_methods', 'purchase_taxes', 'activities', 'statuses', 'purchase_order_nos', 'purchase_order_dates'));
+    }
+
+    public function radian($id)
+    {
+        $business_id = request()->session()->get('user.business_id');
+        $taxes = TaxRate::where('business_id', $business_id)
+                            ->pluck('name', 'id');
+        $purchase = Transaction::where('business_id', $business_id)
+                                ->where('id', $id)
+                                ->with(
+                                    'contact',
+                                    'purchase_lines',
+                                    'purchase_lines.product',
+                                    'purchase_lines.product.unit',
+                                    'purchase_lines.product.second_unit',
+                                    'purchase_lines.variations',
+                                    'purchase_lines.variations.product_variation',
+                                    'purchase_lines.sub_unit',
+                                    'location',
+                                    'payment_lines',
+                                    'tax'
+                                )
+                                ->firstOrFail();
+
+        foreach ($purchase->purchase_lines as $key => $value) {
+            if (! empty($value->sub_unit_id)) {
+                $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                $purchase->purchase_lines[$key] = $formated_purchase_line;
+            }
+        }
+
+        $payment_methods = $this->productUtil->payment_types($purchase->location_id, true);
+
+        $purchase_taxes = [];
+        if (! empty($purchase->tax)) {
+            if ($purchase->tax->is_tax_group) {
+                $purchase_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($purchase->tax, $purchase->tax_amount));
+            } else {
+                $purchase_taxes[$purchase->tax->name] = $purchase->tax_amount;
+            }
+        }
+
+        //Purchase orders
+        $purchase_order_nos = '';
+        $purchase_order_dates = '';
+        if (! empty($purchase->purchase_order_ids)) {
+            $purchase_orders = Transaction::find($purchase->purchase_order_ids);
+
+            $purchase_order_nos = implode(', ', $purchase_orders->pluck('ref_no')->toArray());
+            $order_dates = [];
+            foreach ($purchase_orders as $purchase_order) {
+                $order_dates[] = $this->transactionUtil->format_date($purchase_order->transaction_date, true);
+            }
+            $purchase_order_dates = implode(', ', $order_dates);
+        }
+
+        $activities = Activity::forSubject($purchase)
+           ->with(['causer', 'subject'])
+           ->latest()
+           ->get();
+
+        $statuses = $this->productUtil->orderStatuses();
+
+        $list = [
+            '1' => 'Acuse de recibo de Factura Electrónica de Venta',
+            '2' => 'Reclamo de la Factura Electrónica de Venta',
+            '3' => 'Recibo del bien y/o prestación del servicio',
+            '4' => 'Aceptación expresa',
+            '5' => 'Aceptación Tácita'
+        ];
+
+        return view('purchase.radian')
+                ->with(compact('taxes', 'purchase', 'payment_methods', 'purchase_taxes', 'activities', 'statuses', 'purchase_order_nos', 'purchase_order_dates', 'list'));
     }
 
     /**

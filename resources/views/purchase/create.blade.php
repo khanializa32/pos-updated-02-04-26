@@ -157,6 +157,13 @@
                     </p>
                 </div>
             </div>
+			<div class="col-sm-3">
+				<div class="form-group">
+					{!! Form::label('cufe', __('Cufe').':') !!}
+					@show_tooltip(__('Cufe de la factura de compra'))
+					{!! Form::text('cufe', null, ['class' => 'form-control']); !!}
+				</div>
+			</div>
 		</div>
 		<div class="row">
 			@php
