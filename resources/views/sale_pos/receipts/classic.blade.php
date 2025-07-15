@@ -22,23 +22,7 @@
 						{{$receipt_details->display_name}}
 					@endif
 				</h2>
-	<p>
-				@if(!empty($receipt_details->sub_heading_line1))
-					{{ $receipt_details->sub_heading_line1 }}
-				@endif
-				@if(!empty($receipt_details->sub_heading_line2))
-					<br>{{ $receipt_details->sub_heading_line2 }}
-				@endif
-				@if(!empty($receipt_details->sub_heading_line3))
-					<br>{{ $receipt_details->sub_heading_line3 }}
-				@endif
-				@if(!empty($receipt_details->sub_heading_line4))
-					<br>{{ $receipt_details->sub_heading_line4 }}
-				@endif		
-				@if(!empty($receipt_details->sub_heading_line5))
-					<br>{{ $receipt_details->sub_heading_line5 }}
-				@endif
-				</p>
+
 				<!-- Address -->
 				<p>
 				@if(!empty($receipt_details->address))
@@ -59,7 +43,23 @@
 					<br>{{ $receipt_details->location_custom_fields }}
 				@endif
 				</p>
-			
+				<p>
+				@if(!empty($receipt_details->sub_heading_line1))
+					{{ $receipt_details->sub_heading_line1 }}
+				@endif
+				@if(!empty($receipt_details->sub_heading_line2))
+					<br>{{ $receipt_details->sub_heading_line2 }}
+				@endif
+				@if(!empty($receipt_details->sub_heading_line3))
+					<br>{{ $receipt_details->sub_heading_line3 }}
+				@endif
+				@if(!empty($receipt_details->sub_heading_line4))
+					<br>{{ $receipt_details->sub_heading_line4 }}
+				@endif		
+				@if(!empty($receipt_details->sub_heading_line5))
+					<br>{{ $receipt_details->sub_heading_line5 }}
+				@endif
+				</p>
 				<p>
 				@if(!empty($receipt_details->tax_info1))
 					<b>{{ $receipt_details->tax_label1 }}</b> {{ $receipt_details->tax_info1 }}
@@ -310,7 +310,7 @@
 								<img src="{{$line['image']}}" alt="Image" width="50" style="float: left; margin-right: 8px;">
 							@endif
                             {{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
-                                       @if(!empty($line['brand'])), {{$line['brand']}} @endif @if(!empty($line['cat_code'])), {{$line['cat_code']}}@endif
+                            @if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif @if(!empty($line['cat_code'])), {{$line['cat_code']}}@endif
                             @if(!empty($line['product_custom_fields'])), {{$line['product_custom_fields']}} @endif
                             @if(!empty($line['product_description']))
                             	<small>
@@ -345,7 +345,7 @@
                             </small>
                             @endif
 						</td>
-						<td></td> </td>
+						<td class="text-right">{{$line['unit_price_before_discount']}}</td>
 						@if(!empty($receipt_details->discounted_unit_price_label))
 							<td class="text-right">
 								{{$line['unit_price_inc_tax']}} 

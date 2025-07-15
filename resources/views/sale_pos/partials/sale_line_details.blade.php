@@ -1,5 +1,5 @@
-<table class="table @if(!empty($for_ledger)) table-slim mb-0 bg-light-white @else bg-white @endif" @if(!empty($for_pdf)) style="width: 100%;" @endif>
-        <tr @if(empty($for_ledger)) class="bg-purple" @endif>
+<table class="table @if(!empty($for_ledger)) table-slim mb-0 bg-light-gray @else bg-gray @endif" @if(!empty($for_pdf)) style="width: 100%;" @endif>
+        <tr @if(empty($for_ledger)) class="bg-green" @endif>
         <th>#</th>
         <th>{{ __('sale.product') }}</th>
         @if( session()->get('business.enable_lot_number') == 1 && empty($for_ledger))
@@ -175,7 +175,6 @@
                         <span class="display_currency" data-currency_symbol="true">{{ $modifier->quantity * $modifier->unit_price_inc_tax }}</span>
                     @endif
                 </td>
-                
             </tr>
             @endforeach
         @endif

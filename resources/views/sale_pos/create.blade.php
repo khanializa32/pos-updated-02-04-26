@@ -21,15 +21,15 @@
             'id' => 'add_pos_sell_form',
         ]) !!}
         <div class="row mb-12">
-            <div class="col-md-12 tw-pt-0 tw-mb-14">
+            <div class="col-md-12 tw-pt-0">
                 <div class="row tw-flex lg:tw-flex-row md:tw-flex-col sm:tw-flex-col tw-flex-col tw-items-start md:tw-gap-4">
                     {{-- <div class="@if (empty($pos_settings['hide_product_suggestion'])) col-md-7 @else col-md-10 col-md-offset-1 @endif no-padding pr-12"> --}}
-                    <div class="tw-px-3 tw-w-full  lg:tw-px-0 lg:tw-pr-0 @if(empty($pos_settings['hide_product_suggestion'])) lg:tw-w-[60%]  @else lg:tw-w-[100%] @endif">
-
-                        <div class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-rounded-2xl tw-bg-white tw-mb-2 md:tw-mb-8 tw-p-2">
-
+                    <div class="tw-px-3 tw-w-full  lg:tw-px-0 lg:tw-pr-0 col-lg-3 col-sm-3" style="overflow: hidden">
+                        
+                        <div class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-rounded-2xl tw-bg-white tw-p-2">
                             {{-- <div class="box box-solid mb-12 @if (!isMobile()) mb-40 @endif"> --}}
                                 <div class="box-body pb-0">
+                                    <!-- Productos-->
                                     {!! Form::hidden('location_id', $default_location->id ?? null, [
                                         'id' => 'location_id',
                                         'data-receipt_printer_type' => !empty($default_location->receipt_printer_type)
@@ -41,7 +41,9 @@
                                     {!! Form::hidden('sub_type', isset($sub_type) ? $sub_type : null) !!}
                                     <input type="hidden" id="item_addition_method"
                                         value="{{ $business_details->item_addition_method }}">
-                                    @include('sale_pos.partials.pos_form')
+                                    <!-- Fin Productos-->
+                                    
+                                    @include('sale_pos.partials.pos_form') <!-- titulos de prodcuto, cantidad y total -->
 
                                     @include('sale_pos.partials.pos_form_totals')
 
@@ -56,13 +58,45 @@
                                     @endif
                                 </div>
                             {{-- </div> --}}
+                            <!-- BOTONES  a VERDE Y AMARILLO COBRAR y A CREDITO-->
+                            <div style="display: flex; ">
+                                @if (!Gate::check('disable_pay_checkout') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+                                <button type="button" style="flex: 1; margin-left: 12px;  font-size: 15px" 
+                                    class="tw-hidden md:tw-flex md:tw-flex-row md:tw-items-center md:tw-justify-center md:tw-gap-1 tw-font-bold tw-text-white tw-cursor-pointer tw-text-xs md:tw-text-sm tw-bg-[#001F3E] btn btn-success tw-rounded-md tw-p-2 tw-w-[8.5rem] @if (!isMobile())  @endif no-print @if ($pos_settings['disable_pay_checkout'] != 0) hide @endif"
+                                    id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')"><i class=""
+                                        aria-hidden="true"></i> @lang('lang_v1.checkout_multi_pay') </button>
+                                @endif
+                                <div style="width: 10px"></div>
+                                {{-- @if (!Gate::check('disable_express_checkout') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+                                    <button type="button" style="flex: 1; margin-right: 12px"
+                                        class="tw-font-bold tw-text-white tw-cursor-pointer tw-text-xs md:tw-text-sm tw-bg-[rgb(40,183,123)] tw-p-2 tw-rounded-md tw-w-[8.5rem] tw-hidden md:tw-flex lg:tw-flex lg:tw-flex-row btn btn-warning lg:tw-items-center lg:tw-justify-center lg:tw-gap-1 @if (!isMobile())  @endif no-print @if ($pos_settings['disable_express_checkout'] != 0 || !array_key_exists('cash', $payment_types)) hide @endif pos-express-finalize"
+                                        data-pay_method="cash" title="@lang('tooltip.express_checkout')"> <i class=""
+                                            aria-hidden="true"></i> @lang('lang_v1.express_checkout_cash')</button>
+                                @endif --}}
+
+                                @if (!Gate::check('disable_credit_sale') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+                                    @if (empty($pos_settings['disable_credit_sale_button']))
+                                        <input type="hidden" name="is_credit_sale" value="0" id="is_credit_sale">
+                                        <button type="button" style="flex: 1; margin-right: 12px; font-size: 15px"
+                                            class="  tw-text-gray-700 tw-cursor-pointer tw-text-xs md:tw-text-sm tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-1 no-print pos-express-finalize btn-warning @if ($is_mobile) col-xs-6 @endif"
+                                            data-pay_method="credit_sale" title="@lang('lang_v1.tooltip_credit_sale')"
+                                            @if (!empty($only_payment)) disabled @endif>
+                                            @lang('lang_v1.credit_sale')
+                                        </button>
+                                    @endif
+                                @endif
+                            </div>
                         </div>
+                        
+
                     </div>
+                    
                     @if (empty($pos_settings['hide_product_suggestion']) && !isMobile())
-                        <div class="md:tw-no-padding tw-w-full lg:tw-w-[40%] tw-px-5">
+                        <div class="col-lg-9" style="height: 65%;">
                             @include('sale_pos.partials.pos_sidebar')
                         </div>
                     @endif
+                    
                 </div>
             </div>
         </div>

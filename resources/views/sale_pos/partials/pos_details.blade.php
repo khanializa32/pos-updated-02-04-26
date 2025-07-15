@@ -48,22 +48,7 @@
 								</span>
 							@endif
 							</div>
-<td>
-					<b>Graba:</b> &nbsp;
-					<span class="total_grabable">0</span>
-				</td>
-				<td>
-					<b>Iva:</b> &nbsp;
-					<span class="iva">0</span>
-				</td>
-				<td>
-					<b>rete.:</b> &nbsp;
-					<span class="retefuente">0</span>
-				</td>
-				<td>
-					<b>Rete ICA:</b> &nbsp;
-					<span class="reteica">0</span>
-				</td>
+
 							<div class="{{$col}} col-xs-6 d-inline-table">
 
 								<span class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
@@ -159,7 +144,7 @@
 									data-pay_method="credit_sale"
 									title="@lang('lang_v1.tooltip_credit_sale')" >
 									<div class="text-center">
-										<i class="fa fa-dollar" aria-hidden="true"></i>
+										<i class="fa fa-check" aria-hidden="true"></i>
 	    								<b>@lang('lang_v1.credit_sale')</b>
 	    							</div>
 									</button>

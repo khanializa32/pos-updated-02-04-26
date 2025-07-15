@@ -218,8 +218,8 @@
       </div>
       <div class="col-md-6 col-sm-12 col-xs-12">
         <div class="table-responsive">
-          <table class="table bg-white">
-            <tr class="bg-purple">
+          <table class="table bg-gray">
+            <tr class="bg-green">
               <th>#</th>
               <th>{{ __('messages.date') }}</th>
               <th>{{ __('purchase.ref_no') }}</th>
@@ -261,7 +261,7 @@
       @endif
       <div class="col-md-6 col-sm-12 col-xs-12 @if($sell->type == 'sales_order') col-md-offset-6 @endif">
         <div class="table-responsive">
-          <table class="table bg-white">
+          <table class="table bg-gray">
             <tr>
               <th>{{ __('sale.total') }}: </th>
               <td></td>
@@ -382,7 +382,7 @@
     <div class="row">
       <div class="col-sm-6">
         <strong>{{ __( 'sale.sell_note')}}:</strong><br>
-        <p class="well well-sm no-shadow bg-white">
+        <p class="well well-sm no-shadow bg-gray">
           @if($sell->additional_notes)
             {!! nl2br($sell->additional_notes) !!}
           @else
@@ -392,7 +392,7 @@
       </div>
       <div class="col-sm-6">
         <strong>{{ __( 'sale.staff_note')}}:</strong><br>
-        <p class="well well-sm no-shadow bg-white">
+        <p class="well well-sm no-shadow bg-gray">
           @if($sell->staff_note)
             {!! nl2br($sell->staff_note) !!}
           @else

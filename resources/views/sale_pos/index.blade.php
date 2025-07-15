@@ -6,8 +6,7 @@
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.pos_sale')
-    
-     &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
+    &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
      
       </h4>
       
@@ -43,7 +42,7 @@
                                                     {{ __('home.total_sell') }}
                                                 </p>
                                                 
-                                                {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                                <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
                                                 
                                                 
                                                 <p
@@ -86,7 +85,7 @@
                                                 {{ __('lang_v1.expense') }}
                                             </p>
                                             
-                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                            <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
                                             
                                             <p
                                                 class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
@@ -120,12 +119,12 @@
 
                                             <div class="tw-flex-1 tw-min-w-0">
                                                 <p
-                                            
+                                            <p
                                                 class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
                                                 {{ __('lang_v1.potential_profit') }}
                                                 
                                             </p>
-                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                            <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
                                             <p
                                                 class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
 
@@ -166,7 +165,7 @@
                                                 {{ __('lang_v1.my_inventary') }}
                                                 
                                             </p>
-                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                            <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
                                             <p
                                                 class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
 
