@@ -150,6 +150,32 @@
 		{!! Form::hidden('default_price_group', $default_price_group_id, ['id' => 'default_price_group']) !!}
 	@endif
 
+
+
+	
+       @if(in_array('tables' ,$enabled_modules) || in_array('service_staff' ,$enabled_modules))
+    	<div class="clearfix"></div>
+    	<span id="restaurant_module_span">
+      		<div class="col-md-3"></div>
+    	</span>
+       @endif 
+
+	@if(in_array('kitchen' ,$enabled_modules))
+		<div class="col-md-3">
+			<div class="form-group">
+				<div class="checkbox">
+				<label>
+						{!! Form::checkbox('is_kitchen_order', 1, false, ['class' => 'input-icheck status', 'id' => 'is_kitchen_order']); !!} {{ __('lang_v1.kitchen_order') }}
+				</label>
+				@show_tooltip(__('lang_v1.kitchen_order_tooltip'))
+				</div>
+			</div>
+		</div>
+      @endif
+
+
+
+	
 	@if(in_array('types_of_service', $enabled_modules) && !empty($types_of_service))
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">
@@ -214,7 +240,7 @@
 			</div>
 		</div>
     @endif
-		POR AQUI DEBO PONER EL NOMBRE DEL PRODUCTO
+		
 --}}
 </div>
 <!-- include module fields -->
