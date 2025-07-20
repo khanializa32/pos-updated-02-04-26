@@ -133,17 +133,21 @@
                 @endif
             </div>
 
-            {{--<div class="tw-w-full md:tw-w-fit tw-flex tw-flex-col tw-items-end tw-gap-3 tw-hidden md:tw-block">
+		
+<div class="tw-w-full md:tw-w-fit tw-flex tw-flex-col tw-items-end tw-gap-3 tw-hidden md:tw-block">
                 @if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
                     <button type="button"
-                        class="tw-font-bold tw-bg-[#646EE4] hover:tw-bg-[#414aac] tw-rounded-full tw-text-white tw-w-full md:tw-w-fit tw-px-5 tw-h-11 tw-cursor-pointer tw-text-xs md:tw-text-sm"
-                        data-toggle="modal" data-target="#recent_transactions_modal" id="recent-transactions"> <i
-                            class="fas fa-clock"></i> @lang('lang_v1.recent_transactions')</button>
+                        class=" tw--full tw-text-red tw-w-full md:tw-w-fit tw-px-5 tw-h-11 tw-cursor-pointer tw-text-xs md:tw-text-sm"
+                        data-toggle="modal" data-target="#recent_transactions_modal" id="recent-transactions"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
+                            class="fas fa-clock"></i> Consultas</button>
                 @endif
             </div>
         </div>
     </div>
-</div> --}}
+</div>
+
+
+		
 @if (isset($transaction))
     @include('sale_pos.partials.edit_discount_modal', [
         'sales_discount' => $transaction->discount_amount,
