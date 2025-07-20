@@ -28,14 +28,14 @@
                     <ul class="tw-dw-menu tw-dw-dropdown-content tw-dw-z-[1] tw-dw-bg-base-100 tw-dw-rounded-box tw-w-48 tw-absolute tw-left-0 tw-z-10 tw-mt-2 tw-origin-top-right tw-bg-white tw-rounded-lg tw-shadow-lg tw-ring-1 tw-ring-gray-200 focus:tw-outline-none"
                         role="menu" tabindex="-1">
                         <div class="tw-p-2" role="none">
-                            <a href="https://plus.zisco.cloud/sells/create"
+                            <a href="https://plus.app.cloud/sells/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-edit' style='font-size:20px;color:magenta'></i>
                                 @lang('lang_v1.sales_create')
                             </a>
                            
-                                 <a href="https://plus.zisco.cloud/purchases/create"
+                                 <a href="https://app.zisco.cloud/purchases/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                     role="menuitem" tabindex="-1">
                                 <i class='fas fa-tags' style='font-size:20px;color:mediumseagreen'></i>
@@ -44,7 +44,7 @@
                             
                             
                               
-                             <a href="https://plus.zisco.cloud/expenses/create"
+                             <a href="https://app.zisco.cloud/expenses/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-money-bill-wave' style='font-size:20px;color:dodgerblue'></i>
@@ -53,7 +53,7 @@
                             
                             
                             
-                             <a href="https://plus.zisco.cloud/products"
+                             <a href="https://app.zisco.cloud/products"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-dolly' style='font-size:20px;color:orange'></i>
@@ -62,7 +62,7 @@
                             
                           
                             
-                             <a href="https://plus.zisco.cloud/contacts?type=customer"
+                             <a href="https://app.zisco.cloud/contacts?type=customer"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-user-check' style='font-size:20px;color:green'></i>
@@ -70,7 +70,7 @@
                             </a>
                             
                             
-                             <a href="https://plus.zisco.cloud/contacts?type=supplier"
+                             <a href="https://app.zisco.cloud/contacts?type=supplier"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-users' style='font-size:20px;color:brown'></i>
