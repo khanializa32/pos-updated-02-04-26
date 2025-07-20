@@ -130,7 +130,7 @@
                     --}}
                 </div>
             </div>
-            {{-- 
+             
             <div class="tw-w-full md:tw-w-2/3 !tw-p-0 tw-flex tw-items-center tw-justify-between tw-gap-4 tw-flex-col md:tw-flex-row tw-hidden md:tw-flex"
                 id="pos_header_more_options">
                 <a href="{{ $go_back_url }}" title="{{ __('lang_v1.go_back') }}"
@@ -148,7 +148,8 @@
                     <span class="tw-inline md:tw-hidden">{{ __('lang_v1.go_back') }}</span>
                 </strong>
             </a> 
-
+            </div>
+                {{--
                 @if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
                     <button type="button"
                         class="md:tw-hidden tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right"
