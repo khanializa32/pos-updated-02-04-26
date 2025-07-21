@@ -24,7 +24,7 @@
      'subtotal' => 'Subtotal', /* modified */
      'recent_transactions' => 'Transacciones recientes',
      'pos_sale_added' => 'Venta Creada',
-     'price_inc_tax' => 'Precio Unitario',
+     'price_inc_tax' => 'Precio',
      'tax' => 'Impuesto',
      'edit_discount' => 'Editar Descuento',
      'edit_order_tax' => 'Editar impuesto en pedido', /* modified */
