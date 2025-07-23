@@ -1,7 +1,7 @@
 <div class="col-md-2 col-xs-4 product_list no-print">
-    <div class="add-product hover:tw-shadow-lg hover:tw-animate-pulse pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal">
+    <div class="add-product hover:tw-shadow-lg hover:tw-animate-pulse pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><br>
         <div class="image-container">
-            <i class="fa fa-plus-circle text-danger" style="font-size:6.5em;"></i>
+            <i class="fa fa-plus-circle text-danger" style="font-size:6em;"></i>
         </div>
 
         <div class="text_div">
@@ -9,7 +9,8 @@
             <small class="text text-muted">Crear Producto
             </small>
             <br>
-            <br>
+          
+          
         </div>
     </div>
 </div>
@@ -18,6 +19,14 @@
         <div class="product_box hover:tw-shadow-lg hover:tw-animate-pulse" data-variation_id="{{ $product->id }}"
             title="{{ $product->name }} @if ($product->type == 'variable') - {{ $product->variation }} @endif {{ '(' . $product->sub_sku . ')' }} @if (!empty($show_prices)) @lang('lang_v1.default') - @format_currency($product->selling_price) @foreach ($product->group_prices as $group_price) @if (array_key_exists($group_price->price_group_id, $allowed_group_prices)) {{ $allowed_group_prices[$group_price->price_group_id] }} - @format_currency($group_price->price_inc_tax) @endif @endforeach @endif">
 
+
+            <small class="text text-muted">{{$product->name}} 
+			@if($product->type == 'variable')
+				- {{$product->variation}}
+			@endif
+			</small>
+			
+			
             <div class="image-container"
                 style="background-image: url(
 					@if (count($product->media) > 0) {{ $product->media->first()->display_url }}
@@ -31,12 +40,7 @@
 
             </div>
 
-            <div class="text_div">
-			<small class="text text-muted">{{$product->name}} 
-			@if($product->type == 'variable')
-				- {{$product->variation}}
-			@endif
-			</small>
+            
             <small class="text-green" style="font-size: 130%; float: right; ">
 				@if($product->enable_stock)
 				{{ @num_format($product->qty_available) }} 
@@ -61,4 +65,5 @@
         </h4>
     </div>
 @endforelse
+
 
