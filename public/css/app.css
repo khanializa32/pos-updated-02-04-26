@@ -834,10 +834,10 @@ table.table-text-center td, table.table-text-center th{
   text-align: center;
   cursor: pointer;
   /*border: 1px solid darkgray;*/
-  font-weight: 600;
+  font-weight: 700;
   background-color: #fff;
-  border-radius: 12px;
-  padding: 40px;
+  border-radius: 23px;
+  padding: 8px;
 }
 .add-product{
   width: 100%;
@@ -849,14 +849,14 @@ table.table-text-center td, table.table-text-center th{
   /*border: 1px solid darkgray;*/
   font-weight: 600;
   background-color: #fff;
-  border-radius: 12px;
+  border-radius: 23px;
   padding: 8px;
 }
 .product_box .image-container{
-  height: 50px;
+  height: 100px;
   margin: auto;
-  width: 100%;
-  margin-bottom: 4px;
+  width: 80%;
+  margin-bottom: 8px;
   
 }
 .product_box .image-container img{
