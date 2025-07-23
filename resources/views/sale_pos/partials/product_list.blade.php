@@ -1,7 +1,7 @@
 <div class="col-md-2 col-xs-4 product_list no-print">
     <div class="add-product hover:tw-shadow-lg hover:tw-animate-pulse pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal">
         <div class="image-container">
-            <i class="fa fa-plus-circle text-danger" style="font-size:4em;"></i>
+            <i class="fa fa-plus-circle text-danger" style="font-size:6.5em;"></i>
         </div>
 
         <div class="text_div">
@@ -32,26 +32,27 @@
             </div>
 
             <div class="text_div">
-                <small class="text text-muted">{{ $product->name }}
-                    @if ($product->type == 'variable')
-                        - {{ $product->variation }}
-                    @endif
-                </small>
-
-                <small class="text-muted">
-                    ({{ $product->sub_sku }})
-                </small><br>
-                <small class="text-muted" style="font-size: 60%;">
-                    @if ($product->enable_stock)
-                        {{ @num_format($product->qty_available) }} {{ $product->unit }} @lang('lang_v1.in_stock')
-                    @else
-                        --
-                    @endif
-                </small>
-            </div>
-
-        </div>
-    </div>
+			<small class="text text-muted">{{$product->name}} 
+			@if($product->type == 'variable')
+				- {{$product->variation}}
+			@endif
+			</small>
+            <small class="text-green" style="font-size: 130%; float: right; ">
+				@if($product->enable_stock)
+				{{ @num_format($product->qty_available) }} 
+				@else
+					--
+				@endif
+			</small>
+			
+			<small class="text-muted" style="font-size: 110%; float: left; ">
+				{{$product->selling_price}}
+			</small><br>
+			
+		</div>
+			
+		</div>
+	</div>
 @empty
     <input type="hidden" id="no_products_found">
     <div class="col-md-12">
@@ -60,3 +61,4 @@
         </h4>
     </div>
 @endforelse
+
