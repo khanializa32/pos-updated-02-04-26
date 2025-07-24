@@ -3,12 +3,12 @@
 		<table class=" table table-condensed">
 			<tbody style="display: flex">
 				<tr style="display: flex; flex-direction: column; flex:1; font-size: ;">
-					<td><b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 10px">@lang('sale.item'):</b>&nbsp;
-						<span class="total_quantity tw-text-base md:tw-text-lg tw-font-semibold" style="font-size: 10px">0</span>
+					<td><b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.item'):</b>&nbsp;
+						<span class="total_quantity tw-text-base md:tw-text-lg tw-font-semibold" style="font-size: 20px ;color:purple">0</span>
 					</td>
 					
 					<td @if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin')) class="" @else class="hide" @endif>
-						<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 10px">
+						<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">
 							@if($is_discount_enabled)
 								@lang('sale.discount')
 								{{-- @show_tooltip(__('tooltip.sale_discount')) --}}
@@ -19,10 +19,10 @@
 							@if($is_discount_enabled)
 								(-):
 								@if($edit_discount)
-								<i class="fas fa-edit cursor-pointer" id="pos-edit-discount" title="@lang('sale.edit_discount')" aria-hidden="true" data-toggle="modal" data-target="#posEditDiscountModal"></i>
+								<i class="fas fa-edit cursor-pointer" id="pos-edit-discount" title="@lang('sale.edit_discount')" aria-hidden="true" style="font-size:24px ;color:red"data-toggle="modal" data-target="#posEditDiscountModal"></i>
 								@endif
 
-								<span class="tw-text-base md:tw-text-lg tw-font-semibold" id="total_discount" style="font-size: 10px">0</span>
+								<span class="tw-text-base md:tw-text-lg tw-font-semibold" id="total_discount" style="font-size: 14px">0</span>
 							@endif
 								<input type="hidden" name="discount_type" id="discount_type" value="@if(empty($edit)){{'percentage'}}@else{{$transaction->discount_type}}@endif" data-default="percentage">
 								<input type="hidden" name="discount_amount" id="discount_amount" value="@if(empty($edit)) {{@num_format($business_details->default_sales_discount)}} @else {{@num_format($transaction->discount_amount)}} @endif" data-default="{{$business_details->default_sales_discount}}">
@@ -55,11 +55,11 @@
 					</td> --}}
 					<td>
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
-							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 10px">@lang('sale.shipping')(+)   
+							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.shipping')(+)   
 								{{-- : @show_tooltip(__('tooltip.shipping')) --}}
 							</b> 
-							<i class="fas fa-edit cursor-pointer"  title="@lang('sale.shipping')" aria-hidden="true" data-toggle="modal" data-target="#posShippingModal"></i>
-							<span id="shipping_charges_amount" style="font-size: 10px">0</span>
+							<i class="fas fa-edit cursor-pointer"  title="@lang('sale.shipping')" aria-hidden="true" style="font-size:24px ;color:green" data-toggle="modal" data-target="#posShippingModal"></i>
+							<span id="shipping_charges_amount" style="font-size: 14px">0</span>
 							<input type="hidden" name="shipping_details" id="shipping_details" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_details}}@endif" data-default="">
 							<input type="hidden" name="shipping_address" id="shipping_address" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_address}}@endif">
 							<input type="hidden" name="shipping_status" id="shipping_status" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_status}}@endif">
@@ -69,10 +69,10 @@
 						</span>
 					</td>
 					@if(in_array('types_of_service', $enabled_modules))
-						<td class="col-sm-3 col-xs-6 d-inline-table">
-							<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('lang_v1.packing_charge')(+):</b>
-							<i class="fas fa-edit cursor-pointer service_modal_btn"></i> 
-							<span  class="tw-text-base md:tw-text-lg tw-font-semibold" id="packing_charge_text">
+						<td class="col-sm-10 col-xs-8 d-inline-table">
+							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('lang_v1.packing_charge')(+):</b>
+							<i class="fas fa-edit cursor-pointer service_modal_btn"aria-hidden="true" style="font-size:24px ;color:green"></i> 
+							<span  class="tw-text-base md:tw-text-lg tw-font-semibold" style="font-size: 14px" id="packing_charge_text">
 								0
 							</span>
 						</td>
@@ -85,7 +85,7 @@
 					@endif
 				</tr>
 				<tr style="flex:1; align-content: center">
-					<td style="border:0px; background-color: black; color: white; font-size: 20px">
+					<td style="border:0px; background-color: black; color: white; font-size: 28px">
 						<b class="">@lang('$')</b> &nbsp;
 						<span class="price_total"  >0</span>
 					</td>
