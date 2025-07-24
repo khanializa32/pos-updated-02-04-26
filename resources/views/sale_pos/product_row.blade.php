@@ -24,27 +24,22 @@
 			value="{{$so_line->id}}">
 		@endif
 		@php
-			$product_name = $product->product_name . '<br/>' . $product->sub_sku ;
+			$product_name = $product->product_name;
 			if(!empty($product->brand)){ $product_name .= ' ' . $product->brand ;}
 		@endphp
 
 		@if( ($edit_price || $edit_discount) && empty($is_direct_sell) )
-		<div title="@lang('lang_v1.pos_edit_product_price_help')" style="display: inline; font-size: 10px">
-		<span class="text-link text-info cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}">
+		<div title="@lang('lang_v1.pos_edit_product_price_help')" style="display: inline; font-size: 16px">
+		<span class="text-link text-dark cursor-pointer" data-toggle="modal" data-target="#row_edit_product_price_modal_{{$row_count}}">
 			{!! $product_name !!}
-			&nbsp;<i class="fa fa-info-circle"></i>
+			
 		</span>
 		</div>
 		@else
 			{!! $product_name !!}
 		@endif
-		<img src="@if(count($product->media) > 0)
-						{{$product->media->first()->display_url}}
-					@elseif(!empty($product->product_image))
-						{{asset('/uploads/img/' . rawurlencode($product->product_image))}}
-					@else
-						{{asset('/img/default.png')}}
-					@endif" alt="product-img" loading="lazy"style="height:50px;display: inline;margin-left: 3px; border: black;border-radius: 5px; margin-top: 5px; width: 50px;object-fit: cover;">
+		
+		<i class="fa fa-trash text-danger pos_remove_row cursor-pointer" aria-hidden="true"  style="font-size:24px"></i>
 
 
 		<input type="hidden" class="enable_sr_no" value="{{$product->enable_sr_no}}">
@@ -262,14 +257,17 @@
 		
 		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_id}}">
 		@if(count($sub_units) > 0)
-			<br>
-			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
-                @foreach($sub_units as $key => $value)
-                    <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" @if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key) selected @endif>
-                        {{$value['name']}}
-                    </option>
-                @endforeach
-           </select>
+			
+			
+		<img src="@if(count($product->media) > 0)
+						{{$product->media->first()->display_url}}
+					@elseif(!empty($product->product_image))
+						{{asset('/uploads/img/' . rawurlencode($product->product_image))}}
+					@else
+						{{asset('/img/default.png')}}
+					@endif" alt="product-img" loading="lazy"style="height: 30%;display: inline;margin-left: 3px; border: black;border-radius: 3px; margin-top: 3px; width: 30px;object-fit: cover;">	
+			
+			
 		@else
 			{{$product->unit}}
 		@endif
@@ -398,16 +396,14 @@
 			{!! Form::select("products[$row_count][warranty_id]", $warranties, $warranty_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control']); !!}
 		</td>
 	@endif
-	<td type="hidden" class="hidden">
+	<td class="text-center">
 		<input type="hidden" style="width: auto" name="products[{{$row_count}}][unit_price_inc_tax]" class="form-control pos_unit_price_inc_tax input_number" value="{{@num_format($unit_price_inc_tax)}}" @if(!$edit_price) readonly @endif @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$unit_price_inc_tax}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($unit_price_inc_tax)])}}" @endif>
 		@php
 			$subtotal_type = !empty($pos_settings['is_pos_subtotal_editable']) ? 'text' : 'hidden';
 
 		@endphp
-		<input style="width: 10vh" type="{{$subtotal_type}}" class="form-control pos_line_total @if(!empty($pos_settings['is_pos_subtotal_editable'])) input_number @endif" value="{{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}">
+		<input style="width: 9vh" type="{{$subtotal_type}}" class="form-control pos_line_total @if(!empty($pos_settings['is_pos_subtotal_editable'])) input_number @endif" value="{{@num_format($product->quantity_ordered*$unit_price_inc_tax )}}">
 		<span class="display_currency pos_line_total_text @if(!empty($pos_settings['is_pos_subtotal_editable'])) hide @endif" data-currency_symbol="true">{{$product->quantity_ordered*$unit_price_inc_tax}}</span>
 	</td>
-	<td class="text-center v-center">
-		<i class="fa fa-times text-danger pos_remove_row cursor-pointer" aria-hidden="true"></i>
-	</td>
+	
 </tr>
