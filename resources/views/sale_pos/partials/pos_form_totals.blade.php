@@ -84,7 +84,7 @@
 					</td>
 					@endif
 				</tr>
-				<tr style="flex:1; align-content: center">
+				<tr style="align-content: center">
 					<td style="border:0px; background-color: black; color: white; font-size: 28px">
 						<b class="">@lang('$')</b> &nbsp;
 						<span class="price_total"  >0</span>
