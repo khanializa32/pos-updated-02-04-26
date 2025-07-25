@@ -39,8 +39,15 @@
 			{!! $product_name !!}
 		@endif
 		
-		<i class="fa fa-trash text-danger pos_remove_row cursor-pointer" aria-hidden="true"  style="font-size:24px"></i>
+		
 
+<img src="@if(count($product->media) > 0)
+						{{$product->media->first()->display_url}}
+					@elseif(!empty($product->product_image))
+						{{asset('/uploads/img/' . rawurlencode($product->product_image))}}
+					@else
+						{{asset('/img/default.png')}}
+					@endif" alt="product-img" loading="lazy"style="height: 30%;display: inline;margin-left: 3px; border: black;border-radius: 3px; margin-top: 3px; width: 30px;object-fit: cover;">	
 
 		<input type="hidden" class="enable_sr_no" value="{{$product->enable_sr_no}}">
 		<input type="hidden" 
@@ -255,18 +262,14 @@
 		<span class="input-group-btn"><button type="button" class="btn btn-default btn-flat quantity-up"><i class="fa fa-plus text-success"></i></button></span>
 		</div>
 		
+		<i class="fa fa-trash text-danger pos_remove_row cursor-pointer" aria-hidden="true"  style="font-size:24px"></i>
+		
 		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_id}}">
 		@if(count($sub_units) > 0)
 			
 			
-		<img src="@if(count($product->media) > 0)
-						{{$product->media->first()->display_url}}
-					@elseif(!empty($product->product_image))
-						{{asset('/uploads/img/' . rawurlencode($product->product_image))}}
-					@else
-						{{asset('/img/default.png')}}
-					@endif" alt="product-img" loading="lazy"style="height: 30%;display: inline;margin-left: 3px; border: black;border-radius: 3px; margin-top: 3px; width: 30px;object-fit: cover;">	
-			
+		
+		
 			
 		@else
 			{{$product->unit}}
