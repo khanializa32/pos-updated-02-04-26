@@ -45,6 +45,18 @@
         @else
           {!! Form::hidden('location_id', array_key_first($business_locations->toArray()) ); !!}
         @endif
+        @if(count($cash_register_info) > 1)
+        <div class="clearfix"></div>
+        <div class="col-sm-8 col-sm-offset-2">
+          <div class="form-group">
+            {!! Form::label('cash_register_information_id',   'Cajas Registradoras:') !!}
+              {!! Form::select('cash_register_information_id', $cash_register_info, null, ['class' => 'form-control select2',
+              'placeholder' => 'Cajas Registradoras']); !!}
+          </div>
+        </div>
+        @else
+          {!! Form::hidden('cash_register_information_id', array_key_first($cash_register_info->toArray()) ); !!}
+        @endif
         <div class="col-sm-8 col-sm-offset-2">
           <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right">@lang('cash_register.open_register')</button>
         </div>

@@ -33,7 +33,7 @@
 						</b> 
 					</td>
 					
-					{{-- <td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
+					<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
 							<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('sale.order_tax')(+): @show_tooltip(__('tooltip.sale_tax'))</b>
 							<i class="fas fa-edit cursor-pointer" title="@lang('sale.edit_order_tax')" aria-hidden="true" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax" ></i> 
@@ -52,7 +52,7 @@
 							<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
 								value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format($transaction->tax?->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
 						</span>
-					</td> --}}
+					</td>
 					<td>
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
 							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.shipping')(+)   

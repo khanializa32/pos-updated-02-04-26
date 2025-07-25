@@ -29,6 +29,7 @@ return new class extends Migration
             $table->text('rules')->nullable()->after('is_valid');
             $table->integer('status_code')->nullable()->after('rules');
             $table->string('payment_method', 50)->nullable()->after('payment_status');
+            $table->integer('invoice_scheme_id')->nullable()->after('rules');
         });
     }
 

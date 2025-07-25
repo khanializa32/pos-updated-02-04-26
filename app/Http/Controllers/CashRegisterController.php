@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\BusinessLocation;
 use App\CashRegister;
+use App\CashRegisterInformation;
 use App\Utils\CashRegisterUtil;
 use App\Utils\ModuleUtil;
 use Illuminate\Http\Request;
@@ -55,8 +56,10 @@ class CashRegisterController extends Controller
         }
         $business_id = request()->session()->get('user.business_id');
         $business_locations = BusinessLocation::forDropdown($business_id);
+        $cash_register_info = CashRegisterInformation::where('business_id',$business_id)->get()
+        ->pluck('cash_type', 'id');
 
-        return view('cash_register.create')->with(compact('business_locations', 'sub_type'));
+        return view('cash_register.create')->with(compact('business_locations', 'sub_type','cash_register_info'));
     }
 
     /**
@@ -83,6 +86,7 @@ class CashRegisterController extends Controller
                 'user_id' => $user_id,
                 'status' => 'open',
                 'location_id' => $request->input('location_id'),
+                'cash_register_information_id' => $request->input('cash_register_information_id'),
                 'created_at' => \Carbon::now()->format('Y-m-d H:i:00'),
             ]);
             if (! empty($initial_amount)) {

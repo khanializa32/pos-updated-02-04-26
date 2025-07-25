@@ -274,9 +274,12 @@ class SellPosController extends Controller
         // $municipalities = municipality::pluck('name','id');
         $type_regimes = TypeRegime::pluck('name','id');
         $type_liabilities = TypeLiability::pluck('name','id');
+
+        $is_mobile = null;
         
         return view('sale_pos.create')
             ->with(compact(
+                'is_mobile',
                 'type_document_identifications',
                 'departments',
                 'type_regimes',
@@ -683,7 +686,13 @@ class SellPosController extends Controller
                                 );
                                 
                             }elseif($invoice_scheme->type_document_id == 15){
-                                // $response = $invoiceService->send_epos($invoice_scheme->id, $business_id, $contact_id, $input, $transaction);
+                                $response = $DianService->send_eqpos(
+                                    $invoice_scheme->id, 
+                                    $business_id, 
+                                    $contact_id, 
+                                    $input, 
+                                    $transaction
+                                );
     
                             }else{
                                 $response = null;

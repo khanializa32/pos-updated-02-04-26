@@ -307,13 +307,13 @@ $(document).ready(function() {
             { data: 'total_cash_payment', name: 'total_cash_payment', searchable: false },
             { data: 'total_bank_transfer_payment', name: 'total_bank_transfer_payment', searchable: false },
             { data: 'total_advance_payment', name: 'total_advance_payment', searchable: false },
-            { data: 'total_custom_pay_1', name: 'total_custom_pay_1', searchable: false },
-            { data: 'total_custom_pay_2', name: 'total_custom_pay_2', searchable: false },
-            { data: 'total_custom_pay_3', name: 'total_custom_pay_3', searchable: false },
-            { data: 'total_custom_pay_4', name: 'total_custom_pay_4', searchable: false },
-            { data: 'total_custom_pay_5', name: 'total_custom_pay_5', searchable: false },
-            { data: 'total_custom_pay_6', name: 'total_custom_pay_6', searchable: false },
-            { data: 'total_custom_pay_7', name: 'total_custom_pay_7', searchable: false },
+            // { data: 'total_custom_pay_1', name: 'total_custom_pay_1', searchable: false },
+            // { data: 'total_custom_pay_2', name: 'total_custom_pay_2', searchable: false },
+            // { data: 'total_custom_pay_3', name: 'total_custom_pay_3', searchable: false },
+            // { data: 'total_custom_pay_4', name: 'total_custom_pay_4', searchable: false },
+            // { data: 'total_custom_pay_5', name: 'total_custom_pay_5', searchable: false },
+            // { data: 'total_custom_pay_6', name: 'total_custom_pay_6', searchable: false },
+            // { data: 'total_custom_pay_7', name: 'total_custom_pay_7', searchable: false },
             { data: 'total_other_payment', name: 'total_other_payment', searchable: false },
             { data: 'total', name: 'total', orderable: false, searchable: false },
             { data: 'action', name: 'action', orderable: false, searchable: false },
@@ -325,13 +325,13 @@ $(document).ready(function() {
             var total_bank_transfer_payment = 0;
             var total_other_payment = 0;
             var total_advance_payment = 0;
-            var total_custom_pay_1 = 0;
-            var total_custom_pay_2 = 0;
-            var total_custom_pay_3 = 0;
-            var total_custom_pay_4 = 0;
-            var total_custom_pay_5 = 0;
-            var total_custom_pay_6 = 0;
-            var total_custom_pay_7 = 0;
+            // var total_custom_pay_1 = 0;
+            // var total_custom_pay_2 = 0;
+            // var total_custom_pay_3 = 0;
+            // var total_custom_pay_4 = 0;
+            // var total_custom_pay_5 = 0;
+            // var total_custom_pay_6 = 0;
+            // var total_custom_pay_7 = 0;
             var total = 0;
             for (var r in data){
                 total_card_payment += $(data[r].total_card_payment).data('orig-value') ? 
@@ -352,26 +352,26 @@ $(document).ready(function() {
                 total_advance_payment += $(data[r].total_advance_payment).data('orig-value') ? 
                 parseFloat($(data[r].total_advance_payment).data('orig-value')) : 0;
 
-                total_custom_pay_1 += $(data[r].total_custom_pay_1).data('orig-value') ? 
-                parseFloat($(data[r].total_custom_pay_1).data('orig-value')) : 0;
+                // total_custom_pay_1 += $(data[r].total_custom_pay_1).data('orig-value') ? 
+                // parseFloat($(data[r].total_custom_pay_1).data('orig-value')) : 0;
 
-                total_custom_pay_2 += $(data[r].total_custom_pay_2).data('orig-value') ? 
-                parseFloat($(data[r].total_custom_pay_2).data('orig-value')) : 0;
+                // total_custom_pay_2 += $(data[r].total_custom_pay_2).data('orig-value') ? 
+                // parseFloat($(data[r].total_custom_pay_2).data('orig-value')) : 0;
 
-                total_custom_pay_3 += $(data[r].total_custom_pay_3).data('orig-value') ? 
-                parseFloat($(data[r].total_custom_pay_3).data('orig-value')) : 0;
+                // total_custom_pay_3 += $(data[r].total_custom_pay_3).data('orig-value') ? 
+                // parseFloat($(data[r].total_custom_pay_3).data('orig-value')) : 0;
 
-                total_custom_pay_4 += $(data[r].total_custom_pay_4).data('orig-value') ? 
-                parseFloat($(data[r].total_custom_pay_4).data('orig-value')) : 0;
+                // total_custom_pay_4 += $(data[r].total_custom_pay_4).data('orig-value') ? 
+                // parseFloat($(data[r].total_custom_pay_4).data('orig-value')) : 0;
 
-                total_custom_pay_5 += $(data[r].total_custom_pay_5).data('orig-value') ? 
-                parseFloat($(data[r].total_custom_pay_5).data('orig-value')) : 0;
+                // total_custom_pay_5 += $(data[r].total_custom_pay_5).data('orig-value') ? 
+                // parseFloat($(data[r].total_custom_pay_5).data('orig-value')) : 0;
 
-                total_custom_pay_6 += $(data[r].total_custom_pay_6).data('orig-value') ? 
-                parseFloat($(data[r].total_custom_pay_6).data('orig-value')) : 0;
+                // total_custom_pay_6 += $(data[r].total_custom_pay_6).data('orig-value') ? 
+                // parseFloat($(data[r].total_custom_pay_6).data('orig-value')) : 0;
 
-                total_custom_pay_7 += $(data[r].total_custom_pay_7).data('orig-value') ? 
-                parseFloat($(data[r].total_custom_pay_7).data('orig-value')) : 0;
+                // total_custom_pay_7 += $(data[r].total_custom_pay_7).data('orig-value') ? 
+                // parseFloat($(data[r].total_custom_pay_7).data('orig-value')) : 0;
 
                 total += $(data[r].total).data('orig-value') ? 
                 parseFloat($(data[r].total).data('orig-value')) : 0;
@@ -383,13 +383,13 @@ $(document).ready(function() {
             $('.footer_total_bank_transfer_payment').html(__currency_trans_from_en(total_bank_transfer_payment));
             $('.footer_total_other_payments').html(__currency_trans_from_en(total_other_payment));
             $('.footer_total_advance_payment').html(__currency_trans_from_en(total_advance_payment));
-            $('.footer_total_custom_pay_1').html(__currency_trans_from_en(total_custom_pay_1));
-            $('.footer_total_custom_pay_2').html(__currency_trans_from_en(total_custom_pay_2));
-            $('.footer_total_custom_pay_3').html(__currency_trans_from_en(total_custom_pay_3));
-            $('.footer_total_custom_pay_4').html(__currency_trans_from_en(total_custom_pay_4));
-            $('.footer_total_custom_pay_5').html(__currency_trans_from_en(total_custom_pay_5));
-            $('.footer_total_custom_pay_6').html(__currency_trans_from_en(total_custom_pay_6));
-            $('.footer_total_custom_pay_7').html(__currency_trans_from_en(total_custom_pay_7));
+            // $('.footer_total_custom_pay_1').html(__currency_trans_from_en(total_custom_pay_1));
+            // $('.footer_total_custom_pay_2').html(__currency_trans_from_en(total_custom_pay_2));
+            // $('.footer_total_custom_pay_3').html(__currency_trans_from_en(total_custom_pay_3));
+            // $('.footer_total_custom_pay_4').html(__currency_trans_from_en(total_custom_pay_4));
+            // $('.footer_total_custom_pay_5').html(__currency_trans_from_en(total_custom_pay_5));
+            // $('.footer_total_custom_pay_6').html(__currency_trans_from_en(total_custom_pay_6));
+            // $('.footer_total_custom_pay_7').html(__currency_trans_from_en(total_custom_pay_7));
             $('.footer_total').html(__currency_trans_from_en(total));
         },
     });

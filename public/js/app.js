@@ -1531,6 +1531,118 @@ $(document).ready(function() {
         init_tinymce('footer_text');
     }
 
+        //Cash Register Informations CRUD
+        cash_register_informations = $('#cash_information_table').DataTable({
+            processing: true,
+            serverSide: true,
+            bPaginate: false,
+            fixedHeader:false,
+            buttons: [],
+            ajax: '/cash-register-information',
+            columnDefs: [
+                {
+                    targets: 6,
+                    orderable: false,
+                    searchable: false,
+                },
+            ],
+        });
+        $('.cash_register_information_add_modal, .cash_register_information_edit_modal').on('shown.bs.modal', function(e) {
+            $('form#cash_register_information_add_form')
+                .submit(function(e) {
+                    e.preventDefault();
+                })
+                .validate({
+                    rules: {
+                        location_id: {
+                            remote: {
+                                url: '/business-location/check-location-id',
+                                type: 'post',
+                                data: {
+                                    location_id: function() {
+                                        return $('#location_id').val();
+                                    },
+                                    hidden_id: function() {
+                                        if ($('#hidden_id').length) {
+                                            return $('#hidden_id').val();
+                                        } else {
+                                            return '';
+                                        }
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    messages: {
+                        location_id: {
+                            remote: LANG.location_id_already_exists,
+                        },
+                    },
+                    submitHandler: function(form) {
+                        e.preventDefault();
+                        var data = $(form).serialize();
+    
+                        $.ajax({
+                            method: 'POST',
+                            url: $(form).attr('action'),
+                            dataType: 'json',
+                            data: data,
+                            beforeSend: function(xhr) {
+                                __disable_submit_button($(form).find('button[type="submit"]'));
+                            },
+                            success: function(result) {
+                                if (result.success == true) {
+                                    $('div.cash_register_information_add_modal').modal('hide');
+                                    $('div.cash_register_information_edit_modal').modal('hide');
+                                    toastr.success(result.msg);
+                                    cash_register_informations.ajax.reload();
+                                } else {
+                                    toastr.error(result.msg);
+                                }
+                            },
+                        });
+                    },
+                });
+    
+            // $('form#business_location_add_form').find('#featured_products').select2({
+            //     minimumInputLength: 2,
+            //     allowClear: true,
+            //     placeholder: '',
+            //     ajax: {
+            //         url: '/products/list?not_for_selling=true',
+            //         dataType: 'json',
+            //         delay: 250,
+            //         data: function(params) {
+            //             return {
+            //                 term: params.term, // search term
+            //                 page: params.page,
+            //             };
+            //         },
+            //         processResults: function(data) {
+            //             return {
+            //                 results: $.map(data, function(obj) {
+            //                     var string = obj.name;
+            //                     if (obj.type == 'variable') {
+            //                         string += '-' + obj.variation;
+            //                     }
+    
+            //                     string += ' (' + obj.sub_sku + ')';
+            //                     return { id: obj.variation_id, text: string };
+            //                 })
+            //             };
+            //         },
+            //     },
+            // })
+        });
+    
+        // if ($('#header_text').length) {
+        //     init_tinymce('header_text');
+        // }
+    
+        // if ($('#footer_text').length) {
+        //     init_tinymce('footer_text');
+        // }
+
     //Start: CRUD for expense category
     //Expense category table
     var expense_cat_table = $('#expense_category_table').DataTable({

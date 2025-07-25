@@ -881,6 +881,13 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => in_array(request()->segment(1), ['invoice-schemes', 'invoice-layouts'])]
                             );
                         }
+                        if (auth()->user()->can('invoice_settings.access')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\CashRegisterInformationController::class, 'index']),
+                                __('Caja registradora'),
+                                ['icon' => '', 'active' => in_array(request()->segment(1), ['cash-register-information'])]
+                            );
+                        }
                         if (auth()->user()->can('barcode_settings.access')) {
                             $sub->url(
                                 action([\App\Http\Controllers\BarcodeController::class, 'index']),

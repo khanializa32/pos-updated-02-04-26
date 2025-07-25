@@ -78,11 +78,11 @@
       </div> 
       
       <!- INICIO UTILIDAD DEL CIERRE-->
-      
+{{--       
       <h3 class="text-muted mb-0">
     {{ __('Utilidad del Cierre') }}: 
     <span class="display_currency" data-currency_symbol="true">{{$data['gross_profit']}}</span>
-    </h3>
+    </h3> --}}
 
 <!- FIN UTILIDAD DEL CIERRE-->
 

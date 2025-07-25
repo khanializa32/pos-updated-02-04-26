@@ -1,5 +1,7 @@
 <?php
 
+use App\CashRegister;
+use App\CashRegisterInformation;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountReportsController;
 use App\Http\Controllers\AccountTypeController;
@@ -10,6 +12,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\BusinessLocationController;
 use App\Http\Controllers\CashRegisterController;
+use App\Http\Controllers\CashRegisterInformationController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CombinedPurchaseReturnController;
 use App\Http\Controllers\ContactController;
@@ -61,6 +64,7 @@ use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VariationTemplateController;
 use App\Http\Controllers\WarrantyController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -79,6 +83,12 @@ include_once 'install_r.php';
 Route::middleware(['setData'])->group(function () {
     Route::get('/', function () {
         return view('welcome');
+    });
+
+    Route::get('/data', function (Request $request) {
+        return session()->all();
+        $cash_register_information = CashRegister::where('business_id',session()->get('user.business_id'))->where('user_id',session()->get('user.id'))->where('status','open')->first();
+        return $cash_register_information->cash_register_information->sales_code;
     });
 
     Auth::routes();
@@ -352,6 +362,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/cash-register/close-register/{id?}', [CashRegisterController::class, 'getCloseRegister']);
     Route::post('/cash-register/close-register', [CashRegisterController::class, 'postCloseRegister']);
     Route::resource('cash-register', CashRegisterController::class);
+
+    //cash register informations
+    Route::resource('cash-register-information', CashRegisterInformationController::class);
 
     //Import products
     Route::get('/import-products', [ImportProductsController::class, 'index']);

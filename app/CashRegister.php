@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CashRegister extends Model
 {
@@ -28,5 +29,10 @@ class CashRegister extends Model
     public function cash_register_transactions()
     {
         return $this->hasMany(\App\CashRegisterTransaction::class);
+    }
+
+    public function cash_register_information(): BelongsTo
+    {
+        return $this->belongsTo(CashRegisterInformation::class);
     }
 }
