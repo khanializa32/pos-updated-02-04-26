@@ -682,7 +682,8 @@ class SellPosController extends Controller
                                     $invoice_scheme->id, 
                                     $business_id, 
                                     $contact_id, 
-                                    $input, $transaction
+                                    $input, 
+                                    $transaction
                                 );
                                 
                             }elseif($invoice_scheme->type_document_id == 15){
@@ -814,6 +815,80 @@ class SellPosController extends Controller
                     ->action([\App\Http\Controllers\SellController::class, 'index'])
                     ->with('status', $output);
             }
+        }
+    }
+
+
+    public function resend_invoice($id)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            // $taxes = TaxRate::where('business_id', $business_id)
+            //                     ->pluck('name', 'id');
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sell = $query->firstOrFail();
+
+            // return $sell;
+            // return $sell->sell_lines[0]->product->name;
+            return view('sale_pos.resend_invoice',compact('sell'));
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('success', $th->getMessage());
+        }
+    }
+
+    public function resend_invoice_data(Request $request, $id)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            // $taxes = TaxRate::where('business_id', $business_id)
+            //                     ->pluck('name', 'id');
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $request->id)
+                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sell = $query->firstOrFail();
+            $transaction_before = Transaction::find($request->id);
+
+            // dd($transaction_before);
+
+            $DianService = new UtilsDianService();
+
+            $response_invoice = $DianService->resend_eqpos(
+                $transaction_before,
+                $sell->business_id, 
+                $sell->contact_id, 
+                $sell->sell_lines,
+                $transaction_before->prefix,
+                $transaction_before->number_invoice,
+                $transaction_before->resolution
+            );
+
+            return ['success' => $response_invoice['success'],
+            'msg' =>$response_invoice['msg'],
+            'response' =>$response_invoice['response'],
+            'input_curl' =>$response_invoice['input_curl'],
+
+        ];
+
+        //    dd($response_invoice);
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('success', $th->getMessage().' - '.$th->getFile().' - '.$th->getLine());
         }
     }
 

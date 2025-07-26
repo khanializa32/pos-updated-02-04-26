@@ -42,7 +42,7 @@
                                                     {{ __('home.total_sell') }}
                                                 </p>
                                                 
-                                                <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
+                                                {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
                                                 
                                                 
                                                 <p
@@ -85,7 +85,7 @@
                                                 {{ __('lang_v1.expense') }}
                                             </p>
                                             
-                                            <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
                                             
                                             <p
                                                 class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
@@ -124,7 +124,7 @@
                                                 {{ __('lang_v1.potential_profit') }}
                                                 
                                             </p>
-                                            <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
                                             <p
                                                 class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
 
@@ -165,7 +165,7 @@
                                                 {{ __('lang_v1.my_inventary') }}
                                                 
                                             </p>
-                                            <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span>
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
                                             <p
                                                 class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
 
