@@ -4,7 +4,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">@lang('lang_v1.payment')</h4>
+                <h4 class="modal-title">Ventana de Cobro</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -50,7 +50,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm tw-w-full"
+                                <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-black tw-dw-btn-sm tw-w-full"
                                     id="add-payment-row">@lang('sale.add_payment_row')</button>
                             </div>
                         </div>
@@ -134,7 +134,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="box box-solid bg-orange">
+                        <div class="box box-solid bg-turquoise">
                             <div class="box-body">
                                 <div class="col-md-12">
                                     <strong>
@@ -201,8 +201,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
-                <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white" id="pos-save">@lang('sale.finalize_payment')</button>
+                <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">Ir a la Venta</button>
+                <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-white" id="pos-save">@lang('sale.finalize_payment')</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -297,3 +297,4 @@
         </div>
     </div>
 </div>
+
