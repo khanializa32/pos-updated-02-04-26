@@ -38,11 +38,11 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <label class="radio-inline">
+                <label class="checkbox">
                     <input type="radio" name="contact_type_radio" id="inlineRadio1" value="individual">
                     @lang('lang_v1.individual')
                 </label>
-                <label class="radio-inline">
+                <label class="checkbox">
                     <input type="radio" name="contact_type_radio" id="inlineRadio2" value="business">
                     @lang('business.business')
                 </label>
@@ -134,7 +134,7 @@
                     {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
-                            <i class="fa fa-mobile"></i>
+                            <i class="fa fa-mobile"style='font-size:20px;color:green'></i>
                         </span>
                         {!! Form::text('mobile', null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
                     </div>
@@ -147,7 +147,7 @@
                     {!! Form::label('email', __('business.email') . ':*') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
-                            <i class="fa fa-envelope"></i>
+                            <i class="fa fa-envelope" style='font-size:20px;color:orange'></i>
                         </span>
                         {!! Form::email('email', null, ['class' => 'form-control', 'id' => 'email','placeholder' => __('business.email'), 'required']); !!}
                     </div>
@@ -159,7 +159,7 @@
                     <label for="identification_number">Registro Mercatil:</label>
                                 <div class="input-group">
                         <span class="input-group-addon">
-                            <i class="fa fa-id-card"></i>
+                            <i class="fa fa-id-card" style='font-size:20px;color:red'></i>
                         </span>
                         <input class="form-control" placeholder="Matricula"   type="text" id="registration_number" value="00000">
                     </div>
@@ -198,7 +198,7 @@
                 <label for="zip_code">Código postal:</label>
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <i class="fa fa-map-marker"></i>
+                        <i class="fa fa-map-marker" style='font-size:20px;color:purple'></i>
                     </span>
                     <input class="form-control" placeholder="Código Postal"  name="zip_code" type="text" value="" id="zip_code">
                 </div>
@@ -210,7 +210,7 @@
                 <label for="address_line_1">Dirección:*</label>
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <i class="fa fa-map-marker"></i>
+                        <i class="fa fa-map-marker" style='font-size:20px;color:brown'></i>
                     </span>
                     <input class="form-control" placeholder="Direccion"  name="address_line_1" type="text" id="address_line_1">
                 </div>
@@ -275,7 +275,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white tw-dw-btn-sm center-block more_btn" data-target="#more_div">@lang('lang_v1.more_info') <i class="fa fa-chevron-down"></i></button>
+                <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white tw-dw-btn-sm center-block more_btn" data-target="#more_div">Más Datos <i class="fa fa-chevron-down"></i></button>
             </div>
 
             <div id="more_div" class="hide">
