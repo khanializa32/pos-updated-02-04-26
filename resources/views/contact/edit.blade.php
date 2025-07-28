@@ -40,11 +40,11 @@
           </div>
         </div>
         <div class="col-md-3">
-            <label class="radio-inline">
+            <label class="checkbox">
                 <input type="radio" name="contact_type_radio" @if($contact->contact_type == 'individual') checked @endif id="inlineRadio1" value="individual">
                 @lang('lang_v1.individual')
             </label>
-            <label class="radio-inline">
+            <label class="checkbox">
                 <input type="radio" name="contact_type_radio" @if($contact->contact_type == 'business') checked @endif id="inlineRadio2" value="business">
                 @lang('business.business')
             </label>
@@ -130,7 +130,7 @@
             {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
             <div class="input-group">
                 <span class="input-group-addon">
-                    <i class="fa fa-mobile"></i>
+                    <i class="fa fa-mobile" style='font-size:20px;color:green'></i>
                 </span>
                 {!! Form::text('mobile', $contact->mobile, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
             </div>
@@ -163,7 +163,7 @@
                 {!! Form::label('email', __('business.email') . ':') !!}
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <i class="fa fa-envelope"></i>
+                        <i class="fa fa-envelope" style='font-size:20px;color:orange'></i>
                     </span>
                     {!! Form::email('email', $contact->email, ['class' => 'form-control','placeholder' => __('business.email')]); !!}
                 </div>
@@ -172,10 +172,10 @@
 
         <div class="col-sm-4">
             <div class="form-group">
-                <label for="identification_number">Registro Mercatil:</label>
+                <label for="identification_number">Registro Mercantil:</label>
                             <div class="input-group">
                     <span class="input-group-addon">
-                        <i class="fa fa-id-card"></i>
+                        <i class="fa fa-id-card" style='font-size:20px;color:red'></i>
                     </span>
                     <input class="form-control" placeholder="Matricula"   type="text" id="registration_number" value="00000">
                 </div>
@@ -280,7 +280,7 @@
         @endif
 
         <div class="col-md-12">
-            <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white center-block more_btn" data-target="#more_div">@lang('lang_v1.more_info') <i class="fa fa-chevron-down"></i></button>
+            <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white center-block more_btn" data-target="#more_div">Más Datos <i class="fa fa-chevron-down"></i></button>
         </div>
         
         <div id="more_div" class="hide">
@@ -389,7 +389,7 @@
             {!! Form::label('zip_code', __('business.zip_code') . ':') !!}
             <div class="input-group">
                 <span class="input-group-addon">
-                    <i class="fa fa-map-marker"></i>
+                    <i class="fa fa-map-marker" style='font-size:20px;color:brown'</i>
                 </span>
                 {!! Form::text('zip_code', $contact->zip_code, ['class' => 'form-control', 
                 'placeholder' => __('business.zip_code_placeholder')]); !!}
@@ -591,7 +591,7 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang( 'messages.update' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-white">@lang( 'messages.update' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 
