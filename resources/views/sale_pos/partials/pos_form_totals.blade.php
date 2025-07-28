@@ -35,8 +35,8 @@
 					
 					<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
-							<b class="tw-text-base md:tw-text-lg tw-font-bold">@lang('sale.order_tax')(+): @show_tooltip(__('tooltip.sale_tax'))</b>
-							<i class="fas fa-edit cursor-pointer" title="@lang('sale.edit_order_tax')" aria-hidden="true" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax" ></i> 
+							<<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.order_tax')(+): </b>
+							<i class="fas fa-edit cursor-pointer" title="@lang('sale.edit_order_tax')" aria-hidden="true" style="font-size:24px ;color:orange" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax" ></i> 
 							<span class="tw-text-base md:tw-text-lg tw-font-semibold" id="order_tax">
 								@if(empty($edit))
 									0
