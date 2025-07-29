@@ -36,7 +36,7 @@
                                                 {{ __('lang_v1.expense') }}
                                             </p>
                                             
-                                            <span class="display_currency" data-currency_symbol="true">{{$data['expense']}}</span>
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['expense']}}</span> --}}
                                             
                                                 <p
                                                     class="total_sell tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">

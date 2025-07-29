@@ -126,7 +126,7 @@
                                             </p>
                                             {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
                                             <p
-                                                class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+                                                class="gross_profit tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
 
                                             </p>
                                         </div>
@@ -166,8 +166,8 @@
                                                 
                                             </p>
                                             {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
-                                            <p
-                                                class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+                                            <p id="closing_stock_by_sp_1"
+                                                class="closing_stock_by_sp tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
 
                                             </p>
                                         </div>

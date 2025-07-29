@@ -780,7 +780,7 @@ class SellController extends Controller
         $change_return = $this->dummyPaymentLine;
 
         $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
-        // $countries = Country::pluck('name','id');
+        $countries = \DB::table('countries')->pluck('name','id');
         $departments = Department::pluck('name','id');
         $municipalities = Municipality::pluck('name','id');
         $type_regimes = TypeRegime::pluck('name','id');
