@@ -865,18 +865,37 @@ class SellPosController extends Controller
             $transaction_before = Transaction::find($request->id);
 
             // dd($transaction_before);
+            $response_invoice = [];
 
             $DianService = new UtilsDianService();
 
-            $response_invoice = $DianService->resend_eqpos(
-                $transaction_before,
-                $sell->business_id, 
-                $sell->contact_id, 
-                $sell->sell_lines,
-                $transaction_before->prefix,
-                $transaction_before->number_invoice,
-                $transaction_before->resolution
-            );
+            $invoice_scheme = InvoiceScheme::find($transaction_before->invoice_scheme_id);
+
+            if($invoice_scheme->type_document_id == 1)//factura electronica
+            {
+                $response_invoice = $DianService->resend_invoice(
+                    $transaction_before,
+                    $sell->business_id, 
+                    $sell->contact_id, 
+                    $sell->sell_lines,
+                    $transaction_before->prefix,
+                    $transaction_before->number_invoice,
+                    $transaction_before->resolution
+                );
+            }elseif($invoice_scheme->type_document_id == 15)//pos electronico
+            {
+                $response_invoice = $DianService->resend_eqpos(
+                    $transaction_before,
+                    $sell->business_id, 
+                    $sell->contact_id, 
+                    $sell->sell_lines,
+                    $transaction_before->prefix,
+                    $transaction_before->number_invoice,
+                    $transaction_before->resolution
+                );
+            }
+
+            
 
             return ['success' => $response_invoice['success'],
             'msg' =>$response_invoice['msg'],

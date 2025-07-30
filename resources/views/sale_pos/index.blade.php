@@ -6,7 +6,7 @@
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.pos_sale')
-    &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
+    &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube' id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
      
       </h4>
       
@@ -118,7 +118,7 @@
                                             </div>
 
                                             <div class="tw-flex-1 tw-min-w-0">
-                                                <p
+                                                <p>
                                             <p
                                                 class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
                                                 {{ __('lang_v1.potential_profit') }}
