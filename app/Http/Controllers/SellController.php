@@ -789,7 +789,7 @@ class SellController extends Controller
         return view('sell.create')
             ->with(compact(
                 'type_document_identifications',
-                'countries',
+                // 'countries',
                 'departments',
                 'municipalities',
                 'type_regimes',

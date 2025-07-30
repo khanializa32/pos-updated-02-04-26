@@ -7,7 +7,7 @@
 <section class="content-header">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('expense.expenses')
     
-              <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
+              <button style='font-size:36px;color:red'><i class='fab fa-youtube' id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
 				 </h4>	
 
 
@@ -36,7 +36,7 @@
                                                 {{ __('lang_v1.expense') }}
                                             </p>
                                             
-                                            <span class="display_currency" data-currency_symbol="true">{{$data['expense']}}</span>
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['expense']}}</span> --}}
                                             
                                                 <p
                                                     class="total_sell tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
