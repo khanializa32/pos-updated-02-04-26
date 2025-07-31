@@ -7,7 +7,7 @@
 <section class="content-header">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('expense.expenses')
     
-              <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
+              <button style='font-size:36px;color:red'><i class='fab fa-youtube' id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
 				 </h4>	
 
 

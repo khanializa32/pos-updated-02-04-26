@@ -413,6 +413,36 @@
             $('#only_subscriptions').on('ifChanged', function(event) {
                 sell_table.ajax.reload();
             });
+
+            $(document).on('click', '.btn-send-dian', function() {
+                let button = $(this);
+                let id = $(this).data('id');
+
+                let originalContent = button.html();
+                button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...');
+
+                $.ajax({
+                    url: "{{ route('resend_invoice_data', ':id') }}".replace(':id', id), 
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id: id
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.msg);
+                            sell_table.ajax.reload();
+                        }else{
+                            toastr.error(response.msg);
+                            sell_table.ajax.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error al enviar:", error);
+                        button.prop('disabled', false).html(originalContent);
+                    }
+                });
+            });
         });
     </script>
     <script src="{{ asset('js/payment.js?v=' . $asset_v) }}"></script>

@@ -865,18 +865,37 @@ class SellPosController extends Controller
             $transaction_before = Transaction::find($request->id);
 
             // dd($transaction_before);
+            $response_invoice = [];
 
             $DianService = new UtilsDianService();
 
-            $response_invoice = $DianService->resend_eqpos(
-                $transaction_before,
-                $sell->business_id, 
-                $sell->contact_id, 
-                $sell->sell_lines,
-                $transaction_before->prefix,
-                $transaction_before->number_invoice,
-                $transaction_before->resolution
-            );
+            $invoice_scheme = InvoiceScheme::find($transaction_before->invoice_scheme_id);
+
+            if($invoice_scheme->type_document_id == 1)//factura electronica
+            {
+                $response_invoice = $DianService->resend_invoice(
+                    $transaction_before,
+                    $sell->business_id, 
+                    $sell->contact_id, 
+                    $sell->sell_lines,
+                    $transaction_before->prefix,
+                    $transaction_before->number_invoice,
+                    $transaction_before->resolution
+                );
+            }elseif($invoice_scheme->type_document_id == 15)//pos electronico
+            {
+                $response_invoice = $DianService->resend_eqpos(
+                    $transaction_before,
+                    $sell->business_id, 
+                    $sell->contact_id, 
+                    $sell->sell_lines,
+                    $transaction_before->prefix,
+                    $transaction_before->number_invoice,
+                    $transaction_before->resolution
+                );
+            }
+
+            
 
             return ['success' => $response_invoice['success'],
             'msg' =>$response_invoice['msg'],
@@ -1276,8 +1295,14 @@ class SellPosController extends Controller
         $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
         $only_payment = request()->segment(2) == 'payment';
 
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
+
         return view('sale_pos.edit')
-            ->with(compact('business_details', 'taxes', 'payment_types', 'walk_in_customer',
+            ->with(compact('type_document_identifications','type_regimes','type_liabilities','departments',
+                'business_details', 'taxes', 'payment_types', 'walk_in_customer',
                 'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts',
                 'commission_agent', 'categories', 'pos_settings', 'change_return', 'types', 'customer_groups',
                 'brands', 'accounts', 'waiters', 'redeem_details', 'edit_price', 'edit_discount',

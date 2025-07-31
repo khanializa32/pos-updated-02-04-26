@@ -200,7 +200,7 @@ class UnitController extends Controller
                 $unit = Unit::where('business_id', $business_id)->findOrFail($id);
                 $unit->actual_name = $input['actual_name'];
                 $unit->short_name = $input['short_name'];
-                $unit->code_dian = $input['code_dian'];
+                // $unit->code_dian = $input['code_dian'];
                 $unit->allow_decimal = $input['allow_decimal'];
                 if ($request->has('define_base_unit')) {
                     if (! empty($request->input('base_unit_id')) && ! empty($request->input('base_unit_multiplier'))) {
@@ -225,6 +225,7 @@ class UnitController extends Controller
 
                 $output = ['success' => false,
                     'msg' => __('messages.something_went_wrong'),
+                    'error' => $e->getMessage()
                 ];
             }
 
