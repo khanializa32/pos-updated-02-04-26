@@ -1652,7 +1652,6 @@ class TransactionUtil extends Util
         //Additional notes
         $output['additional_notes'] = $transaction->additional_notes;
         $output['footer_text'] = $invoice_layout->footer_text;
-
         //Barcode related information.
         $output['show_barcode'] = ! empty($il->show_barcode) ? true : false;
 
@@ -5231,7 +5230,28 @@ class TransactionUtil extends Util
                     'tables.name as table_name',
                     DB::raw('SUM(tsl.quantity - tsl.so_quantity_invoiced) as so_qty_remaining'),
                     'transactions.is_export',
-                    DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person")
+                    DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person"),
+                    DB::raw("(
+                        SELECT SUM(
+                            IF(tspl2.id IS NULL AND p2.type='combo',
+                                (SELECT SUM((tspl3.quantity - tspl3.qty_returned) * (tsl2.unit_price_inc_tax - pl3.purchase_price_inc_tax))
+                                    FROM transaction_sell_lines AS tsl2
+                                    JOIN transaction_sell_lines_purchase_lines AS tspl3 ON tsl2.id=tspl3.sell_line_id
+                                    JOIN purchase_lines AS pl3 ON tspl3.purchase_line_id = pl3.id
+                                    WHERE tsl2.parent_sell_line_id = tsl.id
+                                ),
+                                IF(p2.enable_stock=0,
+                                    (tsl.quantity - tsl.quantity_returned) * tsl.unit_price_inc_tax,
+                                    (tspl2.quantity - tspl2.qty_returned) * (tsl.unit_price_inc_tax - pl2.purchase_price_inc_tax)
+                                )
+                            )
+                        )
+                        FROM transaction_sell_lines AS tsl
+                        LEFT JOIN transaction_sell_lines_purchase_lines AS tspl2 ON tsl.id = tspl2.sell_line_id
+                        LEFT JOIN purchase_lines AS pl2 ON tspl2.purchase_line_id = pl2.id
+                        JOIN products AS p2 ON tsl.product_id = p2.id
+                        WHERE tsl.transaction_id = transactions.id AND tsl.children_type != 'combo'
+                    ) as utility")
                 );
 
         if ($sale_type == 'sell') {
@@ -5768,7 +5788,6 @@ class TransactionUtil extends Util
 
         return $query;
     }
-
     //
     public function getProfitLossDetails($business_id, $location_id, $start_date, $end_date, $user_id = null, $permitted_locations = null)
     {
@@ -6416,7 +6435,6 @@ class TransactionUtil extends Util
             $purchase_order->save();
         }
     }
-
     /**
      * Get pdf content for given
      * transaction id

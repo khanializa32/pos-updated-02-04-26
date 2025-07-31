@@ -619,9 +619,11 @@ class SellController extends Controller
                         } else {
                             return '';
                         }
-                    }, ]);
-
-            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid'];
+                    }, ])
+                ->addColumn('utility', function ($row) {
+                    return '<span class="display_currency" data-currency_symbol="true">' . ($row->utility ?? 0) . '</span>';
+                });
+            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid', 'utility'];
 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);

@@ -38,6 +38,7 @@
      'status' => 'Estado',
      'total_amount' => 'Valor Total',
      'total_paid' => 'Total Pagado',
+     'utility_per_invoice' => 'Utilidad por factura',
      'total_remaining' => 'Saldo Total',
      'payment_info' => 'Información de Pago',
      'drafts' => 'Borradores',
