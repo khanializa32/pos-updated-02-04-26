@@ -352,6 +352,7 @@ class SellController extends Controller
             if ($this->businessUtil->isModuleEnabled('subscription')) {
                 $sells->addSelect('transactions.is_recurring', 'transactions.recur_parent_id');
             }
+            $sells->where('transactions.is_suspend', 0);
             $sales_order_statuses = Transaction::sales_order_statuses();
             $datatable = Datatables::of($sells)
                 ->addColumn(

@@ -230,6 +230,7 @@ class CashRegisterUtil extends Util
             '=',
             'cash_registers.id'
         )
+        ->leftJoin('transactions as T', 'T.id', '=', 'ct.transaction_id')
         ->join(
             'users as u',
             'u.id',
@@ -241,7 +242,8 @@ class CashRegisterUtil extends Util
             'bl.id',
             '=',
             'cash_registers.location_id'
-        );
+        )
+        ->where('T.is_suspend', '=', 0);
         if (empty($register_id)) {
             $user_id = auth()->user()->id;
             $query->where('user_id', $user_id)
@@ -325,6 +327,7 @@ class CashRegisterUtil extends Util
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_direct_sale', 0)
+                ->where('transactions.is_suspend', 0)
                 ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
                 ->join('products AS P', 'TSL.product_id', '=', 'P.id')
                 ->where('TSL.children_type', '!=', 'combo')
@@ -343,6 +346,7 @@ class CashRegisterUtil extends Util
                 ->where('transactions.type', 'sell')
                 ->where('transactions.status', 'final')
                 ->where('transactions.is_direct_sale', 0)
+                ->where('transactions.is_suspend', 0)
                 ->join('transaction_sell_lines AS TSL', 'transactions.id', '=', 'TSL.transaction_id')
                 ->join('variations AS v', 'TSL.variation_id', '=', 'v.id')
                 ->join('product_variations AS pv', 'v.product_variation_id', '=', 'pv.id')
@@ -381,6 +385,7 @@ class CashRegisterUtil extends Util
         $transaction_details = Transaction::where('transactions.created_by', $user_id)
                 ->whereBetween('transactions.created_at', [$open_time, $close_time])
                 ->where('transactions.type', 'sell')
+                ->where('transactions.is_suspend', 0)
                 ->where('transactions.is_direct_sale', 0)
                 ->where('transactions.status', 'final')
                 ->select(

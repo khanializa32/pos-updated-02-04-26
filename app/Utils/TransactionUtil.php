@@ -44,7 +44,19 @@ class TransactionUtil extends Util
     {
         $sale_type = ! empty($input['type']) ? $input['type'] : 'sell';
         $invoice_scheme_id = ! empty($input['invoice_scheme_id']) ? $input['invoice_scheme_id'] : null;
-        $invoice_no = ! empty($input['invoice_no']) ? $input['invoice_no'] : $this->getInvoiceNumber($business_id, $input['status'], $input['location_id'], $invoice_scheme_id, $sale_type);
+        
+        // Don't generate invoice number for suspended sales
+        $is_suspend = ! empty($input['is_suspend']) ? 1 : 0;
+        if ($is_suspend) {
+            $invoice_no = [
+                'invoice_no' => 'SUSPENDED-' . time(),
+                'prefix' => '',
+                'count' => '',
+                'resolution' => ''
+            ];
+        } else {
+            $invoice_no = ! empty($input['invoice_no']) ? $input['invoice_no'] : $this->getInvoiceNumber($business_id, $input['status'], $input['location_id'], $invoice_scheme_id, $sale_type);
+        }
 
         $final_total = $uf_data ? $this->num_uf($input['final_total']) : $input['final_total'];
 
@@ -2695,6 +2707,7 @@ class TransactionUtil extends Util
         if (! empty($created_by)) {
             $query->where('transactions.created_by', $created_by);
         }
+        $query->where('transactions.is_suspend', 0);
 
         $sell_details = $query->first();
 
@@ -2750,6 +2763,7 @@ class TransactionUtil extends Util
                         ->leftjoin('tax_rates as T', 'transactions.tax_id', '=', 'T.id')
                         ->whereIn('type', ['purchase', 'purchase_return'])
                         ->whereNotNull('transactions.tax_id')
+                        ->where('transactions.is_suspend', 0)
                         ->select(
                             DB::raw("SUM( IF(type='purchase', transactions.tax_amount, -1 * transactions.tax_amount) ) as transaction_tax"),
                             'T.name as tax_name',
@@ -2763,6 +2777,7 @@ class TransactionUtil extends Util
                         ->leftjoin('tax_rates as T', 'pl.tax_id', '=', 'T.id')
                         ->where('type', 'purchase')
                         ->whereNotNull('pl.tax_id')
+                        ->where('transactions.is_suspend', 0)
                         ->select(
                             DB::raw('SUM( (pl.quantity - pl.quantity_returned) * pl.item_tax ) as product_tax'),
                             'T.name as tax_name',
@@ -2851,6 +2866,7 @@ class TransactionUtil extends Util
                         ->whereIn('type', ['sell', 'sell_return'])
                         ->whereNotNull('transactions.tax_id')
                         ->where('transactions.status', '=', 'final')
+                        ->where('transactions.is_suspend', 0)
                         ->select(
                             DB::raw("SUM( IF(type='sell', transactions.tax_amount, -1 * transactions.tax_amount) ) as transaction_tax"),
                             'T.name as tax_name',
@@ -2865,6 +2881,7 @@ class TransactionUtil extends Util
                         ->where('type', 'sell')
                         ->whereNotNull('tsl.tax_id')
                         ->where('transactions.status', '=', 'final')
+                        ->where('transactions.is_suspend', 0)
                         ->select(
                             DB::raw('SUM( (tsl.quantity - tsl.quantity_returned) * tsl.item_tax ) as product_tax'),
                             'T.name as tax_name',
@@ -2952,6 +2969,7 @@ class TransactionUtil extends Util
                         ->leftjoin('tax_rates as T', 'transactions.tax_id', '=', 'T.id')
                         ->where('type', 'expense')
                         ->whereNotNull('transactions.tax_id')
+                        ->where('transactions.is_suspend', 0)
                         ->select(
                             DB::raw('SUM(transactions.tax_amount) as transaction_tax'),
                             'T.name as tax_name',
@@ -3021,6 +3039,7 @@ class TransactionUtil extends Util
                             ->where('transactions.business_id', $business_id)
                             ->where('transactions.type', 'sell')
                             ->where('transactions.status', 'final')
+                            ->where('transactions.is_suspend', 0)
                             ->whereBetween('transactions.transaction_date', [$start, $end]);
 
         //Check for permitted locations of a user
@@ -4020,6 +4039,7 @@ class TransactionUtil extends Util
                             ->where('t.business_id', $business_id)
                             ->where('t.type', 'sell')
                             ->where('t.status', 'final')
+                            ->where('t.is_suspend', 0)
                             ->select(DB::raw('SUM( (transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price ) as final_total'));
 
         //Check for permitted locations of a user
@@ -4055,6 +4075,7 @@ class TransactionUtil extends Util
                             ->where('t.business_id', $business_id)
                             ->where('t.type', 'sell')
                             ->where('t.status', 'final')
+                            ->where('t.is_suspend', 0)
                             ->select(DB::raw('SUM(IF( is_return = 0, amount, amount*-1)) as total_paid'));
 
         //Check for permitted locations of a user
@@ -4554,7 +4575,8 @@ class TransactionUtil extends Util
         $created_by = null,
         $permitted_locations = null
         ) {
-        $query = Transaction::where('transactions.business_id', $business_id);
+        $query = Transaction::where('transactions.business_id', $business_id)
+                            ->where('transactions.is_suspend', 0);
 
         //Check for permitted locations of a user
         if(!empty($permitted_locations)) {
@@ -4743,6 +4765,7 @@ class TransactionUtil extends Util
                 'PL.id'
             )
             ->where('sale.type', 'sell')
+            ->where('sale.is_suspend', 0)
             ->where('sale.status', 'final')
             ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
             ->where('sale.business_id', $business_id)
@@ -5171,6 +5194,7 @@ class TransactionUtil extends Util
                 )
                 ->where('transactions.business_id', $business_id)
                 ->where('transactions.type', $sale_type)
+                // ->where('transactions.is_suspend', 0)
                 ->select(
                     'transactions.id',
                     'transactions.transaction_date',
@@ -5293,6 +5317,7 @@ class TransactionUtil extends Util
                 )
                 ->where('transactions.business_id', $business_id)
                 ->where('transactions.type', $sale_type)
+                ->where('transactions.is_suspend', 0)
                 ->where('transactions.e_invoice','si')
                 ->select(
                     'transactions.id',
@@ -5979,7 +6004,8 @@ class TransactionUtil extends Util
         //get sub type for total sales
         $sales_by_subtype = Transaction::where('business_id', $business_id)
             ->where('type', 'sell')
-            ->where('status', 'final');
+            ->where('status', 'final')
+            ->where('is_suspend', 0);
         if (! empty($start_date) && ! empty($end_date)) {
             if ($start_date == $end_date) {
                 $sales_by_subtype->whereDate('transaction_date', $end_date);
@@ -5992,7 +6018,6 @@ class TransactionUtil extends Util
             ->groupBy('transactions.sub_type')
             ->get();
         $data['total_sell_by_subtype'] = $sales_by_subtype;
-
         return $data;
     }
 
@@ -6550,6 +6575,7 @@ class TransactionUtil extends Util
                                 ->where('commission_agent', $user_id)
                                 ->where('type', 'sell')
                                 ->where('status', 'final')
+                                ->where('is_suspend', 0)
                                 ->whereBetween(DB::raw('transaction_date'), [$start_date, $end_date])
                                 ->select(
                                     DB::raw('SUM(final_total) as total_sales'),
@@ -6567,6 +6593,7 @@ class TransactionUtil extends Util
     {
         $unique_sources = Transaction::where('business_id', $business_id)
                                     ->where('type', 'sell')
+                                    ->where('is_suspend', 0)
                                     ->select('source')
                                     ->groupBy('source')
                                     ->get();

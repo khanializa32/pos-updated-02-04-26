@@ -31,6 +31,9 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('pos:autoSendPaymentReminder')->dailyAt('8:00');
 
+            //Schedule automatic product stock synchronization every 30 minutes
+            $schedule->command('pos:autoSyncProductStock')->everyThirtyMinutes();
+
         }
 
         if ($env === 'demo') {
@@ -39,6 +42,14 @@ class Kernel extends ConsoleKernel
                     ->cron('0 */3 * * *')
                     //->everyThirtyMinutes()
                     ->emailOutputTo($email);
+
+            //Schedule automatic product stock synchronization every 30 minutes for demo environment
+            $schedule->command('pos:autoSyncProductStock')->everyThirtyMinutes();
+        }
+
+        //Schedule automatic product stock synchronization for developer environment
+        if ($env === 'developer') {
+            $schedule->command('pos:autoSyncProductStock')->everyThirtyMinutes();
         }
     }
 
