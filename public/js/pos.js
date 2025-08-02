@@ -1842,7 +1842,8 @@ function get_subtotal() {
         var modifier_subtotal = modifier_price * modifier_quantity;
         price_total = price_total + modifier_subtotal;
     });
-
+    var discount = pos_discount(price_total);
+    price_total = price_total - discount;
     return price_total;
 }
 
@@ -1887,7 +1888,7 @@ function calculate_billing_details(price_total) {
         $('#packing_charge_text').text(__currency_trans_from_en(packing_charge, false));
     }
 
-    var total_payable = price_total + order_tax - discount + shipping_charges + packing_charge + additional_expense;
+    var total_payable = price_total + order_tax  + shipping_charges + packing_charge + additional_expense;
 
     var rounding_multiple = $('#amount_rounding_method').val() ? parseFloat($('#amount_rounding_method').val()) : 0;
     var round_off_data = __round(total_payable, rounding_multiple);
@@ -1913,7 +1914,7 @@ function calculate_billing_details(price_total) {
 
     //Check if edit form then don't update price.
     if ($('form#edit_pos_sell_form').length == 0 && $('form#edit_sell_form').length == 0) {
-        __write_number($('.payment-amount').first(), total_payable_rounded);
+        __write_number($('.payment-amount'), total_payable_rounded);
     }
 
     $(document).trigger('invoice_total_calculated');
