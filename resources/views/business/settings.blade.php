@@ -68,15 +68,7 @@
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.reward_point_settings')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.modules')</a>
                     <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('lang_v1.custom_labels')</a>
-                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">@lang('business.dian_configurations')
-                    <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
-                    data-container="body" data-toggle="popover" data-placement="auto bottom" 
-                    data-content="Facturacion Electronica DIAN" data-html="true" data-trigger="hover"></i></a>
-                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">Certificado Digital</a>
-                    <a href="#" class="list-group-item text-center tw-font-bold tw-text-sm md:tw-text-base">Seguridad Social <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
-                    data-container="body" data-toggle="popover" data-placement="auto bottom" 
-                    data-content="Porcentajes seguridad social" data-html="true" data-trigger="hover"></i></a>
-
+                    
                 </div>
             </div>
             <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 pos-tab">
