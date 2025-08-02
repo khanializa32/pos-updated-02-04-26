@@ -49,8 +49,15 @@
         @can('so.create')
             @slot('tool')
                 <div class="box-tools">
-                    <a class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-sm tw-text-white" href="{{action([\App\Http\Controllers\SellController::class, 'create'])}}?sale_type=sales_order">
-                    <i class="fa fa-plus"></i> @lang('lang_v1.add_sales_order')</a>
+                    <a class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-rounded-full pull-right" href="{{action([\App\Http\Controllers\SellController::class, 'create'])}}?sale_type=sales_order">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+                                        viewBox="0 0 20 20" fill="none" stroke="red" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M12 5l0 14" />
+                                            <path d="M5 12l14 0" />
+                                        </svg> @lang('Crear Remisión')
+                        </a>
                 </div>
             @endslot
         @endcan
