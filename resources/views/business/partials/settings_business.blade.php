@@ -100,47 +100,6 @@
                 {!! Form::select('municipality_id', $municipalities, $business->municipality_id, ['class' => 'form-control']); !!}
             </div>
         </div>
-        <div class="clearfix"></div>
-        <div class="col-sm-4">
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                     <input class="input-icheck" name="agente_retenedor" type="checkbox" value="1">Agente Retenedor
-                    </label>
-                    <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
-                    data-container="body" data-toggle="popover" data-placement="auto bottom" 
-                    data-content="Habilite si realiza Retencion en la Fuente" data-html="true" data-trigger="hover"></i>                </div>
-            </div>
-        </div>
-         <div class="col-sm-4">
-            <div class="form-group">
-               <div class="checkbox">
-                <label>
-                <input class="input-icheck" name="contable" type="checkbox" value="1">Contable
-                </label>
-                <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
-                    data-container="body" data-toggle="popover" data-placement="auto bottom" 
-                    data-content="Habilite si tiene habilitado el modulo contable" data-html="true" data-trigger="hover"></i>               </div>
-            </div>
-         </div>
-        <div class="clearfix"></div>
-        <div class="col-sm-4">
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input class="input-icheck" checked="checked" name="electronic_invoice" type="checkbox" value="1">Facturador electronico
-                    </label>
-                    <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
-                    data-container="body" data-toggle="popover" data-placement="auto bottom" 
-                    data-content="Habilite si es facturador electronico" data-html="true" data-trigger="hover"></i>                </div>
-            </div>
-        </div>
-        
-        <!-- INICIO DE CODIGO SOLO PARA LA VISTA DE TIPO DE IDENTIFICACIO, NUMERO DE IDENTIFCACION, DIGITO DE VERIFIFCACION TIPO DE PERSONA, DEPARTAMENTO, CIUDAD, TIPO DE ORGANIZACION, REGIMEN, AGENTE RETENEDOR, CONTABLE, ES FACTURADOR ELECTRONICO-->
-        
-        
-        
-        
         
         <div class="col-sm-4">
             <div class="form-group">
