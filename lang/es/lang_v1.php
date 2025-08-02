@@ -1375,7 +1375,7 @@ return [
     'allow_overselling_help' => 'Si esta opcion esta marcada entonces podras vender productos sin existencias, estas entonces tendra caracter negativo',
     'is_product_image_required' => 'La imagen es obligatoria',
     'types_of_service_details' => 'Tipos de Servicios',
-    
+    'signed_in_as' => 'Usuario',
     
     'cr' => 'CR',
     'dr' => 'DR',
