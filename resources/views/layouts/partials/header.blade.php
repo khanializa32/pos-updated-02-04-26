@@ -32,7 +32,7 @@
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-edit' style='font-size:20px;color:magenta'></i>
-                                @lang('lang_v1.sales_create')
+                                @lang('Nueva F.E.')
                             </a>
                            
                                  <a href="https://ziscoplus.com/purchases/create"
@@ -78,7 +78,7 @@
                                 </a>
                          
                            
-                            @if (auth()->user()->hasRole('Admin#' . auth()->user()->business_id))
+                            <!-- @if (auth()->user()->hasRole('Admin#' . auth()->user()->business_id))
                                 <a href="#" id="start_tour"
                                     class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                     role="menuitem" tabindex="-1">
@@ -92,7 +92,7 @@
                                     </svg>
                                     Tour Zisco
                                 </a>
-                            @endif
+                            @endif -->
                         </div>
                     </ul>
 
