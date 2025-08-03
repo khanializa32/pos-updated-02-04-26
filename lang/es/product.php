@@ -44,6 +44,8 @@
      'view_product' => 'Ver Producto',
      'add_product' => 'Crear Producto',
      'variations' => 'Variantes',
+     'purchase__price' => 'Precio Compra',
+     'sale_price' => 'Precio Venta',
      'import_products' => 'Importar Productos',
      'file_to_import' => 'Archivo para Importar',
      'file_imported_successfully' => 'Archivo importado con éxito',
