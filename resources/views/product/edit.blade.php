@@ -50,12 +50,12 @@
               </div>
             </div>
 
-           <!-- <div class="col-sm-4">
+           <div class="col-sm-4">
               <div class="form-group">
                 {!! Form::label('barcode_type', __('product.barcode_type') . ':*') !!}
                   {!! Form::select('barcode_type', $barcode_types, $product->barcode_type, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2', 'required']); !!}
               </div>
-            </div> -->
+            </div> 
 
             <div class="clearfix"></div>
             
@@ -160,7 +160,7 @@
                 @endforeach
             @endif
             <div class="clearfix"></div>
-            <!--<div class="col-sm-8">
+            <div class="col-sm-8">
               <div class="form-group">
                 {!! Form::label('product_description', __('lang_v1.product_description') . ':') !!}
                   {!! Form::textarea('product_description', $product->product_description, ['class' => 'form-control']); !!}
@@ -168,7 +168,7 @@
             </div> 
         
         
-         <div class="col-sm-4">
+         <!--<div class="col-sm-4">
                 <div class="form-group">
                     <label for="expense_category_id">Grupo de Contabilizacion:</label>
                     <div class="input-group" style="width: 100%">
