@@ -43,11 +43,11 @@
                                                 
                                             </p>
                                                 
-                                                <span class="display_currency" data-currency_symbol="true">{{$data['inventory']}}</span>
+                                                {{-- <span class="display_currency" data-currency_symbol="true">{{$data['inventory']}}</span> --}}
                                                 
                                                 
-                                                <p
-                                                    class="total_sell tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+                                                <p id="closing_stock_by_sp_1"
+                                                    class="closing_stock_by_sp_1 tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
                                                 </p>
                                             </div>
                                         </div>
@@ -297,6 +297,7 @@
     <script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            get_stock_value();
             product_table = $('#product_table').DataTable({
                 processing: true,
                 serverSide: true,
@@ -940,5 +941,23 @@
                 },
             });
         });
+        function get_stock_value() {
+    var loader = __fa_awesome();
+    $('#closing_stock_by_sp_1').html(loader);
+    var data = {
+        location_id: $('#location_id').val(),
+        category_id: $('#category_id').val(),
+        sub_category_id: $('#sub_category_id').val(),
+        brand_id: $('#brand').val(),
+        unit_id: $('#unit').val(),
+    }
+    $.ajax({
+        url: '/reports/get-stock-value',
+        data: data,
+        success: function(data) {
+            $('#closing_stock_by_sp_1').text(__currency_trans_from_en(data.closing_stock_by_sp));
+        },
+    });
+}
     </script>
 @endsection

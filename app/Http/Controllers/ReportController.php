@@ -199,6 +199,7 @@ class ReportController extends Controller
             $contacts = Contact::where('contacts.business_id', $business_id)
                 ->join('transactions AS t', 'contacts.id', '=', 't.contact_id')
                 ->active()
+                ->where('t.is_suspend', 0)
                 ->groupBy('contacts.id')
                 ->select(
                     DB::raw("SUM(IF(t.type = 'purchase', final_total, 0)) as total_purchase"),
@@ -1663,6 +1664,7 @@ class ReportController extends Controller
                         ->where('transactions.business_id', $business_id)
                         ->where('transactions.type', 'sell')
                         ->where('transactions.status', 'final')
+                        ->where('transactions.is_suspend', 0)
                         ->groupBy('transactions.customer_group_id')
                         ->select(DB::raw('SUM(final_total) as total_sell'), 'CG.name');
 
@@ -1864,6 +1866,7 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
+                ->where('t.is_suspend', 0)
                 ->with('transaction.payment_lines')
                 ->select(
                     'p.name as product_name',
@@ -2064,6 +2067,7 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
+                ->where('t.is_suspend', 0)
                 ->select(
                     'p.name as product_name',
                     'p.type as product_type',
@@ -2675,6 +2679,7 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
+                ->where('t.is_suspend', 0)
                 ->select(
                     'p.name as product_name',
                     'p.enable_stock',
@@ -2805,6 +2810,7 @@ class ReportController extends Controller
                 ->where('t.business_id', $business_id)
                 ->where('t.type', 'sell')
                 ->where('t.status', 'final')
+                ->where('t.is_suspend', 0)
                 ->select(
                     'b.name as brand_name',
                     'cat.name as category_name',
@@ -3066,6 +3072,7 @@ class ReportController extends Controller
                 'PL.id'
             )
             ->where('sale.type', 'sell')
+            ->where('sale.is_suspend', 0)
             ->where('sale.status', 'final')
             ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
             ->where('sale.business_id', $business_id)

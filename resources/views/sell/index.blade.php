@@ -106,6 +106,7 @@
                             <th>@lang('lang_v1.payment_method')</th>
                             <th>@lang('sale.total_amount')</th>
                             <th>@lang('sale.total_paid')</th>
+                            <th>@lang('sale.utility_per_invoice')</th>
                             <th>@lang('lang_v1.sell_due')</th>
                             <th>@lang('lang_v1.sell_return_due')</th>
                             <th>@lang('lang_v1.shipping_status')</th>
@@ -270,6 +271,12 @@
                         data: 'total_paid',
                         name: 'total_paid',
                         "searchable": false
+                    },
+                    {
+                        data: 'utility',
+                        name: 'utility',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'total_remaining',

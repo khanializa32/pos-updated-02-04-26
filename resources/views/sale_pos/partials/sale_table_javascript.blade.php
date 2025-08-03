@@ -17,6 +17,7 @@ $('#sell_list_filter_date_range').on('cancel.daterangepicker', function(ev, pick
 $(document).on('change', '#sell_list_filter_location_id, #sell_list_filter_customer_id, #sell_list_filter_payment_status, #created_by, #sales_cmsn_agnt, #service_staffs, #shipping_status',  function() {
     sell_table.ajax.reload();
 });
+update_statistics();
 
 sell_table = $('#sell_table').DataTable({
         processing: true,
@@ -127,6 +128,58 @@ sell_table = $('#sell_table').DataTable({
         sell_table.ajax.reload();
     });
 });
+
+function update_statistics() {
+    get_stock_value();
+        // console.log('------------------------------>', start, end)
+    var location_id = '';
+    if ($('#dashboard_location').length > 0) {
+        location_id = $('#dashboard_location').val();
+    }
+    var data = { location_id: location_id };
+    //get purchase details
+    var loader = '<i class="fas fa-sync fa-spin fa-fw margin-bottom"></i>';
+    $('.total_sell').html(loader);
+    $('.total_expense').html(loader);
+    $('.gross_profit').html(loader);
+    $('.total_inventory').html(loader);
+    $.ajax({
+        method: 'get',
+        url: '/home/get-totals',
+        dataType: 'json',
+        data: data,
+        success: function(data) {
+            
+            //purchase details
+            //sell details
+            $('.total_sell').html(__currency_trans_from_en(data.total_sell, true));
+            //expense details
+            $('.total_expense').html(__currency_trans_from_en(data.total_expense, true));
+            $('.gross_profit').html(__currency_trans_from_en(data.gross_profit, true));
+            // $('.total_inventory').html(__currency_trans_from_en(data.total_inventory, true));
+           },
+    });
+
+    function get_stock_value() {
+    var loader = __fa_awesome();
+    $('#closing_stock_by_sp_1').html(loader);
+    var data = {
+        location_id: $('#location_id').val(),
+        category_id: $('#category_id').val(),
+        sub_category_id: $('#sub_category_id').val(),
+        brand_id: $('#brand').val(),
+        unit_id: $('#unit').val(),
+    }
+    $.ajax({
+        url: '/reports/get-stock-value',
+        data: data,
+        success: function(data) {
+            $('#closing_stock_by_sp_1').text(__currency_trans_from_en(data.closing_stock_by_sp));
+        },
+    });
+}
+}
+
 
 
 

@@ -221,11 +221,28 @@ class HomeController extends Controller
     public function getTotals()
     {
         if (request()->ajax()) {
-            $start = request()->start;
-            $end = request()->end;
+            $start = request()->start ?? date('Y-m-d');
+            $end = request()->end ?? date('Y-m-d');
             $location_id = request()->location_id;
             $business_id = request()->session()->get('user.business_id');
-
+            $closing_stock = $this->transactionUtil->getOpeningClosingStock(
+                $business_id,
+                date('Y-m-d'),
+                $location_id,
+                false,
+                false,
+            );
+            $permitted_locations = auth()->user()->permitted_locations();
+    
+            $gross_profit = $this->transactionUtil->getGrossProfit(
+                $business_id,
+                $start,
+                $end,
+                $location_id,
+                1,
+                $permitted_locations
+            );
+    
             // get user id parameter
             $created_by = request()->user_id;
 
@@ -264,9 +281,26 @@ class HomeController extends Controller
 
             $output['total_sell'] = $total_sell_inc_tax;
             $output['total_sell_return'] = $total_sell_return_inc_tax;
-
+            $module_parameters = [
+                'business_id' => $business_id,
+                'start_date' =>$start,
+                'end_date' => $end,
+                'location_id' => $location_id,
+            ];
+            $grossProfitData = $this->moduleUtil->getModuleData('grossProfit', $module_parameters);
+           
+            $data['gross_profit_label'] = [];
+            if(! empty($grossProfitData)){
+                foreach($grossProfitData as $value){
+                    $data['gross_profit_label'][] = $value['label'];
+                    $gross_profit = $gross_profit + $value['value'];
+                }
+            }
+    
+            $output['gross_profit'] = $gross_profit;
             $output['invoice_due'] = $sell_details['invoice_due'] - $total_ledger_discount['total_sell_discount'];
             $output['total_expense'] = $transaction_totals['total_expense'];
+            $output['total_inventory'] = $closing_stock;
 
             //NET = TOTAL SALES - INVOICE DUE - EXPENSE
             $output['net'] = $output['total_sell'] - $output['invoice_due'] - $output['total_expense'];

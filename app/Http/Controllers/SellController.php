@@ -352,6 +352,7 @@ class SellController extends Controller
             if ($this->businessUtil->isModuleEnabled('subscription')) {
                 $sells->addSelect('transactions.is_recurring', 'transactions.recur_parent_id');
             }
+            $sells->where('transactions.is_suspend', 0);
             $sales_order_statuses = Transaction::sales_order_statuses();
             $datatable = Datatables::of($sells)
                 ->addColumn(
@@ -619,9 +620,11 @@ class SellController extends Controller
                         } else {
                             return '';
                         }
-                    }, ]);
-
-            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid'];
+                    }, ])
+                ->addColumn('utility', function ($row) {
+                    return '<span class="display_currency" data-currency_symbol="true">' . ($row->utility ?? 0) . '</span>';
+                });
+            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid', 'utility'];
 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);
@@ -780,7 +783,7 @@ class SellController extends Controller
         $change_return = $this->dummyPaymentLine;
 
         $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
-        // $countries = Country::pluck('name','id');
+        $countries = \DB::table('countries')->pluck('name','id');
         $departments = Department::pluck('name','id');
         $municipalities = Municipality::pluck('name','id');
         $type_regimes = TypeRegime::pluck('name','id');

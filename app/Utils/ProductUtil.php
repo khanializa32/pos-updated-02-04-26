@@ -723,6 +723,7 @@ class ProductUtil extends Util
                     ->leftjoin('units as u', 'u.id', '=', 'p.unit_id')
                     ->where('transactions.business_id', $business_id)
                     ->where('transactions.type', 'sell')
+                    ->where('transactions.is_suspend', 0)
                     ->where('transactions.status', 'final');
 
         $permitted_locations = auth()->user()->permitted_locations();
@@ -1826,18 +1827,18 @@ class ProductUtil extends Util
 
             DB::raw("(SELECT SUM(TSL.quantity - TSL.quantity_returned) FROM transactions 
                   JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
-                  WHERE transactions.status='final' AND transactions.type='sell' AND transactions.location_id=vld.location_id
+                  WHERE transactions.status='final' AND transactions.type='sell' AND transactions.is_suspend=0 AND transactions.location_id=vld.location_id
                   AND TSL.variation_id=variations.id) as total_sold"),
             DB::raw("(SELECT SUM(IF(transactions.type='sell_transfer', TSL.quantity, 0) ) FROM transactions 
                   JOIN transaction_sell_lines AS TSL ON transactions.id=TSL.transaction_id
-                  WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.location_id=vld.location_id AND (TSL.variation_id=variations.id)) as total_transfered"),
+                  WHERE transactions.status='final' AND transactions.type='sell_transfer' AND transactions.is_suspend=0 AND transactions.location_id=vld.location_id AND (TSL.variation_id=variations.id)) as total_transfered"),
             DB::raw("(SELECT SUM(IF(transactions.type='stock_adjustment', SAL.quantity, 0) ) FROM transactions 
                   JOIN stock_adjustment_lines AS SAL ON transactions.id=SAL.transaction_id
-                  WHERE transactions.type='stock_adjustment' AND transactions.location_id=vld.location_id 
+                  WHERE transactions.type='stock_adjustment' AND transactions.is_suspend=0 AND transactions.location_id=vld.location_id 
                     AND (SAL.variation_id=variations.id)) as total_adjusted"),
             DB::raw("(SELECT SUM( COALESCE(pl.quantity - ($pl_query_string), 0) * purchase_price_inc_tax) FROM transactions 
                   JOIN purchase_lines AS pl ON transactions.id=pl.transaction_id
-                  WHERE (transactions.status='received' OR transactions.type='purchase_return')  AND transactions.location_id=vld.location_id 
+                  WHERE (transactions.status='received' OR transactions.type='purchase_return')  AND transactions.is_suspend=0 AND transactions.location_id=vld.location_id 
                   AND (pl.variation_id=variations.id)) as stock_price"),
             DB::raw('SUM(vld.qty_available) as stock'),
             'variations.sub_sku as sku',
@@ -1865,7 +1866,7 @@ class ProductUtil extends Util
             $products->addSelect(
                 DB::raw("(SELECT COALESCE(SUM(PL.quantity - ($pl_query_string)), 0) FROM transactions 
                     JOIN purchase_lines AS PL ON transactions.id=PL.transaction_id
-                    WHERE transactions.status='received' AND transactions.type='production_purchase' AND transactions.location_id=vld.location_id  
+                    WHERE transactions.status='received' AND transactions.type='production_purchase' AND transactions.is_suspend=0 AND transactions.location_id=vld.location_id  
                     AND (PL.variation_id=variations.id)) as total_mfg_stock")
             );
         }
@@ -1922,6 +1923,7 @@ class ProductUtil extends Util
                     ->leftjoin('purchase_lines as pl', 'pl.variation_id', '=', 'variations.id')
                     ->leftjoin('transactions as t', 'pl.transaction_id', '=', 't.id')
                     ->where('t.location_id', $location_id)
+                    ->where('t.is_suspend', 0)
                     //->where('t.status', 'received')
                     ->where('p.business_id', $business_id)
                     ->where('variations.id', $variation_id)
@@ -1949,6 +1951,7 @@ class ProductUtil extends Util
                     ->join('transactions as t', 'sl.transaction_id', '=', 't.id')
                     ->where('t.location_id', $location_id)
                     ->where('t.status', 'final')
+                    ->where('t.is_suspend', 0)
                     ->where('p.business_id', $business_id)
                     ->where('variations.id', $variation_id)
                     ->select(
@@ -2009,6 +2012,7 @@ class ProductUtil extends Util
                                         ->orWhere('rpl.variation_id', $variation_id)
                                         ->orWhere('rsl.variation_id', $variation_id);
                                 })
+                                ->where('transactions.is_suspend', 0)
                                 ->whereIn('transactions.type', ['sell', 'purchase', 'stock_adjustment', 'opening_stock', 'sell_transfer', 'purchase_transfer', 'production_purchase', 'purchase_return', 'sell_return', 'production_sell'])
                                 ->select(
                                     'transactions.id as transaction_id',

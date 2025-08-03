@@ -37,9 +37,9 @@
                                                 {{ __('home.total_purchase') }}
                                             </p>
                                             
-                                            <span class="display_currency" data-currency_symbol="true">{{$data['total_purchase']}}</span>
+                                            {{-- <span class="display_currency" data-currency_symbol="true"></span> --}}
                                                 <p
-                                                    class="total_sell tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+                                                    class="total_purchase tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
                                                 </p>
                                             </div>
                                         </div>
@@ -71,7 +71,7 @@
                                                 {{ __('home.purchase_due') }}
                                             </p>
                                             
-                                            <span class="display_currency" data-currency_symbol="true">{{$data['purchase_due']}}</span>
+                                            {{-- <span class="display_currency" data-currency_symbol="true"></span> --}}
                                             
                                             <p
                                                 class="purchase_due tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
@@ -271,6 +271,36 @@
                 },
             });
         });
+
+        $(document).ready(function() {
+            update_statistics();
+        });
+
+        function update_statistics() {
+        // console.log('------------------------------>', start, end)
+        var location_id = '';
+        if ($('#dashboard_location').length > 0) {
+            location_id = $('#dashboard_location').val();
+        }
+        var data = { location_id: location_id };
+        //get purchase details
+        var loader = '<i class="fas fa-sync fa-spin fa-fw margin-bottom"></i>';
+        $('.total_purchase').html(loader);
+        $('.purchase_due').html(loader);
+            $.ajax({
+            method: 'get',
+            url: '/home/get-totals',
+            dataType: 'json',
+            data: data,
+            success: function (data) {
+                //purchase details
+                $('.total_purchase').html(__currency_trans_from_en(data.total_purchase, true));
+                $('.purchase_due').html(__currency_trans_from_en(data.purchase_due, true));
+
+            },
+        });
+    }
+    
     </script>
 
 @endsection
