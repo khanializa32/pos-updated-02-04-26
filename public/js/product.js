@@ -34,7 +34,8 @@ $(document).ready(function() {
     //Start For product type single
 
     //If purchase price exc tax is changed
-    $(document).on('change', 'input#single_dpp', function(e) {
+    $(document).on('keyup', 'input#single_dpp', function(e) {
+        __write_number($(this), $(this).val());
         var purchase_exc_tax = __read_number($('input#single_dpp'));
         purchase_exc_tax = purchase_exc_tax == undefined ? 0 : purchase_exc_tax;
 
@@ -75,7 +76,9 @@ $(document).ready(function() {
     });
 
     //If purchase price inc tax is changed
-    $(document).on('change', 'input#single_dpp_inc_tax', function(e) {
+    $(document).on('keyup', 'input#single_dpp_inc_tax', function(e) {
+        __write_number($(this), $(this).val());
+
         var purchase_inc_tax = __read_number($('input#single_dpp_inc_tax'));
         purchase_inc_tax = purchase_inc_tax == undefined ? 0 : purchase_inc_tax;
 
@@ -140,7 +143,9 @@ $(document).ready(function() {
         __write_number($('input#single_dsp_inc_tax'), selling_price_inc_tax);
     });
 
-    $(document).on('change', 'input#single_dsp_inc_tax', function(e) {
+    $(document).on('keyup', 'input#single_dsp_inc_tax', function(e) {
+        __write_number($(this), $(this).val());
+        
         var tax_rate = $('select#tax')
             .find(':selected')
             .data('rate');

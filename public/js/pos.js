@@ -377,7 +377,7 @@ $(document).ready(function() {
     });
 
     //If change in unit price including tax, update unit price
-    $('table#pos_table tbody').on('change', 'input.pos_unit_price_inc_tax', function() {
+    $('table#pos_table tbody').on('keyup', 'input.pos_unit_price_inc_tax', function() {
         var unit_price_inc_tax = __read_number($(this));
 
         if (iraqi_selling_price_adjustment) {
@@ -857,8 +857,13 @@ $(document).ready(function() {
         },
     });
 
-    $(document).on('change', '.payment-amount', function() {
+    $(document).on('keyup', '.payment-amount', function() {
         calculate_balance_due();
+    __write_number($(this), $(this).val());
+        
+    });
+    $(document).on('keyup', '#expense_final_total', function() {
+    __write_number($(this), $(this).val());        
     });
 
     //Update discount
@@ -2288,7 +2293,7 @@ function get_unit_price_from_discounted_unit_price(row, discounted_unit_price) {
 }
 
 //Update quantity if line subtotal changes
-$('table#pos_table tbody').on('change', 'input.pos_line_total', function() {
+$('table#pos_table tbody').on('keyup', 'input.pos_line_total', function() {
 
     var subtotal = __read_number($(this));
     var tr = $(this).parents('tr');

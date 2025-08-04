@@ -262,7 +262,8 @@ $(document).ready(function() {
         update_grand_total();
     });
 
-    $(document).on('change', '.purchase_unit_cost_without_discount', function() {
+    $(document).on('keyup', '.purchase_unit_cost_without_discount', function() {
+        __write_number($(this), $(this).val());        
         var purchase_before_discount = __read_number($(this), true);
 
         var row = $(this).closest('tr');
@@ -458,7 +459,8 @@ $(document).ready(function() {
         update_grand_total();
     });
 
-    $(document).on('change', '.purchase_unit_cost_after_tax', function() {
+    $(document).on('keyup', '.purchase_unit_cost_after_tax', function() {
+        __write_number($(this), $(this).val());        
         var row = $(this).closest('tr');
         var purchase_after_tax = __read_number($(this), true);
         var quantity = __read_number(row.find('input.purchase_quantity'), true);
@@ -671,7 +673,8 @@ $(document).ready(function() {
         );
     });
 
-    $(document).on('change', '.default_sell_price', function() {
+    $(document).on('keyup', '.default_sell_price', function() {
+        __write_number($(this), $(this).val());        
         var row = $(this).closest('tr');
         update_inline_profit_percentage(row);
     });
