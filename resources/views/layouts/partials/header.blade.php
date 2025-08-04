@@ -223,11 +223,20 @@
                             
                             
                             <li>
-                           <a href=""
+                           <a href="https://docs.zisco.cloud" target=_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-question-circle' style='font-size:20px;color:purple'></i>
-                                @lang('lang_v1.help')
+                                Soporte
+                            </a>
+                        </li>
+
+                        <li>
+                           <a href="https://wa.link/qcd1e2" target=_blank
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-comment-dots' style='font-size:20px;color:navy'></i>
+                                Chat
                             </a>
                         </li>
                             
