@@ -47,7 +47,7 @@ class AdminSidebarMenu
             <path d="M10 12h4v4h-4z" />
           </svg>', 'active' => request()->segment(1) == 'home'])->order(5);
 
-            //User management dropdown
+             //User management dropdown
             if (auth()->user()->can('user.view') || auth()->user()->can('user.create') || auth()->user()->can('roles.view')) {
                 $menu->dropdown(
                     __('user.user_management'),
@@ -59,13 +59,7 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => request()->segment(1) == 'users']
                             );
                         }
-                        if (auth()->user()->can('roles.view')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\RoleController::class, 'index']),
-                                __('user.roles'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'roles']
-                            );
-                        }
+                       
                         if (auth()->user()->can('user.create')) {
                             $sub->url(
                                 action([\App\Http\Controllers\SalesCommissionAgentController::class, 'index']),
@@ -73,6 +67,16 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => request()->segment(1) == 'sales-commission-agents']
                             );
                         }
+                        
+                         if (auth()->user()->can('roles.view')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\RoleController::class, 'index']),
+                                __('user.roles'),
+                                ['icon' => '', 'active' => request()->segment(1) == 'roles']
+                            );
+                        }
+                        
+                        
                     },
                     ['icon' => '<svg aria-hidden="true" class="tw-size-5 tw-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="blue" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -82,7 +86,7 @@ class AdminSidebarMenu
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path>
                   </svg>', ]
-                )->order(10);
+                )->order(40);
             }
 
             //Contacts dropdown
@@ -114,13 +118,13 @@ class AdminSidebarMenu
                         
                         
                         
-                         if (auth()->user()->can('supplier.view') || auth()->user()->can('supplier.view_own')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\ContactController::class, 'index'], ['type' => 'seguridad_s']),
-                                __('Seguridad Social'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'contacts' && request()->segment(2) == 'import']
-                            );
-                        }
+                         //if (auth()->user()->can('supplier.view') || auth()->user()->can('supplier.view_own')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\ContactController::class, 'index'], ['type' => 'seguridad_s']),
+                                //__('Seguridad Social'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'contacts' && request()->segment(2) == 'import']
+                            //);
+                        //}
                         
                         
                         
@@ -150,7 +154,7 @@ class AdminSidebarMenu
                     <path d="M4 12h3"></path>
                     <path d="M4 16h3"></path>
                   </svg>', 'id' => 'tour_step4']
-                )->order(15);
+                )->order(35);
             }
 
             //Products dropdown
@@ -169,12 +173,12 @@ class AdminSidebarMenu
                             );
                         }
 
-                        if (auth()->user()->can('product.create')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\ProductController::class, 'create']),
-                                __('product.add_product'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'create']
-                            );
+                        //if (auth()->user()->can('product.create')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\ProductController::class, 'create']),
+                                //__('product.add_product'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'products' && request()->segment(2) == 'create']
+                            //);
                        // }
                        // if (auth()->user()->can('product.create')) {
                        //     $sub->url(
@@ -182,22 +186,9 @@ class AdminSidebarMenu
                        //         __('lang_v1.update_product_price'),
                        //         ['icon' => '', 'active' => request()->segment(1) == 'update-product-price']
                        //     );
-                        }
-                        if (auth()->user()->can('product.view')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\LabelsController::class, 'show']),
-                                __('barcode.print_labels'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'labels' && request()->segment(2) == 'show']
-                            );
-                        }
-                        if (auth()->user()->can('product.create')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\VariationTemplateController::class, 'index']),
-                                __('product.variations'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'variation-templates']
-                            );
-                            
-                        if (auth()->user()->can('category.view') || auth()->user()->can('category.create')) {
+                        //}
+
+                         if (auth()->user()->can('category.view') || auth()->user()->can('category.create')) {
                             $sub->url(
                                 action([\App\Http\Controllers\TaxonomyController::class, 'index']) . '?type=product',
                                 __('category.categories'),
@@ -210,9 +201,8 @@ class AdminSidebarMenu
                                 __('brand.brands'),
                                 ['icon' => '', 'active' => request()->segment(1) == 'brands']
                             );
-                        }    
-                            
-                            
+                        } 
+
                          if (auth()->user()->can('unit.view') || auth()->user()->can('unit.create')) {
                             $sub->url(
                                 action([\App\Http\Controllers\UnitController::class, 'index']),
@@ -220,16 +210,29 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => request()->segment(1) == 'units']
                             );
                         }    
-                            
-                         if (auth()->user()->can('product.create')) {
+
+                        if (auth()->user()->can('product.create')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\VariationTemplateController::class, 'index']),
+                                __('product.variations'),
+                                ['icon' => '', 'active' => request()->segment(1) == 'variation-templates']
+                            );
+
+                             if (auth()->user()->can('product.create')) {
                             $sub->url(
                                 action([\App\Http\Controllers\SellingPriceGroupController::class, 'index']),
                                 __('lang_v1.selling_price_group'),
                                 ['icon' => '', 'active' => request()->segment(1) == 'selling-price-group']
                             );
                         }
-                        
-                        
+                                               
+                        if (auth()->user()->can('product.view')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\LabelsController::class, 'show']),
+                                __('barcode.print_labels'),
+                                ['icon' => '', 'active' => request()->segment(1) == 'labels' && request()->segment(2) == 'show']
+                            );
+                        }
                             
                             $sub->url(
                                 action([\App\Http\Controllers\ImportProductsController::class, 'index']),
@@ -293,13 +296,13 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => request()->segment(1) == 'purchases' && request()->segment(2) == null]
                             );
                         }
-                        if (auth()->user()->can('purchase.create')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\PurchaseController::class, 'create']),
-                                __('purchase.add_purchase'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'purchases' && request()->segment(2) == 'create']
-                            );
-                        }
+                         //if (auth()->user()->can('purchase.create')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\PurchaseController::class, 'create']),
+                                //__('purchase.add_purchase'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'purchases' && request()->segment(2) == 'create']
+                            //);
+                        //}
                         if (auth()->user()->can('purchase.update')) {
                             $sub->url(
                                 action([\App\Http\Controllers\PurchaseReturnController::class, 'index']),
@@ -315,41 +318,45 @@ class AdminSidebarMenu
                     <path d="M16 11l-4 4l-4 -4"></path>
                     <path d="M3 12a9 9 0 0 0 18 0"></path>
                   </svg>', 'id' => 'tour_step6']
-                )->order(25);
+                )->order(10);
             }
             //Sell dropdown
             if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping', 'access_sell_return', 'direct_sell.view', 'direct_sell.update', 'access_own_sell_return'])) {
                 $menu->dropdown(
                     __('sale.sale'),
                     function ($sub) use ($enabled_modules, $is_admin, $pos_settings) {
-                        if (!empty($pos_settings['enable_sales_order']) && ($is_admin || auth()->user()->hasAnyPermission(['so.view_own', 'so.view_all', 'so.create']))) {
-                            $sub->url(
-                                action([\App\Http\Controllers\SalesOrderController::class, 'index']),
-                                __('lang_v1.sales_order'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'sales-order']
-                            );
-                        }
+                       
 
                         if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
                             $sub->url(
                                 action([\App\Http\Controllers\SellController::class, 'index']),
-                                __('lang_v1.all_sales'),
+                                __('Facturas Electrónicas'),
                                 ['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
                             );
                         }
-                        if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
+                        //if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\SellController::class, 'create']),
+                                //__('sale.add_sale'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'create' && empty(request()->get('status'))]
+                            //);
+                        //}
+
+                      if (auth()->user()->can('access_sell_return') || auth()->user()->can('access_own_sell_return')) {
                             $sub->url(
-                                action([\App\Http\Controllers\SellController::class, 'create']),
-                                __('sale.add_sale'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'create' && empty(request()->get('status'))]
+                                action([\App\Http\Controllers\SellReturnController::class, 'index']),
+                                __('lang_v1.list_sell_return'),
+                                ['icon' => '', 'active' => request()->segment(1) == 'sell-return' && request()->segment(2) == null]
                             );
                         }
+
+                        
                         if (auth()->user()->can('sell.create')) {
                             if (in_array('pos_sale', $enabled_modules)) {
                                 if (auth()->user()->can('sell.view')) {
                                     $sub->url(
                                         action([\App\Http\Controllers\SellPosController::class, 'index']),
-                                        __('sale.list_pos'),
+                                        __('POS Electrónico'),
                                         ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == null]
                                     );
                                 }
@@ -361,28 +368,47 @@ class AdminSidebarMenu
                                 );
                             }
                         }
+                         if (auth()->user()->can('invoice_settings.access')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\CashRegisterInformationController::class, 'index']),
+                                __('Cajas'),
+                                ['icon' => '', 'active' => in_array(request()->segment(1), ['cash-register-information'])]
+                            );
+                        }
 
-                        if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
+                         if (!empty($pos_settings['enable_sales_order']) && ($is_admin || auth()->user()->hasAnyPermission(['so.view_own', 'so.view_all', 'so.create']))) {
                             $sub->url(
-                               action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'draft']),
-                                __('lang_v1.add_draft'),
-                                ['icon' => '', 'active' => request()->get('status') == 'draft']
-                           );
-                        }
-                        if (in_array('add_sale', $enabled_modules) && ($is_admin || auth()->user()->hasAnyPermission(['draft.view_all', 'draft.view_own']))) {
-                            $sub->url(
-                                action([\App\Http\Controllers\SellController::class, 'getDrafts']),
-                                __('lang_v1.list_drafts'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'drafts']
-                            );
-                          }
-                        if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'quotation']),
-                                __('lang_v1.add_quotation'),
-                                ['icon' => '', 'active' => request()->get('status') == 'quotation']
+                                action([\App\Http\Controllers\SalesOrderController::class, 'index']),
+                                __('lang_v1.sales_order'),
+                                ['icon' => '', 'active' => request()->segment(1) == 'sales-order']
                             );
                         }
+
+                        
+                        // (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
+                           // $sub->url(
+                               //action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'draft']),
+                               // __('lang_v1.add_draft'),
+                               // ['icon' => '', 'active' => request()->get('status') == 'draft']
+                          //);
+                        //}
+                        //if (in_array('add_sale', $enabled_modules) && ($is_admin || auth()->user()->hasAnyPermission(['draft.view_all', 'draft.view_own']))) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\SellController::class, 'getDrafts']),
+                                //__('lang_v1.list_drafts'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == 'drafts']
+                            //);
+                          //}
+
+                        
+                        // (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'quotation']),
+                                //__('lang_v1.add_quotation'),
+                                //['icon' => '', 'active' => request()->get('status') == 'quotation']
+                            //);
+                        //}
+                        
                         if (in_array('add_sale', $enabled_modules) && ($is_admin || auth()->user()->hasAnyPermission(['quotation.view_all', 'quotation.view_own']))) {
                             $sub->url(
                                 action([\App\Http\Controllers\SellController::class, 'getQuotations']),
@@ -391,13 +417,7 @@ class AdminSidebarMenu
                             );
                         }
 
-                        if (auth()->user()->can('access_sell_return') || auth()->user()->can('access_own_sell_return')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\SellReturnController::class, 'index']),
-                                __('lang_v1.list_sell_return'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'sell-return' && request()->segment(2) == null]
-                            );
-                        }
+                       
 
                         //if ($is_admin || auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
                           // $sub->url(
@@ -407,6 +427,15 @@ class AdminSidebarMenu
                            // );
                        // }
 
+                        if (auth()->user()->can('tax_rate.view') || auth()->user()->can('tax_rate.create')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\TaxRateController::class, 'index']),
+                                __('tax_rate.tax_rates'),
+                                ['icon' => '', 'active' => request()->segment(1) == 'tax-rates']
+                            );
+                        }
+
+                        
                         if (auth()->user()->can('discount.access')) {
                             $sub->url(
                                 action([\App\Http\Controllers\DiscountController::class, 'index']),
@@ -437,7 +466,7 @@ class AdminSidebarMenu
                     <path d="M16 7l-4 -4l-4 4"></path>
                     <path d="M3 12a9 9 0 0 0 18 0"></path>
                   </svg>', 'id' => 'tour_step7']
-                )->order(30);
+                )->order(5);
             }
 
             //Stock transfer dropdown
@@ -452,13 +481,13 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == null]
                             );
                         }
-                        if (auth()->user()->can('purchase.create')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\StockTransferController::class, 'create']),
-                                __('lang_v1.add_stock_transfer'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == 'create']
-                            );
-                        }
+                        //if (auth()->user()->can('purchase.create')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\StockTransferController::class, 'create']),
+                                //__('lang_v1.add_stock_transfer'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'stock-transfers' && request()->segment(2) == 'create']
+                            //);
+                        //}
                     },
                     ['icon' => '<svg aria-hidden="true" class="tw-size-5 tw-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="brown" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -468,7 +497,7 @@ class AdminSidebarMenu
                     <path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5"></path>
                     <path d="M3 9l4 0"></path>
                   </svg>']
-                )->order(35);
+                )->order(30);
             }
 
             //stock adjustment dropdown
@@ -479,17 +508,17 @@ class AdminSidebarMenu
                         if (auth()->user()->can('purchase.view')  || auth()->user()->can('view_own_purchase')) {
                             $sub->url(
                                 action([\App\Http\Controllers\StockAdjustmentController::class, 'index']),
-                                __('stock_adjustment.list'),
+                                __('Ajustes'),
                                 ['icon' => '', 'active' => request()->segment(1) == 'stock-adjustments' && request()->segment(2) == null]
                             );
                         }
-                        if (auth()->user()->can('purchase.create')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\StockAdjustmentController::class, 'create']),
-                                __('stock_adjustment.add'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'stock-adjustments' && request()->segment(2) == 'create']
-                            );
-                        }
+                        //if (auth()->user()->can('purchase.create')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\StockAdjustmentController::class, 'create']),
+                                //__('stock_adjustment.add'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'stock-adjustments' && request()->segment(2) == 'create']
+                            //);
+                        //}
                     },
                     ['icon' => '<svg aria-hidden="true" class="tw-size-5 tw-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="pink" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -498,7 +527,7 @@ class AdminSidebarMenu
                     <path d="M4 6v6a8 3 0 0 0 16 0v-6"></path>
                     <path d="M4 12v6a8 3 0 0 0 16 0v-6"></path>
                   </svg>']
-                )->order(40);
+                )->order(25);
             }
 
             //Expense dropdown
@@ -512,13 +541,13 @@ class AdminSidebarMenu
                             ['icon' => '', 'active' => request()->segment(1) == 'expenses' && request()->segment(2) == null]
                         );
 
-                        if (auth()->user()->can('expense.add')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\ExpenseController::class, 'create']),
-                                __('expense.add_expense'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'expenses' && request()->segment(2) == 'create']
-                            );
-                        }
+                        //if (auth()->user()->can('expense.add')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\ExpenseController::class, 'create']),
+                                //__('expense.add_expense'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'expenses' && request()->segment(2) == 'create']
+                            //);
+                        //}
 
                         if (auth()->user()->can('expense.add') || auth()->user()->can('expense.edit')) {
                             $sub->url(
@@ -535,7 +564,7 @@ class AdminSidebarMenu
                     <path d="M14.8 8a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"></path>
                     <path d="M12 6v10"></path>
                   </svg>']
-                )->order(45);
+                )->order(15);
             }
             //Accounts dropdown
             if (auth()->user()->can('account.access') && in_array('account', $enabled_modules)) {
@@ -600,6 +629,20 @@ class AdminSidebarMenu
                                 action([\App\Http\Controllers\ReportController::class, 'getRegisterReport']),
                                 __('report.register_report'),
                                 ['icon' => '', 'active' => request()->segment(2) == 'register-report']
+                            );
+                        }
+
+
+                        if (auth()->user()->can('contacts_report.view')) {
+                            $sub->url(
+                                action([\App\Http\Controllers\ReportController::class, 'getCustomerSuppliers']),
+                                __('report.contacts'),
+                                ['icon' => '', 'active' => request()->segment(2) == 'customer-supplier']
+                            );
+                            $sub->url(
+                                action([\App\Http\Controllers\ReportController::class, 'getCustomerGroup']),
+                                __('lang_v1.customer_groups_report'),
+                                ['icon' => '', 'active' => request()->segment(2) == 'customer-group']
                             );
                         }
                         
@@ -667,18 +710,7 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => request()->segment(2) == 'tax-report']
                             );
                         }
-                        if (auth()->user()->can('contacts_report.view')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\ReportController::class, 'getCustomerSuppliers']),
-                                __('report.contacts'),
-                                ['icon' => '', 'active' => request()->segment(2) == 'customer-supplier']
-                            );
-                            $sub->url(
-                                action([\App\Http\Controllers\ReportController::class, 'getCustomerGroup']),
-                                __('lang_v1.customer_groups_report'),
-                                ['icon' => '', 'active' => request()->segment(2) == 'customer-group']
-                            );
-                        }
+                        
                         
                             if (session('business.enable_product_expiry') == 1) {
                                 $sub->url(
@@ -881,35 +913,23 @@ class AdminSidebarMenu
                                 ['icon' => '', 'active' => in_array(request()->segment(1), ['invoice-schemes', 'invoice-layouts'])]
                             );
                         }
-                        if (auth()->user()->can('invoice_settings.access')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\CashRegisterInformationController::class, 'index']),
-                                __('Caja registradora'),
-                                ['icon' => '', 'active' => in_array(request()->segment(1), ['cash-register-information'])]
-                            );
-                        }
+                       
                         if (auth()->user()->can('barcode_settings.access')) {
                             $sub->url(
                                 action([\App\Http\Controllers\BarcodeController::class, 'index']),
-                                __('barcode.barcode_settings'),
+                                __('Cod. de Barras'),
                                 ['icon' => '', 'active' => request()->segment(1) == 'barcodes']
                             );
                         }
                         if (auth()->user()->can('access_printers')) {
                             $sub->url(
                                 action([\App\Http\Controllers\PrinterController::class, 'index']),
-                                __('printer.receipt_printers'),
+                                __('Impresoras'),
                                 ['icon' => '', 'active' => request()->segment(1) == 'printers']
                             );
                         }
 
-                        if (auth()->user()->can('tax_rate.view') || auth()->user()->can('tax_rate.create')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\TaxRateController::class, 'index']),
-                                __('tax_rate.tax_rates'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'tax-rates']
-                            );
-                        }
+                        
 
                         if (in_array('tables', $enabled_modules) && auth()->user()->can('access_tables')) {
                             $sub->url(

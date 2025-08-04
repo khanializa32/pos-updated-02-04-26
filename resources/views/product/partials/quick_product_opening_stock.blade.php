@@ -1,6 +1,6 @@
 <div class="row" id="quick_product_opening_stock_div">
-	<div class="col-sm-12">
-		<h4>@lang('lang_v1.add_opening_stock')</h4>
+	<div class="col-sm-12" style="font-size:20px ;color:green">
+		Ingresar Cantidad
 	</div>
 	<div class="col-sm-12">
 		<table class="table table-condensed table-th-purple" id="quick_product_opening_stock_table">

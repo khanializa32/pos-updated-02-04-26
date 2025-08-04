@@ -31,14 +31,14 @@
                             <a href="https://ziscoplus.com/sells/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-edit' style='font-size:20px;color:magenta'></i>
-                                @lang('lang_v1.sales_create')
+                                <i class='fas fa-file-pdf' style='font-size:20px;color:magenta'></i>
+                                &nbsp;&nbsp;@lang('Nueva F.E.')
                             </a>
                            
                                  <a href="https://ziscoplus.com/purchases/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                     role="menuitem" tabindex="-1">
-                                <i class='fas fa-tags' style='font-size:20px;color:mediumseagreen'></i>
+                                <i class='	fas fa-cart-plus' style='font-size:20px;color:mediumseagreen'></i>
                                 @lang('lang_v1.purchases_create')
                             </a>
                             
@@ -56,7 +56,7 @@
                              <a href="https://ziscoplus.com/products"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-dolly' style='font-size:20px;color:orange'></i>
+                                <i class='fas fa-cube' style='font-size:20px;color:orange'></i>
                                 @lang('lang_v1.list_products')
                             </a>
                             
@@ -73,12 +73,26 @@
                              <a href="https://ziscoplus.com/contacts?type=supplier"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-users' style='font-size:20px;color:brown'></i>
-                                @lang('lang_v1.view_suppliers')
+                                <i class='fas fa-handshake' style='font-size:20px;color:brown'></i>
+                                Ver Proveedor
                                 </a>
+
+                            <a href="https://ziscoplus.com/users"
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-chalkboard-teacher' style='font-size:20px;color:red'></i>
+                                &nbsp;Ver Usuarios
+                            </a>
+
+                            <a href="https://ziscoplus.com/sells/create?sale_type=sales_order"
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-file-excel' style='font-size:20px;color:purple'></i>
+                                &nbsp;&nbsp;Crear Remisión
+                            </a>
                          
                            
-                            @if (auth()->user()->hasRole('Admin#' . auth()->user()->business_id))
+                            <!-- @if (auth()->user()->hasRole('Admin#' . auth()->user()->business_id))
                                 <a href="#" id="start_tour"
                                     class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                     role="menuitem" tabindex="-1">
@@ -92,7 +106,7 @@
                                     </svg>
                                     Tour Zisco
                                 </a>
-                            @endif
+                            @endif -->
                         </div>
                     </ul>
 
@@ -209,11 +223,20 @@
                             
                             
                             <li>
-                           <a href=""
+                           <a href="https://docs.zisco.cloud" target=_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-question-circle' style='font-size:20px;color:purple'></i>
-                                @lang('lang_v1.help')
+                                Soporte
+                            </a>
+                        </li>
+
+                        <li>
+                           <a href="https://wa.link/qcd1e2" target=_blank
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-comment-dots' style='font-size:20px;color:navy'></i>
+                                Chat
                             </a>
                         </li>
                             

@@ -40,7 +40,7 @@
      'total_paid' => 'Total Pagado',
      'utility_per_invoice' => 'Utilidad por factura',
      'total_remaining' => 'Saldo Total',
-     'payment_info' => 'Información de Pago',
+     'payment_info' => 'Información del Pago',
      'drafts' => 'Borradores',
      'all_drafts' => 'Todos los borradores',
      'sell_details' => 'Detalles de Venta', /* modified */
@@ -56,7 +56,7 @@
      'location' => 'Sucursal',
      'add_payment_row' => 'Agregar Otro Pago',
      'finalize_payment' => 'Cobrar',
-     'sale_date' => 'Fecha de Venta',
+     'sale_date' => 'Fecha',
      'list_pos' => 'Tickets POS',
      'edit_sale' => 'Editar Venta',
      'shipping' => 'Domicilio',

@@ -22,17 +22,20 @@
         </tr>
         <tr>
           <td>
-            <div class="col-sm-6">
+              
+              <div class="col-sm-6" style="font-size:16px ;color:red">
+              {!! Form::label('single_dpp_inc_tax', trans('product.purchase__price' ) . ':*') !!}
+            
+              {!! Form::text('single_dpp_inc_tax', $default, ['class' => 'form-control input-sm dpp_inc_tax input_number', 'placeholder' => __('product.inc_of_tax'), 'required']); !!}
+            </div>
+              
+            <div class="col-sm-6" style="font-size:16px ;color:gray">
               {!! Form::label('single_dpp', trans('product.exc_of_tax') . ':*') !!}
 
               {!! Form::text('single_dpp', $default, ['class' => 'form-control input-sm dpp input_number', 'placeholder' => __('product.exc_of_tax'), 'required']); !!}
             </div>
 
-            <div class="col-sm-6">
-              {!! Form::label('single_dpp_inc_tax', trans('product.inc_of_tax') . ':*') !!}
             
-              {!! Form::text('single_dpp_inc_tax', $default, ['class' => 'form-control input-sm dpp_inc_tax input_number', 'placeholder' => __('product.inc_of_tax'), 'required']); !!}
-            </div>
           </td>
 
           <td>
@@ -41,7 +44,7 @@
           </td>
 
           <td>
-            <label><span class="dsp_label">@lang('product.exc_of_tax')</span></label>
+            <label><span class="dsp_label"  style="font-size:16px ;color:green">@lang('product.sale_price')</span></label>
             {!! Form::text('single_dsp', $default, ['class' => 'form-control input-sm dsp input_number', 'placeholder' => __('product.exc_of_tax'), 'id' => 'single_dsp', 'required']); !!}
 
             {!! Form::text('single_dsp_inc_tax', $default, ['class' => 'form-control input-sm hide input_number', 'placeholder' => __('product.inc_of_tax'), 'id' => 'single_dsp_inc_tax', 'required']); !!}

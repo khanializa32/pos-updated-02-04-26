@@ -24,13 +24,13 @@
               'placeholder' => __('product.sku')]); !!}
           </div>
         </div>
-        <div class="col-sm-4">
+        <!--<div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('barcode_type', __('product.barcode_type') . ':*') !!}
-              {!! Form::select('barcode_type', $barcode_types, 'C128', ['class' => 'form-control select2', 'required']); !!}
+              {!! Form::select('barcode_type', $barcode_types, 'C128', ['class' => 'form-control select2', '']); !!}
           </div>
         </div>
-        <div class="clearfix"></div>
+        <div class="clearfix"></div>-->
 
         <div class="col-sm-4">
           <div class="form-group">
@@ -47,14 +47,14 @@
           </div>
         </div>
 
-        <div class="col-sm-4">
+        <!--<div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('brand_id', __('product.brand') . ':') !!}
               {!! Form::select('brand_id', $brands, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
-        </div>
+        </div>-->
         
-        <div class="clearfix"></div>
+       
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('category_id', __('product.category') . ':') !!}
@@ -62,12 +62,12 @@
           </div>
         </div>
 
-        <div class="col-sm-4 @if(!(session('business.enable_category') && session('business.enable_sub_category'))) hide @endif">
+        <!--<div class="col-sm-4 @if(!(session('business.enable_category') && session('business.enable_sub_category'))) hide @endif">
           <div class="form-group">
             {!! Form::label('sub_category_id', __('product.sub_category') . ':') !!}
               {!! Form::select('sub_category_id', [], null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
           </div>
-        </div>
+        </div>-->
 
         <div class="col-sm-4">
           <div class="form-group">
@@ -78,13 +78,13 @@
           </div>
         </div>
         <div class="clearfix"></div>
-        <div class="col-sm-4" id="alert_quantity_div">
+        <!--<div class="col-sm-4" id="alert_quantity_div">
           <div class="form-group">
             {!! Form::label('alert_quantity', __('product.alert_quantity') . ':') !!}
             {!! Form::text('alert_quantity', null, ['class' => 'form-control input_number',
             'placeholder' => __('product.alert_quantity'), 'min' => '0']); !!}
           </div>
-        </div>
+        </div>-->
         @if(!empty($common_settings['enable_product_warranty']))
         <div class="col-sm-4">
           <div class="form-group">
@@ -128,7 +128,7 @@
               {!! Form::select('product_locations[]', $business_locations, $default_location, ['class' => 'form-control select2', 'multiple', 'id' => 'product_locations']); !!}
           </div>
         </div>
-        <div class="col-sm-4">
+    <!--<div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('weight',  __('lang_v1.weight') . ':') !!}
             {!! Form::text('weight', null, ['class' => 'form-control', 'placeholder' => __('lang_v1.weight')]); !!}
@@ -140,7 +140,7 @@
             {!! Form::label('product_description', __('lang_v1.product_description') . ':') !!}
               {!! Form::textarea('product_description', null, ['class' => 'form-control']); !!}
           </div>
-        </div>
+        </div>-->
         <div class="clearfix"></div>
         <div class="col-sm-4">
           <div class="form-group">
@@ -148,14 +148,16 @@
               {!! Form::select('tax', $taxes, null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2'], $tax_attributes); !!}
           </div>
         </div>
+        
         <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('tax_type', __('product.selling_price_tax_type') . ':*') !!}
-              {!! Form::select('tax_type', ['inclusive' => __('product.inclusive'), 'exclusive' => __('product.exclusive')], 'exclusive',
+              {!! Form::select('tax_type', ['inclusive' => __('product.inclusive'), 'exclusive' => __('product.exclusive')], 'inclusive',
               ['class' => 'form-control select2', 'required']); !!}
           </div>
         </div>
-        <div class="col-sm-4">
+       
+        <!--<div class="col-sm-4">
           <div class="checkbox">
           <br>
             <label>
@@ -206,7 +208,7 @@
             {!! Form::label('product_custom_field4',  $product_custom_field4 . ':') !!}
             {!! Form::text('product_custom_field4', null, ['class' => 'form-control', 'placeholder' => $product_custom_field4]); !!}
           </div>
-        </div>
+        </div>-->
         <div class="clearfix"></div>
         @if(!empty($module_form_parts))
           @foreach($module_form_parts as $key => $value)
@@ -229,7 +231,7 @@
       @endif
     </div>
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white" id="submit_quick_product">@lang( 'messages.save' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black" id="submit_quick_product">@lang( 'Crear Producto' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 
