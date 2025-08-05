@@ -368,30 +368,40 @@ class SellController extends Controller
                                     <ul class="dropdown-menu dropdown-menu-left" role="menu">';
 
                         if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
-                            $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> '.__('messages.view').'</a></li>';
+                            $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" style="font-size:20px;color:dodgerblue" aria-hidden="true"></i> &nbsp;'.__('Ver Factura').'</a></li>';
                         }
                         if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
                             if($row->e_invoice == 'si')
                             {
-                                $html .= '<li><a href="'.route('resend',$row->id).'"   ><i class="fas fa-paper-plane" ></i> '.__('Reenviar correo').'</a></li>';
+                                $html .= '<li><a href="'.route('resend',$row->id).'"   ><i class="fas fa-paper-plane" style="font-size:20px;color:red"></i> &nbsp;'.__('Reenviar correo').'</a></li>';
                             }
                         }
+                    
+                        if (auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access')) {
+                                    // $html .= '<li><a href="' . action([\App\Http\Controllers\SellController::class, 'duplicateSell'], [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>';
+
+                                    $html .= '<li><a href="'.action([\App\Http\Controllers\SellReturnController::class, 'add'], [$row->id]).'"><i class="fas fa-undo" style="font-size:20px;color:magenta"></i> &nbsp;&nbsp;'.__('lang_v1.sell_return').'</a></li>
+
+                                    <li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'showInvoiceUrl'], [$row->id]).'" class="view_invoice_url"><i class="fas fa-wifi" style="font-size:20px;color:limegreen"></i> '.__('Enviar Por Whatsapp').'</a></li>';
+                                }
+
+                        
                         if (! $only_shipments && $row->is_valid !=true) {
                             if ($row->is_direct_sale == 0) {
                                 if (auth()->user()->can('sell.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i> &nbsp;'.__('messages.edit').'</a></li>';
                                 }
                             } elseif ($row->type == 'sales_order') {
                                 if (auth()->user()->can('so.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i>&nbsp;'.__('messages.edit').'</a></li>';
                                 }
                             } else {
                                 if (auth()->user()->can('direct_sell.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i>&nbsp; '.__('messages.edit').'</a></li>';
                                 }
                             }
 
-                            $delete_link = '<li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'destroy'], [$row->id]).'" class="delete-sale"><i class="fas fa-trash"></i> '.__('messages.delete').'</a></li>';
+                            $delete_link = '<li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'destroy'], [$row->id]).'" class="delete-sale"><i class="fas fa-trash" style="font-size:20px;color:red"></i>&nbsp;&nbsp;&nbsp;'.__('messages.delete').'</a></li>';
                             if ($row->is_direct_sale == 0) {
                                 if (auth()->user()->can('sell.delete')) {
                                     $html .= $delete_link;
@@ -425,23 +435,23 @@ class SellController extends Controller
                             }
                         }
 
-                        if ($is_admin || auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
-                            $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'editShipping'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-truck" aria-hidden="true"></i>'.__('lang_v1.edit_shipping').'</a></li>';
-                        }
+                        //if ($is_admin || auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
+                            //$html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'editShipping'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-truck" aria-hidden="true"></i>'.__('lang_v1.edit_shipping').'</a></li>';
+                        //}
 
                         if ($row->type == 'sell') {
                             if (auth()->user()->can('print_invoice')) {
-                                $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'"><i class="fas fa-print" aria-hidden="true"></i> '.__('lang_v1.print_invoice').'</a></li>
-                                    <li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.packing_slip').'</a></li>';
+                                $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'"><i class="fas fa-print" style="font-size:20px;color:salmon" aria-hidden="true"></i> &nbsp;&nbsp;'.__('lang_v1.print_invoice').'</a></li>';
+                                    //<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?package_slip=true"><i class="fas fa-file-alt" aria//-hidden="true"></i> '.__('lang_v1.packing_slip').'</a></li>';
 
-                                $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?delivery_note=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.delivery_note').'</a></li>';
+                                //$html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?delivery_note=true"><i class="fas fa-file-alt" //aria-hidden="true"></i> '.__('lang_v1.delivery_note').'</a></li>';
                             }
                             $html .= '<li class="divider"></li>';
                             if (! $only_shipments) {
                                 if ($row->is_direct_sale == 0 && ! auth()->user()->can('sell.update') &&
                                 auth()->user()->can('edit_pos_payment')) {
                                     $html .= '<li><a href="'.route('edit-pos-payment', [$row->id]).'" 
-                                    ><i class="fas fa-money-bill-alt"></i> '.__('lang_v1.add_edit_payment').
+                                    ><i class="fas fa-dollar-sign"style="font-size:22px;color:teal"> '.__('lang_v1.add_edit_payment').
                                     '</a></li>';
                                 }
 
@@ -449,22 +459,16 @@ class SellController extends Controller
                                     auth()->user()->can('edit_sell_payment') ||
                                     auth()->user()->can('delete_sell_payment')) {
                                     if ($row->payment_status != 'paid') {
-                                        $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'addPayment'], [$row->id]).'" class="add_payment_modal"><i class="fas fa-money-bill-alt"></i> '.__('purchase.add_payment').'</a></li>';
+                                        $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'addPayment'], [$row->id]).'" class="add_payment_modal"><i class="fas fa-dollar-sign"style="font-size:22px;color:teal"></i> &nbsp;&nbsp;'.__('Pagar / Abonar').'</a></li>';
                                     }
 
-                                    $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'show'], [$row->id]).'" class="view_payment_modal"><i class="fas fa-money-bill-alt"></i> '.__('purchase.view_payments').'</a></li>';
+                                    $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'show'], [$row->id]).'" class="view_payment_modal"><i class="fas fa-hand-holding-usd"style="font-size:20px;color:fuchsia"></i> '.__('purchase.view_payments').'</a></li>';
                                 }
 
-                                if (auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access')) {
-                                    // $html .= '<li><a href="' . action([\App\Http\Controllers\SellController::class, 'duplicateSell'], [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>';
-
-                                    $html .= '<li><a href="'.action([\App\Http\Controllers\SellReturnController::class, 'add'], [$row->id]).'"><i class="fas fa-undo"></i> '.__('lang_v1.sell_return').'</a></li>
-
-                                    <li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'showInvoiceUrl'], [$row->id]).'" class="view_invoice_url"><i class="fas fa-eye"></i> '.__('lang_v1.view_invoice_url').'</a></li>';
-                                }
+                                
                             }
 
-                            $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_sale']).'" class="btn-modal" data-container=".view_modal"><i class="fa fa-envelope" aria-hidden="true"></i>'.__('lang_v1.new_sale_notification').'</a></li>';
+                            //$html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_sale']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-bell"  style="font-size:20px;color:orange aria-hidden="true"></i>'.__('Notificaciones').'</a></li>';
                         } else {
                             $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'viewMedia'], ['model_id' => $row->id, 'model_type' => \App\Transaction::class, 'model_media_type' => 'shipping_document']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-paperclip" aria-hidden="true"></i>'.__('lang_v1.shipping_documents').'</a></li>';
                         }
