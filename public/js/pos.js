@@ -1568,6 +1568,7 @@ function get_product_suggestion_list(category_id, brand_id, location_id, url = n
         dataType: 'html',
         success: function(result) {
             $('div#product_list_body').append(result);
+            $('.create-product-button').not(':first').remove();
             $('#suggestion_page_loader').fadeOut(700);
         },
     });
