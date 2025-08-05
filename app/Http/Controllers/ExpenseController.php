@@ -176,7 +176,7 @@ class ExpenseController extends Controller
                         </button>
                     <ul class="dropdown-menu dropdown-menu-left" role="menu">
                     @if(auth()->user()->can("expense.edit"))
-                        <li><a href="{{action(\'App\Http\Controllers\ExpenseController@edit\', [$id])}}"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</a></li>
+                        <li><a href="{{action(\'App\Http\Controllers\ExpenseController@edit\', [$id])}}"><i class="glyphicon glyphicon-edit" style="font-size:20px;color:green"></i> @lang("messages.edit")</a></li>
                     @endif
                     @if($document)
                         <li><a href="{{ url(\'uploads/documents/\' . $document)}}" 
@@ -187,13 +187,13 @@ class ExpenseController extends Controller
                     @endif
                     @if(auth()->user()->can("expense.delete"))
                         <li>
-                        <a href="#" data-href="{{action(\'App\Http\Controllers\ExpenseController@destroy\', [$id])}}" class="delete_expense"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</a></li>
+                        <a href="#" data-href="{{action(\'App\Http\Controllers\ExpenseController@destroy\', [$id])}}" class="delete_expense"><i class="glyphicon glyphicon-trash" style="font-size:20px;color:red"></i> @lang("messages.delete")</a></li>
                     @endif
                     <li class="divider"></li> 
                     @if($payment_status != "paid")
-                        <li><a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="add_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true"></i> @lang("purchase.add_payment")</a></li>
+                        <li><a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'addPayment\'], [$id])}}" class="add_payment_modal"><i class="fas fa-dollar-sign" style="font-size:20px;color:dodgerblue" aria-hidden="true"></i> &nbsp;&nbsp; @lang("purchase.add_payment")</a></li>
                     @endif
-                    <li><a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'show\'], [$id])}}" class="view_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true" ></i> @lang("purchase.view_payments")</a></li>
+                    <li><a href="{{action([\App\Http\Controllers\TransactionPaymentController::class, \'show\'], [$id])}}" class="view_payment_modal"><i class="fas fa-hand-holding-usd" style="font-size:20px;color:magenta" aria-hidden="true" ></i> @lang("purchase.view_payments")</a></li>
                     </ul></div>'
                 )
                 ->removeColumn('id')
