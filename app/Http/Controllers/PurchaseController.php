@@ -117,22 +117,22 @@ class PurchaseController extends Controller
                             </button>
                             <ul class="dropdown-menu dropdown-menu-left" role="menu">';
                     if (auth()->user()->can('purchase.view')) {
-                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i>'.__('messages.view').'</a></li>';
+                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" style="font-size:20px;color:dodgerblue" aria-hidden="true"></i>'.__('Ver Factura').'</a></li>';
                     }
                     if (auth()->user()->can('purchase.view')) {
-                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'radian'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-arrow-alt-circle-up"></i>Eventos RADIAN</a></li>';
+                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'radian'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-arrow-alt-circle-up"style="font-size:20px;color:magenta"></i>Eventos RADIAN</a></li>';
                     }
                     if (auth()->user()->can('purchase.view')) {
-                        $html .= '<li><a href="#" class="print-invoice" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'printInvoice'], [$row->id]).'"><i class="fas fa-print" aria-hidden="true"></i>'.__('messages.print').'</a></li>';
+                        $html .= '<li><a href="#" class="print-invoice" data-href="'.action([\App\Http\Controllers\PurchaseController::class, 'printInvoice'], [$row->id]).'"><i class="fas fa-print" style="font-size:20px;color:salmon" aria-hidden="true"></i>'.__('messages.print').'</a></li>';
                     }
                     if (auth()->user()->can('purchase.update')) {
-                        $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i>'.__('messages.edit').'</a></li>';
+                        $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i>'.__('messages.edit').'</a></li>';
                     }
                     if (auth()->user()->can('purchase.delete')) {
-                        $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseController::class, 'destroy'], [$row->id]).'" class="delete-purchase"><i class="fas fa-trash"></i>'.__('messages.delete').'</a></li>';
+                        $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseController::class, 'destroy'], [$row->id]).'" class="delete-purchase"><i class="fas fa-trash"style="font-size:20px;color:red"></i>'.__('messages.delete').'</a></li>';
                     }
 
-                    $html .= '<li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'show']).'?purchase_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fas fa-barcode"></i>'.__('barcode.labels').'</a></li>';
+                    //$html .= '<li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'show']).'?purchase_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fas fa-barcode"></i>'.__('barcode.labels').'</a></li>';
                     // $html .= '<li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'radian']).'?purchase_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fas fa-barcode"></i>Eventos RADIAN</a></li>';
                     
 
@@ -149,29 +149,29 @@ class PurchaseController extends Controller
                         auth()->user()->can('delete_purchase_payment')) {
                         $html .= '<li class="divider"></li>';
                         if ($row->payment_status != 'paid') {
-                            $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'addPayment'], [$row->id]).'" class="add_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true"></i>'.__('purchase.add_payment').'</a></li>';
+                            $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'addPayment'], [$row->id]).'" class="add_payment_modal"><i class="fas fa-dollar-sign" style="font-size:22px;color:teal" aria-hidden="true"></i>'.__('Pagar / Abonar').'</a></li>';
                         }
 
                         $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'show'], [$row->id]).
-                        '" class="view_payment_modal"><i class="fas fa-money-bill-alt" aria-hidden="true" ></i>'.__('purchase.view_payments').'</a></li>';
+                        '" class="view_payment_modal"><i class="fas fa-hand-holding-usd"style="font-size:20px;color:fuchsia"></i>'.__('purchase.view_payments').'</a></li>';
                     }
 
                     if (auth()->user()->can('purchase.update')) {
                         $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseReturnController::class, 'add'], [$row->id]).
-                        '"><i class="fas fa-undo" aria-hidden="true" ></i>'.__('lang_v1.purchase_return').'</a></li>';
+                        '"><i class="fas fa-undo" style="font-size:20px;color:indigo" aria-hidden="true" ></i>'.__('lang_v1.purchase_return').'</a></li>';
                     }
 
                     if (auth()->user()->can('purchase.update') || auth()->user()->can('purchase.update_status')) {
                         $html .= '<li><a href="#" data-purchase_id="'.$row->id.
-                        '" data-status="'.$row->status.'" class="update_status"><i class="fas fa-edit" aria-hidden="true" ></i>'.__('lang_v1.update_status').'</a></li>';
+                        '" data-status="'.$row->status.'" class="update_status"><i class="fas fa-bullhorn" style="font-size:22px;color:darkred"  aria-hidden="true" ></i>'.__('Actualizar Estado').'</a></li>';
                     }
 
                     if ($row->status == 'ordered') {
-                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_order']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> '.__('lang_v1.new_order_notification').'</a></li>';
+                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_order']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope-open" style="font-size:20px;color:orange"  aria-hidden="true"></i> '.__('lang_v1.new_order_notification').'</a></li>';
                     } elseif ($row->status == 'received') {
-                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'items_received']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> '.__('lang_v1.item_received_notification').'</a></li>';
+                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'items_received']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope-open" style="font-size:20px;color:orange"  aria-hidden="true"></i> '.__('lang_v1.item_received_notification').'</a></li>';
                     } elseif ($row->status == 'pending') {
-                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'items_pending']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope" aria-hidden="true"></i> '.__('lang_v1.item_pending_notification').'</a></li>';
+                        $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'items_pending']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-envelope-open" style="font-size:20px;color:orange"  aria-hidden="true"></i>> '.__('lang_v1.item_pending_notification').'</a></li>';
                     }
 
                     $html .= '</ul></div>';
