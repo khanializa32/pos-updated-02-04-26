@@ -249,6 +249,14 @@
           <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_expense }}</span></b>
         </td>
       </tr>
+      <tr class="">
+        <th>
+          g) @lang('cash_register.total_backend_payment') (@lang('cash_register.cash_payment')):
+        </th>
+        <td>
+          <b><span class="display_currency" data-currency_symbol="true">{{ $backendPaymentAmount }}</span></b>
+        </td>
+      </tr>
     </table>
   </div>
 </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BusinessLocation;
 use App\CashRegister;
 use App\CashRegisterInformation;
+use App\TransactionPayment;
 use App\Utils\CashRegisterUtil;
 use App\Utils\ModuleUtil;
 use Illuminate\Http\Request;
@@ -125,9 +126,18 @@ class CashRegisterController extends Controller
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time);
 
         $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_id);
-
+        $backendPaymentAmount = TransactionPayment::where('method', 'cash')
+            ->where('created_by', $user_id)
+            ->where('method', 'cash')
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->sum('amount');
         return view('cash_register.register_details')
-                    ->with(compact('register_details', 'details', 'payment_types', 'close_time'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'backendPaymentAmount'));
     }
 
     /**
@@ -187,8 +197,19 @@ class CashRegisterController extends Controller
 
         $pos_settings = ! empty(request()->session()->get('business.pos_settings')) ? json_decode(request()->session()->get('business.pos_settings'), true) : [];
 
+        $backendPaymentAmount = TransactionPayment::where('method', 'cash')
+            ->where('created_by', $user_id)
+            ->where('method', 'cash')
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->sum('amount');
+            
         return view('cash_register.close_register_modal')
-                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'backendPaymentAmount'));
     }
 
     /**
