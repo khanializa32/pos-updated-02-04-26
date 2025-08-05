@@ -582,7 +582,7 @@ return [
     'previous_bal_due_help' => 'Marque este campo para mostrar la suma de las cuotas de saldo para todas las ventas del cliente si existe',
     'all_sales' => 'Todas las Ventas',
     'current_sale' => 'Venta Actual',
-    'view_invoice_url' => 'Ver URL de factura',
+    'view_invoice_url' => 'Url de Factura por Whatsapp',
     'copy' => 'Copiar',
     'extra_tags' => 'Etiquetas extra',
     'date_time_format' => 'Formato de fecha y hora',
