@@ -327,13 +327,35 @@ class AdminSidebarMenu
                     function ($sub) use ($enabled_modules, $is_admin, $pos_settings) {
                        
 
-                        if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
-                            $sub->url(
-                                action([\App\Http\Controllers\SellController::class, 'index']),
-                                __('Facturas Electrónicas'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
-                            );
+                        //if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\SellController::class, 'index']),
+                                //__('Facturas Electrónicas'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
+                            //);
+                        //}
+                        
+                         if (auth()->user()->can('sell.create')) {
+                            if (in_array('pos_sale', $enabled_modules)) {
+                                if (auth()->user()->can('sell.view')) {
+                                    $sub->url(
+                                        action([\App\Http\Controllers\SellPosController::class, 'index']),
+                                        __('Facturas Emitidas'),
+                                        ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == null]
+                                    );
+                                }
+
+                                $sub->url(
+                                    action([\App\Http\Controllers\SellPosController::class, 'create']),
+                                    __('Ir al POS'),
+                                    ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == 'create']
+                                );
+                            }
                         }
+                        
+
+
+                        
                         //if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
                             //$sub->url(
                                 //action([\App\Http\Controllers\SellController::class, 'create']),
@@ -351,23 +373,7 @@ class AdminSidebarMenu
                         }
 
                         
-                        if (auth()->user()->can('sell.create')) {
-                            if (in_array('pos_sale', $enabled_modules)) {
-                                if (auth()->user()->can('sell.view')) {
-                                    $sub->url(
-                                        action([\App\Http\Controllers\SellPosController::class, 'index']),
-                                        __('POS Electrónico'),
-                                        ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == null]
-                                    );
-                                }
-
-                                $sub->url(
-                                    action([\App\Http\Controllers\SellPosController::class, 'create']),
-                                    __('sale.pos_sale'),
-                                    ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == 'create']
-                                );
-                            }
-                        }
+                       
                          if (auth()->user()->can('invoice_settings.access')) {
                             $sub->url(
                                 action([\App\Http\Controllers\CashRegisterInformationController::class, 'index']),
