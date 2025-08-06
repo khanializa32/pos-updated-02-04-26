@@ -21,6 +21,11 @@
 					@if(!empty($receipt_details->display_name))
 						{{$receipt_details->display_name}}
 					@endif
+					@if (!empty($receipt_details->nit))
+						<p class="left" style="font-size: 1.3rem;"><b>NIT:</b> {!! $receipt_details->nit !!}-{!! $receipt_details->dv !!} <br></p>
+						
+						
+					@endif
 				</h2>
 
 				<!-- Address -->
@@ -635,22 +640,33 @@
     @endif
     
 </div>
-<div class="row" style="color: #000000 !important;">
+<div class="row" style="color: #000000 !important; text-align: center;">
 	@if(!empty($receipt_details->footer_text))
 	<div class="@if($receipt_details->show_barcode || $receipt_details->show_qr_code) col-xs-8 @else col-xs-12 @endif">
 		{!! $receipt_details->footer_text !!}
 	</div>
 	@endif
 	@if($receipt_details->show_barcode || $receipt_details->show_qr_code)
-		<div class="@if(!empty($receipt_details->footer_text)) col-xs-4 @else col-xs-12 @endif text-center">
+		{{-- <div class="@if(!empty($receipt_details->footer_text)) col-xs-4 @else col-xs-12 @endif text-center">
 			@if($receipt_details->show_barcode)
-				{{-- Barcode --}}
+				
 				<img class="center-block" src="data:image/png;base64,{{DNS1D::getBarcodePNG($receipt_details->invoice_no, 'C128', 2,30,array(39, 48, 54), true)}}">
 			@endif
 			
 			@if($receipt_details->show_qr_code && !empty($receipt_details->qr_code_text))
 				<img class="center-block mt-5" src="data:image/png;base64,{{DNS2D::getBarcodePNG($receipt_details->qr_code_text, 'QRCODE', 3, 3, [39, 48, 54])}}">
 			@endif
-		</div>
+		</div> --}}
+		<b><p class="centered">DOCUMENTO ELECTRÓNICO DE VENTA</b></p>
+				<b><p class="centered">Representación Gráfica de<br>Facturación Electrónica</b>
+                    <img class="center-block mt-5" style="max-height: 130px; width: auto;"
+                    src="data:image/png;base64,{{ DNS2D::getBarcodePNG($receipt_details->qrstr, 'QRCODE') }}">
 	@endif
+
+	<br>
+            @if (!empty($receipt_details->cufe))
+            <b><p class="centered">CUFE:</b>
+				<br>
+                {!! $receipt_details->cufe !!}</p>
+            @endif
 </div>
