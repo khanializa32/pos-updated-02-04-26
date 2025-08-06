@@ -536,7 +536,7 @@ return [
     'total_purchase_return_due' => 'Total de devoluciones de compra vencidas',
     'receive_purchase_return_due' => 'Recibir la devolución de la compra vencida',
     'some_qty_returned_from_sell' => 'Algunas cantidades se devuelven de esta venta',
-    'sell_due' => 'Clientes Morosos',
+    'sell_due' => 'Deuda',
     'one_month' => '1 Mes',
     'three_months' => '6 Meses',
     'six_months' => '6 Meses',
