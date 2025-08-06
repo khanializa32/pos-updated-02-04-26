@@ -22,10 +22,11 @@
      'location' => 'Sucursal',
      'go_back' => 'Atras', /* modified */
      'due_tooltip' => '-ve value = Cantidad a pagar <br> + ve value = Cantidad a recibir',
-     'purchase_due_tooltip' => '-ve value = Importe a recibir <br> + ve value = Importe a pagar',
+     'purchase_due_tooltip' => '-ve value = Importe a recibir <br> + ve value = Valor a pagar',
      'yes' => 'Sí',
      'no' => 'No',
      'all' => 'Todas',
+     'activate' => 'Activar',
      'deactivate' => 'Desactivar',
      'settings' => 'Configuraciones',
      'business_location_settings' => 'Configuración de Sucursales',
