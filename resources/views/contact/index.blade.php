@@ -63,7 +63,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>
-                            {!! Form::checkbox('has_sell_due', 1, false, ['class' => 'input-icheck', 'id' => 'has_sell_due']) !!} <strong>@lang('lang_v1.sell_due')</strong>
+                            {!! Form::checkbox('has_sell_due', 1, false, ['class' => 'input-icheck', 'id' => 'has_sell_due']) !!} <strong>@lang('Clientes Morosos')</strong>
                         </label>
                     </div>
                 </div>
