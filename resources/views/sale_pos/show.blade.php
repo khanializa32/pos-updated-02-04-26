@@ -69,6 +69,14 @@
               &nbsp;{{ __('purchase.download_document') }}
           </a>
         @endif
+        <br>
+        @if($sell->qrstr != '')
+           <a href="{{explode("\n", $sell->qrstr)[9] }}" target="_blank" class="badge text-bg-success" style="background-color: #41D78C; color: black;" rel="noopener noreferrer">Ver en la DIAN</a>
+          {{-- {{explode("\n", $sell->qrstr)[9] }} --}}
+        @endif
+        @if($sell->qrstr != '')
+            <br/><a href="{{route('downloadPdfInvoiceFE', [$sell->id])}}" target="_blank" class="badge text-bg-success" style="background-color: #ce6611; color: black;" rel="noopener noreferrer"><i class="fas fa-download"></i> Descargar pdf F.E.</a>
+        @endif
       </div>
       <div class="@if(!empty($export_custom_fields)) col-sm-3 @else col-sm-4 @endif">
         @if(!empty($sell->contact->supplier_business_name))
@@ -208,6 +216,25 @@
         </div>
       </div>
     </div>
+    
+    <div><strong>Cufe: </strong>  <p>{{$sell->cufe}}</p></div>
+    @php
+      $let = json_decode($sell->rules)
+    @endphp
+    <div>
+      <strong>Error DIAN: </strong> <br/> 
+      @if($let)
+        @foreach ($let as $msg_data)
+          @if($sell->status_code == 0)
+          <span class="text-warning">{{$sell->status_code}}: {{$msg_data}}</span><br/>
+          @else
+          <span class="text-danger">{{$sell->status_code}}: {{$msg_data}}</span><br/>
+          @endif
+        @endforeach
+      @endif
+    </div>
+
+
     <div class="row">
       @php
         $total_paid = 0;

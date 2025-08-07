@@ -70,6 +70,7 @@ use App\TypeDocumentIdentification;
 use App\TypeLiability;
 use App\TypeRegime;
 use App\Services\DianService as UtilsDianService;
+use Illuminate\Support\Facades\Http;
 
 class SellPosController extends Controller
 {
@@ -999,6 +1000,53 @@ class SellPosController extends Controller
     {
         //
     }
+
+    public function downloadPdfInvoiceFE($id)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $business = Business::findOrFail($business_id);
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sell = $query->firstOrFail();
+
+            $invoice_scheme = InvoiceScheme::find($sell->invoice_scheme_id);
+            if($invoice_scheme->type_document_id == 1)//factura electronica
+            {
+                $url = getenv('APP_API_FE').'/api/invoice/'.$business->nit.'/FES-'.$sell->invoice_no.'.pdf';
+            }elseif($invoice_scheme->type_document_id == 15)//pos electronico
+            {
+                $url = getenv('APP_API_FE').'/api/invoice/'.$business->nit.'/POSS-'.$sell->invoice_no.'.pdf';
+            }
+            // return $url;
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer '.$business->dian_token
+            ])->get($url, [
+            ]);
+            if($response->ok())
+            {
+                return response()->streamDownload(function () use ($response) {
+                    echo $response->body();
+                }, $sell->invoice_no.'.pdf');
+            }else{
+                return $response->body();
+            }
+            
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
+    }
+
 
     /**
      * Show the form for editing the specified resource.

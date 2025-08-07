@@ -50,7 +50,7 @@
 			</small>
 			
 			<small class="text-muted" style="font-size: 110%; float: left; ">
-				${{number_format($product->selling_price,2)}}
+				${{number_format($product->selling_price,0)}}
 			</small><br>
 			
 		</div>

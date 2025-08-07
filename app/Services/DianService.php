@@ -2978,7 +2978,7 @@ class DianService
                 "number" => $invoiceNumber,
                 "prefix" => $prefix,
                 "is_eqdoc" => true,
-                "type_operation_id" => 26,
+                // "type_operation_id" => 26,
                 "type_document_id" => $typeDocumentId,
                 "discrepancyresponsecode" => $discrepancyResponseCode,
                 "discrepancyresponsedescription" => $discrepancyResponseDescription,
@@ -3029,8 +3029,8 @@ class DianService
 
             curl_close($curl);
 
+            dd($response);
             $respuesta = json_decode($response);
-            dd($respuesta);
             $ErrorRules = '';
             $StatusCode = '';
             $MgsResponse = '';
