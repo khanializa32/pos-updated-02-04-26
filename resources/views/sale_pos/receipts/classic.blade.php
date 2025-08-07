@@ -657,10 +657,12 @@
 				<img class="center-block mt-5" src="data:image/png;base64,{{DNS2D::getBarcodePNG($receipt_details->qr_code_text, 'QRCODE', 3, 3, [39, 48, 54])}}">
 			@endif
 		</div> --}}
+		@if($receipt_details->qrstr && !empty($receipt_details->cufe))
 		<b><p class="centered">DOCUMENTO ELECTRÓNICO DE VENTA</b></p>
 				<b><p class="centered">Representación Gráfica de<br>Facturación Electrónica</b>
                     <img class="center-block mt-5" style="max-height: 130px; width: auto;"
                     src="data:image/png;base64,{{ DNS2D::getBarcodePNG($receipt_details->qrstr, 'QRCODE') }}">
+		@endif
 	@endif
 
 	<br>
