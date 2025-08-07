@@ -75,7 +75,7 @@
           {{-- {{explode("\n", $sell->qrstr)[9] }} --}}
         @endif
         @if($sell->qrstr != '')
-            <br/><a href="{{route('downloadPdfInvoiceFE', [$sell->id])}}" target="_blank" class="badge text-bg-success" style="background-color: #ce6611; color: black;" rel="noopener noreferrer"><i class="fas fa-download"></i> Descargar pdf F.E.</a>
+            <br/><a href="{{route('downloadPdfInvoiceFE', [$sell->id])}}" target="_blank" class="badge text-bg-success" style="background-color: #380aad; color: white;" rel="noopener noreferrer"><i class="fas fa-download"></i> Descargar PDF</a>
         @endif
       </div>
       <div class="@if(!empty($export_custom_fields)) col-sm-3 @else col-sm-4 @endif">
