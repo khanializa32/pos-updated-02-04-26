@@ -10,6 +10,7 @@
      'open_register' => 'Abrir Caja',
      'register_details' => 'Arqueo de Caja',
      'cash_payment' => 'Efectivo',
+     'total_backend_payment' => 'Pagos o Abonos Clientes',
      'checque_payment' => 'Cheque',
      'card_payment' => 'Tarjetas',
      'bank_transfer' => 'Transferencia Bancaria',
