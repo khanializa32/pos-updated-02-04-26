@@ -9,18 +9,7 @@
             @endif
             @if($product->enable_stock == 1)
                 <br>
-                @php
-                    $current_stock = !empty($variation->variation_location_details->first()) ? $variation->variation_location_details->first()->qty_available : 0;
-                @endphp
-                                                    <div class="stock-info-container" style="display: flex; align-items: center; justify-content: center; margin-top: 5px;">
-                                        
-                                        <div class="total-stock-badge" 
-                                             data-current-stock="{{$current_stock}}"
-                                             data-row-count="{{$row_count}}"
-                                             style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background-color: #28a745; color: white; border-radius: 50%; font-weight: bold; font-size: 12px; min-width: 60px; max-width: 60px; text-align: center; line-height: 1;">
-                                            <span class="total-quantity" style="display: block; width: 100%; text-align: center; word-wrap: break-word; hyphens: auto;">{{@num_format($current_stock)}}</span>
-                                        </div>
-                                    </div>
+                <small class="text-muted" style="white-space: nowrap;">@lang('report.current_stock'): @if(!empty($variation->variation_location_details->first())) {{@num_format($variation->variation_location_details->first()->qty_available)}} @else 0 @endif {{ $product->unit->short_name }}</small>
             @endif
             
         </td>

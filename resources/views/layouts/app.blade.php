@@ -29,7 +29,7 @@
     <title>@yield('title') - {{ Session::get('business.name') }}</title>
 
     @include('layouts.partials.css')
-
+    
 
     @include('layouts.partials.extracss')
 
@@ -142,11 +142,11 @@
 </body>
 <style>
     @media print {
-        #scrollable-container {
-            overflow: visible !important;
-            height: auto !important;
-        }
-    }
+  #scrollable-container {
+    overflow: visible !important;
+    height: auto !important;
+  }
+}
 </style>
 <style>
     .small-view-side-active {
