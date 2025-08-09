@@ -34,7 +34,7 @@
       </div> <small></small>
     </h1>
 </section>
-*******<a href="https://ziscoplus.com/reports/product-stock-details">Sincronizar</a>******
+*******<a href="https://sistema.ziscoplus.com/reports/product-stock-details">Sincronizar</a>******
 <!-- Main content -->
 <section class="content">
     @component('components.widget', ['class' => 'box-primary', 'title' => __('stock_adjustment.all_stock_adjustments')])
