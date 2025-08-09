@@ -5,7 +5,7 @@
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.pos_sale')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('Transacciones')
     &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube' id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
      
       </h4>
