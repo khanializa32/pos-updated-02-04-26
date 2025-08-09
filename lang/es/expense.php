@@ -21,5 +21,5 @@
      'expense_add_success' => 'Gasto Creado', /* modified */
      'expense_update_success' => 'Gasto Actualizado',
      'expense_delete_success' => 'Gasto Eliminado',
-     'expense_for' => 'Gasto por',
+     'expense_for' => 'Vincular Usuario',
  ];
