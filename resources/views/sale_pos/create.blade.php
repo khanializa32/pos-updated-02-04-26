@@ -64,7 +64,7 @@
                                 <button type="button" style="flex: 1; margin-left: 12px;  font-size: 15px" 
                                     class="tw-hidden md:tw-flex md:tw-flex-row md:tw-items-center md:tw-justify-center md:tw-gap-1 tw-font-bold tw-text-white tw-cursor-pointer tw-text-xs md:tw-text-sm tw-bg-[#001F3E] btn btn-success tw-rounded-md tw-p-2 tw-w-[8.5rem] @if (!isMobile())  @endif no-print @if ($pos_settings['disable_pay_checkout'] != 0) hide @endif"
                                     id="pos-finalize" title="@lang('lang_v1.tooltip_checkout_multi_pay')"><i class=""
-                                        aria-hidden="true"></i> @lang('lang_v1.checkout_multi_pay') </button>
+                                        aria-hidden="true"></i> COBRAR </button>
                                 @endif
                                 <div style="width: 10px"></div>
                                 @if (!Gate::check('disable_express_checkout') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
