@@ -2,7 +2,7 @@
     <tr @if(!empty($purchase_order_line)) data-purchase_order_id="{{$purchase_order_line->transaction_id}}" @endif @if(!empty($purchase_requisition_line)) data-purchase_requisition_id="{{$purchase_requisition_line->transaction_id}}" @endif>
         <td><span class="sr_number"></span></td>
         <td>
-            {{ $product->name }} ({{$variation->sub_sku}})
+            {{ $product->name }} 
             @if( $product->type == 'variable' )
                 <br/>
                 (<b>{{ $variation->product_variation->name }}</b> : {{ $variation->name }})
@@ -17,7 +17,7 @@
                                         <div class="total-stock-badge" 
                                              data-current-stock="{{$current_stock}}"
                                              data-row-count="{{$row_count}}"
-                                             style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background-color: #28a745; color: white; border-radius: 50%; font-weight: bold; font-size: 12px; min-width: 60px; max-width: 60px; text-align: center; line-height: 1;">
+                                             style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; background-color: #28a745; color: white; border-radius: 50%; font-weight: bold; font-size: 18px; min-width: 60px; max-width: 60px; text-align: center; line-height: 1;">
                                             <span class="total-quantity" style="display: block; width: 100%; text-align: center; word-wrap: break-word; hyphens: auto;">{{@num_format($current_stock)}}</span>
                                         </div>
                                     </div>
