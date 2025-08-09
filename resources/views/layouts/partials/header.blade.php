@@ -28,14 +28,14 @@
                     <ul class="tw-dw-menu tw-dw-dropdown-content tw-dw-z-[1] tw-dw-bg-base-100 tw-dw-rounded-box tw-w-48 tw-absolute tw-left-0 tw-z-10 tw-mt-2 tw-origin-top-right tw-bg-white tw-rounded-lg tw-shadow-lg tw-ring-1 tw-ring-gray-200 focus:tw-outline-none"
                         role="menu" tabindex="-1">
                         <div class="tw-p-2" role="none">
-                            <a href="https://ziscoplus.com/sells/create"
+                            <a href="https://sistema.ziscoplus.com/sells/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-file-pdf' style='font-size:20px;color:magenta'></i>
                                 &nbsp;&nbsp;@lang('Nueva F.E.')
                             </a>
                            
-                                 <a href="https://ziscoplus.com/purchases/create"
+                                 <a href="https://sistema.ziscoplus.com/purchases/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                     role="menuitem" tabindex="-1">
                                 <i class='	fas fa-cart-plus' style='font-size:20px;color:mediumseagreen'></i>
@@ -44,7 +44,7 @@
                             
                             
                               
-                             <a href="https://ziscoplus.com/expenses/create"
+                             <a href="https://sistema.ziscoplus.com/expenses/create"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-money-bill-wave' style='font-size:20px;color:dodgerblue'></i>
@@ -53,7 +53,7 @@
                             
                             
                             
-                             <a href="https://ziscoplus.com/products"
+                             <a href="https://sistema.ziscoplus.com/products"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-cube' style='font-size:20px;color:orange'></i>
@@ -62,7 +62,7 @@
                             
                           
                             
-                             <a href="https://ziscoplus.com/contacts?type=customer"
+                             <a href="https://sistema.ziscoplus.com/contacts?type=customer"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-user-check' style='font-size:20px;color:green'></i>
@@ -70,21 +70,21 @@
                             </a>
                             
                             
-                             <a href="https://ziscoplus.com/contacts?type=supplier"
+                             <a href="https://sistema.ziscoplus.com/contacts?type=supplier"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-handshake' style='font-size:20px;color:brown'></i>
                                 Ver Proveedor
                                 </a>
 
-                            <a href="https://ziscoplus.com/users"
+                            <a href="https://sistema.ziscoplus.com/users"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-chalkboard-teacher' style='font-size:20px;color:red'></i>
                                 &nbsp;Ver Usuarios
                             </a>
 
-                            <a href="https://ziscoplus.com/sells/create?sale_type=sales_order"
+                            <a href="https://sistema.ziscoplus.com/sells/create?sale_type=sales_order"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-file-excel' style='font-size:20px;color:purple'></i>
@@ -223,7 +223,7 @@
                             
                             
                             <li>
-                           <a href="https://docs.zisco.cloud" target=_blank
+                           <a href="https://help.ziscoplus.com/" target=_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-question-circle' style='font-size:20px;color:purple'></i>
