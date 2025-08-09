@@ -2,7 +2,7 @@
 
  return [
      'supplier' => 'Proveedor',
-     'ref_no' => 'Numero de Documento',
+     'ref_no' => 'Numero del Documento',
      'business_location' => 'Sucursal',
      'purchases' => 'Compras',
      'add_payment' => 'Pagar',
@@ -26,16 +26,16 @@
      'add_purchase' => 'Crear Compra',
      'purchase_date' => 'Fecha de Compra',
      'purchase_quantity' => 'Cantidad Comprada',
-     'unit_cost_before_tax' => 'Costo Unitario (antes de impuestos)',
+     'unit_cost_before_tax' => 'Precio Base (antes de impuestos)',
      'subtotal_before_tax' => 'Subtotal (antes de impuestos)',
      'product_tax' => 'Impuesto sobre el producto',
-     'net_cost' => 'Costo neto', /* modified */
-     'line_total' => 'Total Lineas',
-     'unit_selling_price' => 'Precio de Venta Unitario', /* modified */
+     'net_cost' => 'PRECIO DE COMPRA', /* modified */
+     'line_total' => 'Total',
+     'unit_selling_price' => 'PRECIO DE VENTA', /* modified */
      'total_before_tax' => 'Total antes de impuestos', /* modified */
-     'net_total_amount' => 'Valor total neto',
-     'discount_type' => 'Tipo de descuento',
-     'discount_amount' => 'Valor del descuento',
+     'net_total_amount' => 'Total Neto',
+     'discount_type' => 'Tipo de Descuento',
+     'discount_amount' => 'Valor del Descuento',
      'discount' => 'Descuento',
      'edit_purchase' => 'Editar Compra',
      'purchase_tax' => 'Impuesto de Compra',
@@ -49,11 +49,11 @@
      'total_after_tax' => 'Total después de impuestos',
      'no_payments' => 'No se encontraron pagos',
      'allow_purchase_different_currency' => 'Compras en otra moneda',
-     'purchase_currency' => 'Moneda de Compra',
+     'purchase_currency' => 'Moneda',
      'p_exchange_rate' => 'Tasa de cambio de moneda',
      'diff_purchase_currency_help' => 'La divisa de compra está configurada en <strong> :currency </strong>',
      'list_purchase' => 'Ver Compras',
-     'attach_document' => 'Documento adjunto',
-     'download_document' => 'Descargar documento',
+     'attach_document' => 'Documento Adjunto',
+     'download_document' => 'Descargar Documento',
      'max_file_size' => 'Tamaño máximo de archivo: :sizeMB',
  ];
