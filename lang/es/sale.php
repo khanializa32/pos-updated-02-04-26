@@ -19,7 +19,7 @@
      'express_finalize' => 'Pago <br/> Rápido',
      'product' => 'Producto',
      'products' => 'Productos',
-     'unit_price' => 'Precio Unitario',
+     'unit_price' => 'Precio Base',
      'qty' => 'Cantidad',
      'subtotal' => 'Subtotal', /* modified */
      'recent_transactions' => 'Transacciones recientes',
@@ -36,10 +36,10 @@
      'customer_name' => 'Tercero', /* modified */
      'payment_status' => 'Estado', /* modified */
      'status' => 'Estado',
-     'total_amount' => 'Valor Total',
-     'total_paid' => 'Total Pagado',
-     'utility_per_invoice' => 'Utilidad por factura',
-     'total_remaining' => 'Saldo Total',
+     'total_amount' => 'Total',
+     'total_paid' => 'Pagado',
+     'utility_per_invoice' => 'Utilidad',
+     'total_remaining' => 'Saldo',
      'payment_info' => 'Información del Pago',
      'drafts' => 'Borradores',
      'all_drafts' => 'Todos los borradores',
