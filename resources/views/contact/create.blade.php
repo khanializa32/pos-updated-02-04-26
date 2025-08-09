@@ -50,7 +50,7 @@
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('type_document_identification_id', __('Tipo de documento') . ':') !!}
+                    {!! Form::label('type_document_identification_id', __('Tipo de Documento') . ':') !!}
                     {!! Form::select('type_document_identification_id', $type_document_identifications,3, ['class' => 'form-control','id' => 'type_document_identification_id' ,'required']); !!}
                 </div>
             </div>
@@ -131,12 +131,13 @@
         
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('mobile', __('contact.mobile') . ':*') !!}
+                    {!! Form::label('mobile', __('contact.mobile') . ':') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
                             <i class="fa fa-mobile"style='font-size:20px;color:green'></i>
                         </span>
-                        {!! Form::text('mobile', null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}
+                       <!-- {!! Form::text('mobile', null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}  -->
+                        <input class="form-control" placeholder="Celular"   type="text" id="registration_number" value="00000">
                     </div>
                 </div>
             </div>
@@ -168,7 +169,7 @@
 
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('type_regime_id', __('Tipo de régimen') . ':') !!}
+                    {!! Form::label('type_regime_id', __('Tipo de Régimen') . ':') !!}
                     {!! Form::select('type_regime_id', $type_regimes,2, ['class' => 'form-control','id'=>'type_regime_id']); !!}
                 </div>
             </div>
@@ -181,13 +182,13 @@
 
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('department_id', __('Departamento') . ':') !!}
+                    {!! Form::label('department_id', __('Departamento') . ':*') !!}
                     {!! Form::select('department_id', $departments,'', ['class' => 'form-control department_id','id'=>'department_id','placeholder' => __('Seleccione un departamento')]); !!}
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('municipality_id', __('Municipio') . ':') !!}
+                    {!! Form::label('municipality_id', __('Municipio') . ':*') !!}
                     {!! Form::select('municipality_id', [],null, ['class' => 'form-control']); !!}
                 </div>
             </div>
@@ -195,7 +196,7 @@
 
             <div class="col-md-3">
                 <div class="form-group">
-                <label for="zip_code">Código postal:</label>
+                <label for="zip_code">Código Postal:</label>
                 <div class="input-group">
                     <span class="input-group-addon">
                         <i class="fa fa-map-marker" style='font-size:20px;color:purple'></i>
@@ -218,18 +219,7 @@
             </div>
             
             <div class="clearfix"></div>
-            <div class="col-sm-4 individual" style="display: none;">
-                <div class="form-group">
-                    {!! Form::label('dob', __('lang_v1.dob') . ':') !!}
-                    <div class="input-group">
-                        <span class="input-group-addon">
-                            <i class="fa fa-calendar"></i>
-                        </span>
-                        
-                        {!! Form::text('dob', null, ['class' => 'form-control dob-date-picker','placeholder' => __('lang_v1.dob'), 'readonly']); !!}
-                    </div>
-                </div>
-            </div>
+            
 
             <!-- lead additional field -->
             <div class="col-md-4 lead_additional_div">
@@ -349,7 +339,18 @@
                       <p class="help-block">@lang('lang_v1.credit_limit_help')</p>
                   </div>
                 </div>
-                
+                <div class="col-sm-4 individual">
+                <div class="form-group">
+                    {!! Form::label('dob', __('lang_v1.dob') . ':') !!}
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                        
+                        {!! Form::text('dob', null, ['class' => 'form-control dob-date-picker','placeholder' => __('lang_v1.dob'), 'readonly']); !!}
+                    </div>
+                </div>
+            </div>
 
                 {{-- <div class="col-md-12"><hr/></div> --}}
                 {{-- <div class="clearfix"></div>
@@ -604,7 +605,7 @@
     </div>
     
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'messages.save' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Crear Cliente' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 
