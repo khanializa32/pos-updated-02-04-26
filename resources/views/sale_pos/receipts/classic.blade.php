@@ -31,16 +31,11 @@
 						<span class="headings">
 							{{$receipt_details->display_name}}
 						</span>
-						<br/>
+					<br/>
 					@endif
-					<br>
-					
-					{{-- <b class="centered">Factura Electrónica de Venta</b><br> --}}
-					<div class="text-box">
-						@if (!empty($receipt_details->nit))
-						<p class="left"></p>
-						
-						<b> {!! $receipt_details->type_document !!}:</b> {!! $receipt_details->nit !!}-{!! $receipt_details->dv !!} <br>
+
+				<b class="centered">NIT</b> @if (!empty($receipt_details->nit))
+					<b> {!! $receipt_details->type_document !!}:</b> {!! $receipt_details->nit !!}-{!! $receipt_details->dv !!} <br>
 					@endif
 					 @if (!empty($receipt_details->address))
 					 <b>Dirección: </b>{!! $receipt_details->address !!} <br>
@@ -52,12 +47,21 @@
 						 {!! $receipt_details->type_regime !!} <br>
 					 @endif
 					 @if ($receipt_details->resolution != '-')
-					 <b>Resolución N°: </b> {!! $receipt_details->resolution !!} <b>Prefijo:</b> {!!$receipt_details->resolution_prefix!!} <br> <b>Consecutivo: </b>{!! $receipt_details->resolution_start_number !!} Hasta {!! $receipt_details->resolution_end_number !!}<b> <br>Fecha:</b> {!! $receipt_details->resolution_date !!} Hasta {!! $receipt_details->resolution_end_date !!}
+					 Resolución Autorización DIAN N°: </b> {!! $receipt_details->resolution !!} Prefijo: {!!$receipt_details->resolution_prefix!!} del {!! $receipt_details->resolution_start_number !!} Hasta {!! $receipt_details->resolution_end_number !!} Fecha: {!! $receipt_details->resolution_date !!} Hasta {!! $receipt_details->resolution_end_date !!}
 					 @endif
-				{{-- @if(!empty($receipt_details->prefix))
-					<b>Prefix: </b> {!! $receipt_details->prefix !!}<br>
-				@endif
-  --}}
+				    &nbsp;
+				    @if(!empty($receipt_details->sub_heading_line1))
+						{{ $receipt_details->sub_heading_line1 }}<br/>
+					@endif
+					&nbsp;
+					@if(!empty($receipt_details->sub_heading_line2))
+						{{ $receipt_details->sub_heading_line2 }}<br/>
+					@endif
+					&nbsp;
+					@if(!empty($receipt_details->sub_heading_line3))
+						{{ $receipt_details->sub_heading_line3 }}<br/>
+				
+				
 				</div>
 					@if(!empty($receipt_details->contact))
 						{!! $receipt_details->contact !!}
@@ -72,14 +76,7 @@
 						<br>{{ $receipt_details->location_custom_fields }}
 					@endif
 
-					@if(!empty($receipt_details->sub_heading_line1))
-						{{ $receipt_details->sub_heading_line1 }}<br/>
-					@endif
-					@if(!empty($receipt_details->sub_heading_line2))
-						{{ $receipt_details->sub_heading_line2 }}<br/>
-					@endif
-					@if(!empty($receipt_details->sub_heading_line3))
-						{{ $receipt_details->sub_heading_line3 }}<br/>
+					
 					@endif
 					@if(!empty($receipt_details->sub_heading_line4))
 						{{ $receipt_details->sub_heading_line4 }}<br/>
@@ -98,23 +95,23 @@
 				
 				</p>
 				</div>
-				<br>
+				
 			@endif
 				@if(!empty($receipt_details->letter_head))
 					<div class="text-box">
 						<img style="width: 100%;margin-bottom: 10px;" src="{{$receipt_details->letter_head}}">
 					</div>
 				@endif
-			<div class="border-top textbox-info centered font-13">
-				<p class="centered"><strong>{!! $receipt_details->invoice_no_prefix !!}</p></strong>
-				<p class="centered">
-					<b> Nro. </b>{{$receipt_details->invoice_no}}
+			<div class="border-top textbox-info left font-13">
+				<p class="left"><strong>{!! $receipt_details->invoice_no_prefix !!}</p></strong>
+				<p class="left">
+					<b> Factura Electrónica de Venta Nro. </b>{{$receipt_details->invoice_no}}
 				</p>
 			</div>
 			<div class="textbox-info">
 				<p class="f-left"><strong>{!! $receipt_details->date_label !!}</strong></p>
-				<p class="f-right">
-					{{$receipt_details->invoice_date}}
+				
+					<b>Fecha de Emisión: </b>{{$receipt_details->invoice_date}}
 				</p>
 			</div>
 			
@@ -129,7 +126,7 @@
 				<div class="textbox-info">
 					<p class="f-left"><strong>{{$receipt_details->sales_person_label}}</strong></p>
 				
-					<p class="f-right">{{$receipt_details->sales_person}}</p>
+					{{$receipt_details->sales_person}}</p>
 				</div>
 			@endif
 			@if(!empty($receipt_details->commission_agent_label))
@@ -259,19 +256,19 @@
 	        	</strong></p>
 
 
-@if(!empty($receipt_details->client_id_label))
+            @if(!empty($receipt_details->client_id_label))
 				
-					<p class="f-right">
-						{{ $receipt_details->client_id }}
+			<p class="f-center">
+			<b>NIT:</b> {{ $receipt_details->client_id }}
 					</p>
-				</div>
+			</div>
 			@endif
 
 
 	        	<p>
 	        		@if(!empty($receipt_details->customer_info))
 	        			<div class="bw">
-						{!! $receipt_details->customer_info !!}
+						<b>Cliente:</b> {!! $receipt_details->customer_info !!}
 						</div>
 					@endif
 	        	</p>
@@ -384,14 +381,14 @@
                     <tr>
                         
                         <th class="description" width="30%">
-                        	{{$receipt_details->table_product_label}}
+                        	Producto {{$receipt_details->table_product_label}}
                         </th>
                         <th class="quantity text-right">
-                        	{{$receipt_details->table_qty_label}}
+                        	Cant {{$receipt_details->table_qty_label}}
                         </th>
                         @if(empty($receipt_details->hide_price))
                         <th class="unit_price text-right">
-                        	{{$receipt_details->table_unit_price_label}}
+                        	Precio U.{{$receipt_details->table_unit_price_label}}
                         </th>
                         @if(!empty($receipt_details->discounted_unit_price_label))
 							<th class="text-right">
@@ -401,7 +398,7 @@
                         @if(!empty($receipt_details->item_discount_label))
 							<th class="text-right">{{$receipt_details->item_discount_label}}</th>
 						@endif
-                        <th class="price text-right">{{$receipt_details->table_subtotal_label}}</th>
+                        <th class="price text-right">Subtotal {{$receipt_details->table_subtotal_label}}</th>
                         @endif
                     </tr>
                 </thead>
@@ -507,26 +504,24 @@
                     </tr>
                 </tbody>
             </table>
+            @if(!empty($receipt_details->total_items_label))
+				<div class="flex-box">
+					<p class="left text-left">
+						 {!! $receipt_details->total_items_label !!}  {{$receipt_details->total_items}}
+					</p>
+				</div>
+			@endif
+			
 			@if(!empty($receipt_details->total_quantity_label))
 				<div class="flex-box">
-					<p class="left text-right">
-						{!! $receipt_details->total_quantity_label !!}
-					</p>
-					<p class="width-50 text-right">
-						{{$receipt_details->total_quantity}}
+					<p class="left text-left">
+						{!! $receipt_details->total_quantity_label !!}  {{$receipt_details->total_quantity}}
 					</p>
 				</div>
 			@endif
-			@if(!empty($receipt_details->total_items_label))
-				<div class="flex-box">
-					<p class="left text-right">
-						{!! $receipt_details->total_items_label !!}
-					</p>
-					<p class="width-50 text-right">
-						{{$receipt_details->total_items}}
-					</p>
-				</div>
-			@endif
+			
+			
+			
 			@if(empty($receipt_details->hide_price))
                 <div class="flex-box">
                     <p class="left text-right sub-headings">
@@ -753,7 +748,7 @@
 			{{-- DATOS DE ZISCO --}}
             <p class="text-center">
                         Software {{ config('app.name', 'ultimatePOS') }} - V{{ config('author.app_version', 'title') }}
-                    </b> &copy; {{ date('Y') }}<br>Elaborado Por ZISCO Software}<br>Nit:84.081.069-1  www.ziscoplus.com <br>WhatsApp: 3126079234
+                    </b> &copy; {{ date('Y') }}<br>Elaborado Por ZISCO Software}<br>Nit:84.091.069-1  www.ziscoplus.com <br>WhatsApp: 3126079234
             </p>
         </div>
         <!-- <button id="btnPrint" class="hidden-print">Print</button>
