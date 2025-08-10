@@ -3,9 +3,20 @@
 		<table class=" table table-condensed">
 			<tbody style="display: flex">
 				<tr style="display: flex; flex-direction: column; flex:1; font-size: ;">
-					<td><b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.item'):</b>&nbsp;
+					<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.item'):</b>&nbsp;
 						<span class="total_quantity tw-text-base md:tw-text-lg tw-font-semibold" style="font-size: 20px ;color:purple">0</span>
-					</td>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					
+					 @if (empty($edit))
+                    <button type="button"
+                        class=""
+                        id="pos-cancel"> <i class="fas fa-trash"style=" font-size:14px ;color:red"></i> @lang('Vaciar Carrito')</button>
+                @else
+                    <button type="button"
+                        class="tw-font-bold tw-text-white tw-cursor-pointer tw-text-xs md:tw-text-sm tw-bg-red-600 tw-p-2 tw-rounded-md tw-w-[9rem] tw-hidden md:tw-flex lg:tw-flex lg:tw-flex-row lg:tw-items-center lg:tw-justify-center lg:tw-gap-1 hide"
+                        id="pos-delete" @if (!empty($only_payment)) disabled @endif> <i
+                            class="fas fa-trash"></i> @lang('messages.delete')</button>
+                @endif
 					
 					<td @if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin')) class="" @else class="hide" @endif>
 						<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">
