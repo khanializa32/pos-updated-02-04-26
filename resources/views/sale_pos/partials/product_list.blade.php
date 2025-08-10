@@ -6,7 +6,7 @@
 
         <div class="text_div">
             <br>
-            <small class="text text-muted">Crear Producto
+            <small class="text text-muted"style="font-size:16px ;color:green">Crear Producto
             </small>
             <br>
           
