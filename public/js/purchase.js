@@ -202,6 +202,7 @@ $(document).ready(function() {
                 },
                 select: function(event, ui) {
                     $(this).val(null);
+                    should_prepend_purchase_row = true;
                     get_purchase_entry_row(ui.item.product_id, ui.item.variation_id);
                 },
             })
@@ -730,6 +731,12 @@ $(document).ready(function() {
     toggle_search();
 });
 
+var global_brand_id = null;
+var global_p_category_id = null;
+var global_is_clear_local_storage = false;
+// Controls whether the next purchase product insertion should go to the top
+var should_prepend_purchase_row = false;
+
 function get_purchase_entry_row(product_id, variation_id) {
     if (product_id) {
         var row_count = $('#row_count').val();
@@ -759,14 +766,24 @@ function get_purchase_entry_row(product_id, variation_id) {
 }
 
 function append_purchase_lines(data, row_count, trigger_change = false) {
+    // Capture insertion intent for this specific request and reset the global flag
+    var insertAtTop = (typeof should_prepend_purchase_row !== 'undefined' && should_prepend_purchase_row);
+    should_prepend_purchase_row = false;
+
     $(data)
         .find('.purchase_quantity')
         .each(function() {
             row = $(this).closest('tr');
 
-            $('#purchase_entry_table tbody').append(
-                update_purchase_entry_row_values(row)
-            );
+            if (insertAtTop) {
+                $('#purchase_entry_table tbody').prepend(
+                    update_purchase_entry_row_values(row)
+                );
+            } else {
+                $('#purchase_entry_table tbody').append(
+                    update_purchase_entry_row_values(row)
+                );
+            }
             update_row_price_for_exchange_rate(row);
 
             update_inline_profit_percentage(row);
@@ -1179,6 +1196,7 @@ $("#purchase_order_ids").on("select2:select", function (e) {
         dataType: 'json',
         success: function(data) {
             set_po_values(data.po);
+            should_prepend_purchase_row = true;
             append_purchase_lines(data.html, row_count);
         },
     });
@@ -1257,6 +1275,7 @@ if ($("div#import_product_dz").length) {
             if (response.success) {
                 toastr.success(response.msg);
                 var row_count = $('#row_count').val();
+                should_prepend_purchase_row = true;
                 append_purchase_lines(response.html, row_count, true);
 
                 this.removeAllFiles();
@@ -1334,6 +1353,7 @@ $("#purchase_requisition_ids").on("select2:select", function (e) {
         url: '/get-purchase-requisition-lines/' + purchase_requisition_id + '?row_count=' + row_count,
         dataType: 'json',
         success: function(data) {
+            should_prepend_purchase_row = true;
             append_purchase_lines(data.html, row_count);
         },
     });
