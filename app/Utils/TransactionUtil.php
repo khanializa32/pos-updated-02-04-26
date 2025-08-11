@@ -352,8 +352,13 @@ class TransactionUtil extends Util
                 unset($product['sub_unit_id']);
             }
 
-            if (! empty($product['sub_unit_id']) && ! empty($product['base_unit_multiplier'])) {
-                $multiplier = $product['base_unit_multiplier'];
+            if (! empty($product['sub_unit_id']) && isset($product['base_unit_multiplier'])) {
+                $multiplier = (float) $product['base_unit_multiplier'];
+            }
+
+            // Guard against invalid multiplier coming from client
+            if ($multiplier <= 0) {
+                $multiplier = 1;
             }
 
             //Check if transaction_sell_lines_id is set, used when editing.
@@ -395,7 +400,7 @@ class TransactionUtil extends Util
 
                 //calculate unit price and unit price before discount
                 $uf_unit_price = $uf_data ? $this->num_uf($product['unit_price']) : $product['unit_price'];
-                $unit_price_before_discount = $uf_unit_price / $multiplier;
+                $unit_price_before_discount = (float) $uf_unit_price / (float) $multiplier;
                 $unit_price = $unit_price_before_discount;
                 if (! empty($product['line_discount_type']) && $product['line_discount_amount']) {
                     $discount_amount = $uf_data ? $this->num_uf($product['line_discount_amount']) : $product['line_discount_amount'];
@@ -416,7 +421,7 @@ class TransactionUtil extends Util
                     $line_discount_amount = $uf_data ? $this->num_uf($product['line_discount_amount']) : $product['line_discount_amount'];
 
                     if ($product['line_discount_type'] == 'fixed') {
-                        $line_discount_amount = $line_discount_amount / $multiplier;
+                    $line_discount_amount = $line_discount_amount / $multiplier;
                     }
                 }
 

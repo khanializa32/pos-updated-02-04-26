@@ -783,6 +783,8 @@ return [
     'related_sub_units' => 'Prsentaciones',
     'sub_units_tooltip' => 'Según la unidad seleccionada, mostrará las subunidades correspondientes. Seleccione la subunidad correspondiente. Deje en blanco si todas las subunidades son aplicables para el producto',
     'enable_sub_units' => 'Habilitar Subunidades',
+    'sub_unit_prices' => 'Precios por subunidad',
+    'enter_price_for_each_selected_unit' => 'Ingrese el precio de venta para cada unidad/subunidad relacionada',
     'added_on' => 'Agregado',
     'quantity_mismatch_exception' => 'ERROR: NO PERMITIDO: No coincide entre la cantidad vendida y disponible. Producto: :product',
     'roles_and_permissions' => 'Roles y Permisos',

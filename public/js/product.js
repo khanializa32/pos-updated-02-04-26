@@ -1,6 +1,69 @@
 //This file contains all functions used products tab
 
 $(document).ready(function() {
+    // When unit changes on product form, reload sub units and rebuild price inputs (create/edit)
+    $(document).on('change', '#unit_id', function () {
+        var unit_id = $(this).val();
+        var subUnitSelect = $('#sub_unit_ids');
+        if (subUnitSelect.length > 0) {
+            var url = subUnitSelect.data('get-sub-units-url');
+            $.ajax({
+                method: 'GET',
+                url: url,
+                data: { unit_id: unit_id },
+                dataType: 'html',
+                success: function (result) {
+                    subUnitSelect.html(result).trigger('change');
+                }
+            });
+        }
+    });
+
+     // Build sub unit price inputs when sub units selection changes (append new, keep existing values; default new value to 0)
+    $(document).on('change', '#sub_unit_ids', function () {
+        var selected = $(this).val() || [];
+        var wrapper = $('#sub_unit_prices_wrapper');
+        if (!wrapper.length) return;
+
+        // Show/hide container
+        if (selected.length === 0) {
+            wrapper.closest('.form-group').hide();
+        } else {
+            wrapper.closest('.form-group').show();
+        }
+
+        // Prefilled prices coming from backend
+        var prefilled = {};
+        try { prefilled = JSON.parse(wrapper.attr('data-prices') || '{}'); } catch (e) { prefilled = {}; }
+
+        // Append inputs that don't exist yet for newly selected sub-units
+        for (var i = 0; i < selected.length; i++) {
+            var id = selected[i];
+            if (wrapper.find('.sub-unit-price-input[data-unit-id="' + id + '"]').length === 0) {
+                var option = $(this).find('option[value="' + id + '"]');
+                var label = option.length ? option.text() : ('Unit ' + id);
+                var val = (prefilled[id] !== undefined && prefilled[id] !== null && prefilled[id] !== '') ? __number_f(prefilled[id], false) : '0';
+                var html = '<div class="col-sm-3 tw-mb-2 sub-unit-price-input" data-unit-id="' + id + '">'
+                    + '<label style="display:block">' + label + '</label>'
+                    + '<input name="sub_unit_prices[' + id + ']" type="text" class="form-control input_number" value="' + val + '" placeholder="' + LANG.selling_price + '">'
+                    + '</div>';
+                wrapper.append(html);
+            }
+        }
+
+        // Remove inputs for units that are no longer selected
+        wrapper.find('.sub-unit-price-input').each(function () {
+            var id = ($(this).data('unit-id') || '').toString();
+            if (selected.indexOf(id) === -1) {
+                $(this).remove();
+            }
+        });
+    });
+
+    // On load (edit page), build inputs for already selected sub-units
+    if ($('#sub_unit_ids').length) {
+        $('#sub_unit_ids').trigger('change');
+    }
     $(document).on('ifChecked', 'input#enable_stock', function() {
         $('div#alert_quantity_div').show();
         $('div#quick_product_opening_stock_div').show();

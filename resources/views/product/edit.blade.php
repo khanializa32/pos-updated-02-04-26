@@ -75,7 +75,7 @@
               <div class="form-group">
                 {!! Form::label('sub_unit_ids', __('lang_v1.related_sub_units') . ':') !!} @show_tooltip(__('lang_v1.sub_units_tooltip'))
 
-                <select name="sub_unit_ids[]" class="form-control select2" multiple id="sub_unit_ids">
+                <select name="sub_unit_ids[]" class="form-control select2" multiple id="sub_unit_ids" data-get-sub-units-url="{{ action([\App\Http\Controllers\ProductController::class, 'getSubUnits']) }}">
                   @foreach($sub_units as $sub_unit_id => $sub_unit_value)
                     <option value="{{$sub_unit_id}}" 
                       @if(is_array($product->sub_unit_ids) &&in_array($sub_unit_id, $product->sub_unit_ids))   selected 
@@ -84,6 +84,19 @@
                 </select>
               </div>
             </div>
+
+            @if(session('business.enable_sub_units'))
+            <div class="col-sm-8">
+              <div class="form-group">
+                {!! Form::label('sub_unit_prices', __('lang_v1.sub_unit_prices') . ':') !!}
+                @php
+                  $existing_prices = is_array($product->sub_unit_prices) ? $product->sub_unit_prices : [];
+                @endphp
+                <div class="row" id="sub_unit_prices_wrapper" data-prices='@json($existing_prices)'></div>
+                <small class="help-block">@lang('lang_v1.enter_price_for_each_selected_unit')</small>
+              </div>
+            </div>
+            @endif
 
             @if(!empty($common_settings['enable_secondary_unit']))
                 <div class="col-sm-4">
