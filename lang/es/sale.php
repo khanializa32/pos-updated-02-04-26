@@ -48,7 +48,7 @@
      'amount' => 'Valor',
      'total_payable' => 'Total a Cobrar',
      'payment_mode' => 'Método de Pago', /* modified */
-     'payment_note' => 'Nota de Pago',
+     'payment_note' => 'Nota del Pago',
      'sell_note' => 'Nota de Venta', /* modified */
      'staff_note' => 'Nota del Cajero',
      'draft_updated' => 'Borrador Actualizado',
@@ -60,6 +60,6 @@
      'list_pos' => 'Tickets POS',
      'edit_sale' => 'Editar Venta',
      'shipping' => 'Domicilio',
-     'shipping_details' => 'Detalles de Envío',
-     'shipping_charges' => 'Gastos de Envío',
+     'shipping_details' => 'Detalles del Envío',
+     'shipping_charges' => 'Domicilio / Flete',
  ];
