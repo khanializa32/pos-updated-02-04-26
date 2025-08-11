@@ -571,7 +571,7 @@ return [
     'view_suspended_sales' => 'Ver Ventas Suspendidas',
     'suspended_sales' => 'Ventas Suspendidas',
     'tooltip_suspend' => 'Suspender Ventas',
-    'business_telephone' => 'Número de contacto comercial',
+    'business_telephone' => 'Teléfono',
     'accept_terms_and_conditions' => 'Aceptar Términos y Condiciones',
     'terms_conditions' => 'Términos y Condiciones',
     'product_description' => 'Descripción del Producto',
