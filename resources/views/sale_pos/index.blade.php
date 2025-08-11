@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', __( 'Documentos Electrónicos ZISCO'))
+@section('title', __( 'Transacciones'))
 
 @section('content')
 
