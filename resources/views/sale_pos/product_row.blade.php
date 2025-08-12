@@ -262,12 +262,12 @@
 		<span class="input-group-btn"><button type="button" class="btn btn-default btn-flat quantity-up"><i class="fa fa-plus text-success"></i></button></span>
 		</div>
 		
-		<i class="fa fa-trash text-danger pos_remove_row cursor-pointer" aria-hidden="true"  style="font-size:24px"></i>
+		<i class="glyphicon glyphicon-trash text-danger pos_remove_row cursor-pointer" aria-hidden="true"  style="font-size:24px"></i>
 		
 		<input type="hidden" name="products[{{$row_count}}][product_unit_id]" value="{{$product->unit_id}}">
 		@if(count($sub_units) > 0)
 			
-			<br>
+			
 			<select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
                 @foreach($sub_units as $key => $value)
                     <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" @if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key) selected @endif>

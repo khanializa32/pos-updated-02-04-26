@@ -9,15 +9,15 @@
 				<div class="row">
 					<div class="col-xs-12">
 				        <div class="form-group">
-				            {!! Form::label('additional_notes', __('lang_v1.suspend_note') . ':' ) !!}
-				            {!! Form::textarea('additional_notes', !empty($transaction->additional_notes) ? $transaction->additional_notes : null, ['class' => 'form-control','rows' => '4']); !!}
+				            {!! Form::label('additional_notes', __('Escriba un Nombre, Negocio o Mesa') . ':' ) !!}
+				            {!! Form::textarea('additional_notes', !empty($transaction->additional_notes) ? $transaction->additional_notes : null, ['class' => 'form-control','rows' => '1']); !!}
 				            {!! Form::hidden('is_suspend', 0, ['id' => 'is_suspend']); !!}
 				        </div>
 				    </div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white" id="pos-suspend">@lang('messages.save')</button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-black" id="pos-suspend">@lang('Suspender')</button>
 			    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
 			</div>
 		</div><!-- /.modal-content -->

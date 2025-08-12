@@ -46,7 +46,7 @@
 					
 					<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
-							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.order_tax')(+): </b>
+							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('Imp')(+): </b>
 							<i class="fas fa-edit cursor-pointer" title="@lang('sale.edit_order_tax')" aria-hidden="true" style="font-size:24px ;color:orange" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax" ></i> 
 							<span class="tw-text-base md:tw-text-lg tw-font-semibold" id="order_tax">
 								@if(empty($edit))
@@ -66,10 +66,10 @@
 					
 					
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
-							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 12px">@lang('Domi')(+)   
+							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 12px">@lang('')   
 								{{-- : @show_tooltip(__('tooltip.shipping')) --}}
 							</b> 
-							<i class="fas fa-truck-moving"  title="@lang('sale.shipping')" aria-hidden="true" style="font-size:24px ;color:green" data-toggle="modal" data-target="#posShippingModal"></i>
+							<i class="fas fa-motorcycle"  title="@lang('sale.shipping')" aria-hidden="true" style="font-size:24px ;color:green" data-toggle="modal" data-target="#posShippingModal"></i>
 							<span id="shipping_charges_amount" style="font-size: 14px">0</span>
 							<input type="hidden" name="shipping_details" id="shipping_details" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_details}}@endif" data-default="">
 							<input type="hidden" name="shipping_address" id="shipping_address" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_address}}@endif">

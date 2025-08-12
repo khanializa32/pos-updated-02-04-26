@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', __( 'Documentos Electrónicos ZISCO'))
+@section('title', __( 'Transacciones'))
 
 @section('content')
 
@@ -39,7 +39,7 @@
                                             <div class="tw-flex-1 tw-min-w-0">
                                                 <p
                                                     class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
-                                                    {{ __('home.total_sell') }}
+                                                    {{ __('Ingresos') }}
                                                 </p>
                                                 
                                                 {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}

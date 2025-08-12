@@ -6,6 +6,6 @@
     </div> -->
     <!-- Default to the left -->
     <small>
-    	<b>{{ config('app.name', 'ultimatePOS') }} | Copyright &copy; {{ date('Y') }} |  Ing Delio Ospino Barros Todos los derechos reservados.</b>
+    	<b>{{ config('app.name', 'ultimatePOS') }} PLUS | Copyright &copy; {{ date('Y') }} |  Ing Delio Ospino Barros Todos Los Derechos Reservados.</b>
     </small>
 </footer> 
