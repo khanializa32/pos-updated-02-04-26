@@ -10,8 +10,8 @@
 					@php
 						$pos_unit_price = !empty($product->unit_price_before_discount) ? $product->unit_price_before_discount : $product->default_sell_price;
 					@endphp
-					<label>@lang('sale.unit_price')</label>
-						<input type="text" name="products[{{$row_count}}][unit_price]" class="form-control pos_unit_price input_number mousetrap" value="{{@num_format($pos_unit_price)}}" @if(!empty($pos_settings['enable_msp'])) data-rule-min-value="{{$pos_unit_price}}" data-msg-min-value="{{__('lang_v1.minimum_selling_price_error_msg', ['price' => @num_format($pos_unit_price)])}}" @endif>
+                    <label>@lang('sale.unit_price')</label>
+                        <input type="text" name="products[{{$row_count}}][unit_price]" class="form-control pos_unit_price input_number mousetrap" value="{{@num_format($pos_unit_price)}}" data-rule-min-value="{{$product->default_purchase_price}}" data-msg-min-value="{{__('lang_v1.cost_price_validation_error', ['cost_price' => @num_format($product->default_purchase_price)])}}" data-cost-price="{{$product->default_purchase_price}}">
 				</div>
 				@if(!auth()->user()->can('edit_product_price_from_sale_screen'))
 					<div class="form-group col-xs-12">
