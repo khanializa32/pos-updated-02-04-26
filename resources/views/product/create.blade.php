@@ -407,7 +407,7 @@
 
                     <button type="submit" value="save_n_add_another" class="tw-dw-btn tw-dw-btn-lg bg-maroon submit_product_form">@lang('lang_v1.save_n_add_another')</button>
 
-                    <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white submit_product_form">@lang('messages.save')</button>
+                    <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black submit_product_form">@lang('Crear Producto')</button>
                 </div>
 
             </div>
