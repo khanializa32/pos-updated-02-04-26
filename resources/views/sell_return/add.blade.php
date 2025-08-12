@@ -135,7 +135,7 @@
 				</div>
 				<div class="col-sm-3">
 					<div class="form-group">
-						{!! Form::label('discrepancyresponsecode', __( 'Motivo de rechazo' ) . ':') !!}
+						{!! Form::label('discrepancyresponsecode', __( 'Motivo de Rechazo' ) . ':') !!}
 						{!! Form::select('discrepancyresponsecode', [ 
 							1 => 'Devolución parcial de los bienes y/o no aceptación parcial del servicio', 
 							2 => 'Anulación de factura electrónica', 
@@ -147,7 +147,7 @@
 				</div>
 				<div class="col-sm-3">
 					<div class="form-group">
-						{!! Form::label('discrepancyresponsedescription', __( 'Descripción del rechazo' ) . ':') !!}
+						{!! Form::label('discrepancyresponsedescription', __( 'Descripción del Rechazo' ) . ':') !!}
 						{!! Form::text('discrepancyresponsedescription', $sell->discrepancyresponsedescription, ['class' => 'form-control','required']); !!}
 					</div>
 				</div>
@@ -178,7 +178,7 @@
 			<br>
 			<div class="row">
 				<div class="col-sm-12">
-					<button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right">@lang('messages.save')</button>
+					<button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right">@lang('Generar Nota Crédito')</button>
 				</div>
 			</div>
 		</div>
