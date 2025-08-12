@@ -1722,6 +1722,8 @@ class ProductUtil extends Util
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.sell_price_inc_tax as selling_price',
+                'variations.default_purchase_price as purchase_price',
+                'variations.dpp_inc_tax as purchase_price_inc_tax',
                 'variations.sub_sku',
                 'U.short_name as unit'
             );

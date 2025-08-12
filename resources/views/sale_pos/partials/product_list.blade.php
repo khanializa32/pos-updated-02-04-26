@@ -50,8 +50,14 @@
 			</small>
 			
 			<small class="text-muted" style="font-size: 110%; float: left; ">
-				${{number_format($product->selling_price,0)}}
+				Sale: ${{number_format($product->selling_price,0)}}
 			</small><br>
+			
+			@can('view_purchase_price')
+			<small class="text-info" style="font-size: 100%; float: left; clear: left; ">
+				Purchase: ${{number_format($product->purchase_price_inc_tax,0)}}
+			</small><br>
+			@endcan
 			
 		</div>
 			
