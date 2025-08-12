@@ -6,7 +6,7 @@
 
 <fieldset>
 <legend class="text-red">@lang('business.business_details'):</legend>
-<div class="col-md-12">
+<div class="col-md-5">
     <div class="form-group">
         {!! Form::label('name', __('business.business_name') . ':*' ) !!}
         <div class="input-group">
@@ -17,8 +17,92 @@
         </div>
     </div>
 </div>
-        
-<div class="col-md-6">
+<div class="col-sm-3">
+    <div class="form-group">
+        {!! Form::label('type_document_identification_id', __('Tipo de documento') . ':') !!}
+        <div class="input-group">
+            <span class="input-group-addon">
+                <i class="fas fa-money-bill-alt"></i>
+            </span>
+            {!! Form::select('type_document_identification_id', $type_document_identifications, null, ['class' => 'form-control','placeholder' => 'Tipo de documento', 'required']); !!}
+        </div>
+    </div>
+</div>  
+<div class="col-sm-3">
+    <div class="form-group">
+        <label for="nit">Numero de Identificacion:*</label>
+        <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
+            data-container="body" data-toggle="popover" data-placement="auto bottom" 
+            data-content="Digite el Numero de Identificacion, Persona natural o Juridica" data-html="true" data-trigger="hover"></i>                <div class="input-group">
+            <span class="input-group-addon">
+                <i class="fa fa-id-card"></i>
+            </span>
+            {!! Form::text('nit', null, ['class' => 'form-control','id'=>'nit']); !!}
+        </div>
+    </div>
+</div>
+<div class="col-sm-1">
+    <div class="form-group">
+        <label for="dv">DV</label>
+        <div class="input-group">
+            {!! Form::text('dv', null, ['class' => 'form-control','id'=>'dv']); !!}
+        </div>
+    </div>
+</div>
+<div class="col-sm-2">
+    <div class="form-group">
+        <label for="merchant_registration">Registro Mercantil</label>
+        <div class="input-group">
+            {!! Form::text('merchant_registration', null, ['class' => 'form-control']); !!}
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <div class="form-group">
+        {!! Form::label('type_organization_id', __('Tipo de organización') . ':') !!}
+        <div class="input-group">
+            
+            {!! Form::select('type_organization_id', $type_organizations, null, ['class' => 'form-control','placeholder' => 'Tipo de documento']); !!}
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <div class="form-group">
+        {!! Form::label('type_regime_id', __('Régimenes') . ':') !!}
+        <div class="input-group">
+            
+            {!! Form::select('type_regime_id', $type_regimes, null, ['class' => 'form-control']); !!}
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <div class="form-group">
+        {!! Form::label('type_liability_id', __('Tipo de responsabilidad') . ':') !!}
+        <div class="input-group">
+            
+            {!! Form::select('type_liability_id', $type_liabilities, null, ['class' => 'form-control']); !!}
+        </div>
+    </div>
+</div>
+
+<div class="col-md-3">
+    <div class="form-group">
+        {!! Form::label('department_id', __('Departamentos') . ':') !!}
+        <div class="input-group">
+            
+            {!! Form::select('department_id', $departments, null, ['class' => 'form-control','id'=>'department_id']); !!}
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
+    <div class="form-group">
+        {!! Form::label('municipality_id', __('Municipio') . ':') !!}
+        {!! Form::select('municipality_id', $municipalities, null, ['class' => 'form-control']); !!}
+    </div>
+</div>
+
+<div class="col-md-3">
     <div class="form-group">
     {!! Form::label('start_date', __('business.start_date') . ':') !!}
     <div class="input-group">
@@ -29,7 +113,7 @@
     </div>
     </div>
 </div>
-<div class="col-md-6">
+<div class="col-md-3">
     <div class="form-group">
     {!! Form::label('currency_id', __('business.currency') . ':*') !!}
     <div class="input-group">
@@ -41,13 +125,13 @@
     </div>
 </div>
 <div class="clearfix"></div>
-<div class="col-md-6">
+<div class="col-md-3">
     <div class="form-group">
         {!! Form::label('business_logo', __('business.upload_logo') . ':') !!}
         {!! Form::file('business_logo', ['accept' => 'image/*']); !!}
     </div>
 </div>
-<div class="col-md-6">
+<div class="col-md-3">
     <div class="form-group">
         {!! Form::label('website', __('lang_v1.website') . ':') !!}
         <div class="input-group">
@@ -58,8 +142,8 @@
         </div>
     </div>
 </div>
-<div class="clearfix"></div>
-<div class="col-md-6">
+{{-- <div class="clearfix"></div> --}}
+<div class="col-md-3">
     <div class="form-group">
     {!! Form::label('mobile', __('lang_v1.business_telephone') . ':') !!}
     <div class="input-group">
@@ -71,7 +155,7 @@
     </div>
 </div>
 
-<div class="col-md-6">
+<div class="col-md-3">
     <div class="form-group">
         {!! Form::label('alternate_number', __('business.alternate_number') . ':') !!}
         <div class="input-group">
@@ -85,7 +169,7 @@
 
 <div class="clearfix"></div>
 
-<div class="col-md-6">
+{{-- <div class="col-md-4">
     <div class="form-group">
     {!! Form::label('country', __('business.country') . ':*') !!}
     <div class="input-group">
@@ -97,7 +181,7 @@
     </div>
 </div>
 
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="form-group">
     {!! Form::label('state',__('business.state') . ':*') !!}
     <div class="input-group">
@@ -130,9 +214,9 @@
         {!! Form::text('zip_code', null, ['class' => 'form-control','placeholder' => __('business.zip_code_placeholder'), 'required']); !!}
     </div>
     </div>
-</div>
+</div> --}}
 <div class="clearfix"></div>
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="form-group">
     {!! Form::label('landmark', __('business.landmark') . ':*') !!}
     <div class="input-group">
@@ -143,7 +227,7 @@
     </div>
     </div>
 </div>
-<div class="col-md-6">
+<div class="col-md-3">
     <div class="form-group">
         {!! Form::label('time_zone', __('business.time_zone') . ':*') !!}
         <div class="input-group">
@@ -242,7 +326,7 @@
 
 <fieldset>
 <legend class="text-red">@lang('business.owner_info')</legend>
-<div class="col-md-4">
+{{-- <div class="col-md-4">
     <div class="form-group">
         {!! Form::label('surname', __('business.prefix') . ':') !!}
         <div class="input-group">
@@ -252,8 +336,8 @@
             {!! Form::text('surname', null, ['class' => 'form-control','placeholder' => __('business.prefix_placeholder')]); !!}
         </div>
     </div>
-</div>
-
+</div> --}}
+{!! Form::hidden('surname', null, ['class' => 'form-control','placeholder' => __('business.prefix_placeholder')]); !!}
 <div class="col-md-4">
     <div class="form-group">
         {!! Form::label('first_name', __('business.first_name') . ':*') !!}
@@ -277,8 +361,8 @@
         </div>
     </div>
 </div>
-<div class="clearfix"></div>
-<div class="col-md-6">
+{{-- <div class="clearfix"></div> --}}
+<div class="col-md-4">
     <div class="form-group">
         {!! Form::label('username', __('business.username') . ':*') !!}
         <div class="input-group">
@@ -290,7 +374,7 @@
     </div>
 </div>
 
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="form-group">
         {!! Form::label('email', __('business.email') . ':*') !!}
         <div class="input-group">
@@ -301,8 +385,8 @@
         </div>
     </div>
 </div>
-<div class="clearfix"></div>
-<div class="col-md-6">
+{{-- <div class="clearfix"></div> --}}
+<div class="col-md-4">
     <div class="form-group">
         {!! Form::label('password', __('business.password') . ':*') !!}
         <div class="input-group">
@@ -314,7 +398,7 @@
     </div>
 </div>
 
-<div class="col-md-6">
+<div class="col-md-4">
     <div class="form-group">
         {!! Form::label('confirm_password', __('business.confirm_password') . ':*') !!}
         <div class="input-group">

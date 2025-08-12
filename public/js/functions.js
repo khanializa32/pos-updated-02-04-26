@@ -524,3 +524,31 @@ function __disable_submit_button(element) {
 function __current_datetime() {
     return moment().format(moment_date_format + ' ' + moment_time_format);
 }
+
+
+function calcularDigitoVerificacion(myNit) {
+    // Eliminar espacios, comas, puntos y guiones
+    myNit = myNit.replace(/[\s,.\-]/g, '');
+
+    // Verificar que sea numérico
+    if (!/^\d+$/.test(myNit)) {
+        return false;
+    }
+
+    const vpri = {
+        1: 3,  2: 7,  3: 13, 4: 17, 5: 19,
+        6: 23, 7: 29, 8: 37, 9: 41, 10: 43,
+        11: 47, 12: 53, 13: 59, 14: 67, 15: 71
+    };
+
+    let z = myNit.length;
+    let x = 0;
+
+    for (let i = 0; i < z; i++) {
+        let y = parseInt(myNit.charAt(i), 10);
+        x += y * vpri[z - i];
+    }
+
+    let y = x % 11;
+    return (y > 1) ? 11 - y : y;
+}

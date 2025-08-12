@@ -122,6 +122,31 @@
 		</div>
 	</div>
 	@endif
+	{{-- agregamos el modulo de invoicescheme --}}
+	{{-- @if(!empty($pos_settings['show_invoice_scheme']))
+		@php
+			$invoice_scheme_id = $default_invoice_schemes->id;
+			if(!empty($default_location->invoice_scheme_id)) {
+				$invoice_scheme_id = $default_location->invoice_scheme_id;
+			}
+		@endphp
+		<div class="col-md-4 col-sm-6">
+			<div class="form-group">
+				{!! Form::select('invoice_scheme_id', $invoice_schemes, $invoice_scheme_id, 
+					['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme'), 
+					'id' => 'invoice_scheme_id']); !!}
+			</div>
+		</div>
+	@endif --}}
+	@if($transaction->status == 'final' && !empty($pos_settings['show_invoice_scheme']))
+		<div class="col-sm-5">
+			<div class="form-group">
+				{!! Form::select('invoice_scheme_id', $invoice_schemes, $transaction->invoice_scheme_id, ['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme')]); !!}
+			</div>
+		</div>
+	@endif
+	{{-- fin del modulo de invoicescheme --}}
+
 	<input type="hidden" name="pay_term_number" id="pay_term_number" value="{{$transaction->pay_term_number}}">
 	<input type="hidden" name="pay_term_type" id="pay_term_type" value="{{$transaction->pay_term_type}}">
 	
@@ -135,7 +160,7 @@
 						$commission_agent, $transaction->commission_agent, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.commission_agent'), 'id' => 'commission_agent', 'required' => $is_commission_agent_required]); !!}
 			</div>
 		</div>
-		@endif
+	@endif
 	@if(!empty($pos_settings['enable_transaction_date']))
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">

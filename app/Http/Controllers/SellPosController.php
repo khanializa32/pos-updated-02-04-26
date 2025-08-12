@@ -1328,6 +1328,8 @@ class SellPosController extends Controller
         $invoice_schemes = [];
         $default_invoice_schemes = null;
 
+        $invoice_schemes = InvoiceScheme::forDropdown($business_id);//se generaliza en esquema de factura para listarlos al editar una factura
+
         if ($transaction->status == 'draft') {
             $invoice_schemes = InvoiceScheme::forDropdown($business_id);
             $default_invoice_schemes = InvoiceScheme::getDefault($business_id);
@@ -1347,6 +1349,8 @@ class SellPosController extends Controller
         $departments = Department::pluck('name','id');
         $type_regimes = TypeRegime::pluck('name','id');
         $type_liabilities = TypeLiability::pluck('name','id');
+
+        // return response()->json($transaction);
 
         return view('sale_pos.edit')
             ->with(compact('type_document_identifications','type_regimes','type_liabilities','departments',
@@ -1473,6 +1477,12 @@ class SellPosController extends Controller
                 if ($status_before == 'draft' && !empty($request->input('invoice_scheme_id'))) {
                     $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
                 }
+                //codigo sin terminar
+                // if ($status_before == 'final' && !empty($request->input('invoice_scheme_id')) && ($transaction_before->invoice_scheme_id != $request->input('invoice_scheme_id'))) {
+                //     $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
+                // }
+
+                return response()->json($input);
 
                 //Types of service
                 if ($this->moduleUtil->isModuleEnabled('types_of_service')) {
@@ -1720,14 +1730,17 @@ class SellPosController extends Controller
                 }
             } else {
                 $output = ['success' => 0,
-                    'msg' => trans('messages.something_went_wrong'),
+                    'msg' => "No se pudo actualizar la factura",
                 ];
             }
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
             $output = ['success' => 0,
-                'msg' => __('messages.something_went_wrong'),
+                'msg' => "Error al intentar actualizar la factura",
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ];
         }
 
