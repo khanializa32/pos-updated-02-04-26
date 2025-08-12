@@ -467,7 +467,7 @@
 		{!! Form::hidden('is_save_and_print', 0, ['id' => 'is_save_and_print']); !!}
 		<div class="col-sm-12 text-center tw-mt-4">
 			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
-			<button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>
+			<!-- <button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>-->
 		</div>
 	</div>
 				</div>
@@ -915,7 +915,7 @@
 		{!! Form::hidden('is_save_and_print', 0, ['id' => 'is_save_and_print']); !!}
 		<div class="col-sm-12 text-center tw-mt-4">
 			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
-			<button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>
+			<!-- <button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>-->
 		</div>
 	</div>
 	
