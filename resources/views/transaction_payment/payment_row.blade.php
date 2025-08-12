@@ -8,7 +8,7 @@
     @endif
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title">@lang( 'purchase.add_payment' )</h4>
+      <h4 class="modal-title">@lang( 'Pagar / Abonar' )</h4>
     </div>
 
     <div class="modal-body">
@@ -67,7 +67,7 @@
             {!! Form::label("method" , __('purchase.payment_method') . ':*') !!}
             <div class="input-group">
               <span class="input-group-addon">
-                <i class="fas fa-money-bill-alt"></i>
+                <i class="fas fa-money-bill-alt" style="font-size:20px ;color:blue"></i>
               </span>
               {!! Form::select("method", $payment_types, $payment_line->method, ['class' => 'form-control select2 payment_types_dropdown', 'required', 'style' => 'width:100%;']); !!}
             </div>
@@ -78,7 +78,7 @@
             {!! Form::label("paid_on" , __('lang_v1.paid_on') . ':*') !!}
             <div class="input-group">
               <span class="input-group-addon">
-                <i class="fa fa-calendar"></i>
+                <i class="fas fa-calendar-alt" style="font-size:20px ;color:sandybrown"></i>
               </span>
               {!! Form::text('paid_on', @format_datetime($payment_line->paid_on), ['class' => 'form-control', 'readonly', 'required']); !!}
             </div>
@@ -89,7 +89,7 @@
             {!! Form::label("amount" , __('sale.amount') . ':*') !!}
             <div class="input-group">
               <span class="input-group-addon">
-                <i class="fas fa-money-bill-alt"></i>
+                <i class="fas fa-dollar-sign" style="font-size:20px ;color:red"></i>
               </span>
               {!! Form::text("amount", @num_format($payment_line->amount), ['class' => 'form-control input_number payment_amount', 'required', 'placeholder' => 'Amount', 'data-rule-max-value' => $payment_line->amount, 'data-msg-max-value' => __('lang_v1.max_amount_to_be_paid_is', ['amount' => $amount_formated])]); !!}
             </div>
@@ -155,7 +155,7 @@
               {!! Form::label("account_id" , __('lang_v1.payment_account') . ':') !!}
               <div class="input-group">
                 <span class="input-group-addon">
-                  <i class="fas fa-money-bill-alt"></i>
+                  <i class="fas fa-university" style="font-size:20px ;color:green"></i>
                 </span>
                 {!! Form::select("account_id", $accounts, !empty($payment_line->account_id) ? $payment_line->account_id : '' , ['class' => 'form-control select2', 'id' => "account_id", 'style' => 'width:100%;']); !!}
               </div>
@@ -166,8 +166,7 @@
           <div class="form-group">
             {!! Form::label('document', __('purchase.attach_document') . ':') !!}
             {!! Form::file('document', ['accept' => implode(',', array_keys(config('constants.document_upload_mimes_types')))]); !!}
-            <p class="help-block">
-            @includeIf('components.document_help_text')</p>
+            <p class="help-block"> pdf, csv, zip, doc, jpeg, jpg</p>
           </div>
         </div>
         <div class="clearfix"></div>
@@ -182,7 +181,7 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang( 'messages.save' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'messages.save' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 
