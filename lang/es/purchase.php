@@ -55,5 +55,6 @@
      'list_purchase' => 'Ver Compras',
      'attach_document' => 'Documento Adjunto',
      'download_document' => 'Descargar Documento',
+     'return' => 'Devolver',
      'max_file_size' => 'Tamaño máximo de archivo: :sizeMB',
  ];
