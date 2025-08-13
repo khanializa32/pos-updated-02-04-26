@@ -1075,6 +1075,8 @@ return [
     'dob_ins' => 'Formato Y-m-d',
     'by_purchase_price' => 'Por precio de costo',
     'by_sale_price' => 'Por precio de venta',
+    'my_purchase_price' => 'A PRECIO DE COMPRA',
+    'my_sale_price' => 'A PRECIO DE VENTA',
     'potential_profit' => 'Utilidad',
     'apply_all' => 'Aplicar Todo',
     'hide_all_prices' => 'Ocultar todos los precios',
