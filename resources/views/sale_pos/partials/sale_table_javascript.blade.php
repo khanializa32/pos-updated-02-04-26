@@ -162,7 +162,7 @@ function update_statistics() {
 
     function get_stock_value() {
     var loader = __fa_awesome();
-    $('#closing_stock_by_sp_1').html(loader);
+    $('#closing_stock_by_pp').html(loader);
     var data = {
         location_id: $('#location_id').val(),
         category_id: $('#category_id').val(),
@@ -174,7 +174,7 @@ function update_statistics() {
         url: '/reports/get-stock-value',
         data: data,
         success: function(data) {
-            $('#closing_stock_by_sp_1').text(__currency_trans_from_en(data.closing_stock_by_sp));
+            $('#closing_stock_by_sp_1').text(__currency_trans_from_en(data.closing_stock_by_pp));
         },
     });
 }
