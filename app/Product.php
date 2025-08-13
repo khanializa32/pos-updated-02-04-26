@@ -23,6 +23,8 @@ class Product extends Model
     protected $casts = [
         'sub_unit_ids' => 'array',
         'sub_unit_prices' => 'array',
+        'sub_unit_sell_prices' => 'array',
+        'sub_unit_margins' => 'array',
     ];
 
     /**

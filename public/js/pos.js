@@ -1368,9 +1368,20 @@ $(document).ready(function() {
         var opt_price = selected_option.data('price');
         var parsed_opt = parseFloat(opt_price);
         var current_price = __read_number(tr.find('input.pos_unit_price'));
+        
+        // Debug logging
+        console.log('Selected option:', selected_option.val());
+        console.log('Option price data:', opt_price);
+        console.log('Parsed price:', parsed_opt);
+        console.log('Current price:', current_price);
+        console.log('Base unit selling price:', base_unit_selling_price);
+        console.log('Multiplier:', multiplier);
+        
         var unit_sp = (!isNaN(parsed_opt) && parsed_opt > 0)
             ? parsed_opt
             : (current_price || (base_unit_selling_price * multiplier));
+        
+        console.log('Final unit selling price:', unit_sp);
 
         var sp_element = tr.find('input.pos_unit_price');
         __write_number(sp_element, unit_sp);
@@ -1378,10 +1389,10 @@ $(document).ready(function() {
         sp_element.change();
 
         // Also update inc_tax field if exists on screen
+        var sp_inc_el = tr.find('input.pos_unit_price_inc_tax');
         var unit_sp_inc = (!isNaN(parsed_opt) && parsed_opt > 0)
             ? parsed_opt
-            : (__read_number(sp_inc_el) || (base_unit_selling_price_inc_tax * multiplier));
-        var sp_inc_el = tr.find('input.pos_unit_price_inc_tax');
+            : ((sp_inc_el.length > 0 ? __read_number(sp_inc_el) : 0) || (base_unit_selling_price_inc_tax * multiplier));
         if (sp_inc_el.length) {
             __write_number(sp_inc_el, unit_sp_inc);
             sp_inc_el.change();

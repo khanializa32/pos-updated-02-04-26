@@ -653,11 +653,13 @@ class Util
 
         //Find related subunits and any custom prices saved for the product.
         $related_sub_units = [];
-        $sub_unit_prices = [];
+        $sub_unit_sell_prices = [];
         if (! empty($product_id)) {
             $product = Product::where('business_id', $business_id)->findOrFail($product_id);
             $related_sub_units = $product->sub_unit_ids;
-            $sub_unit_prices = is_array($product->sub_unit_prices) ? $product->sub_unit_prices : [];
+            $sub_unit_sell_prices = is_array($product->sub_unit_sell_prices) ? $product->sub_unit_sell_prices : [];
+            
+
         }
 
         $sub_units = [];
@@ -669,14 +671,14 @@ class Util
                 'multiplier' => 1,
                 'allow_decimal' => $unit->allow_decimal,
                 // Optional pre-defined selling price for this unit (inc. tax)
-                'price' => $sub_unit_prices[$unit->id] ?? null,
+                'price' => $sub_unit_sell_prices[$unit->id] ?? null,
             ];
         } elseif (empty($related_sub_units) || in_array($unit->id, $related_sub_units)) {
             $sub_units[$unit->id] = [
                 'name' => $unit->actual_name,
                 'multiplier' => 1,
                 'allow_decimal' => $unit->allow_decimal,
-                'price' => $sub_unit_prices[$unit->id] ?? null,
+                'price' => $sub_unit_sell_prices[$unit->id] ?? null,
             ];
         }
 
@@ -688,11 +690,13 @@ class Util
                         'name' => $sub_unit->actual_name,
                         'multiplier' => $sub_unit->base_unit_multiplier,
                         'allow_decimal' => $sub_unit->allow_decimal,
-                        'price' => $sub_unit_prices[$sub_unit->id] ?? null,
+                        'price' => $sub_unit_sell_prices[$sub_unit->id] ?? null,
                     ];
                 }
             }
         }
+        
+
 
         return $sub_units;
     }
