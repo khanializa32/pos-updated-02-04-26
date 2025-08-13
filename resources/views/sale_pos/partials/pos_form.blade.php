@@ -67,10 +67,10 @@
 
 <div class="row">
 	@if(!empty($pos_settings['show_invoice_layout']))
-	<div class="col-md-4" >
+	<div class="col-md-3" >
 		<div class="form-group">
 		{!! Form::select('invoice_layout_id', 
-					$invoice_layouts, $default_location->invoice_layout_id, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.select_invoice_layout'), 'id' => 'invoice_layout_id']); !!}
+					$invoice_layouts, $default_location->invoice_layout_id, ['class' => 'form-control select2', 'placeholder' => __('FE'), 'id' => 'invoice_layout_id']); !!}
 		</div>
 	</div>
 	@endif
@@ -202,7 +202,7 @@
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">
 				{!! Form::select('invoice_scheme_id', $invoice_schemes, $invoice_scheme_id, 
-					['class' => 'form-control', 'placeholder' => __('lang_v1.select_invoice_scheme'), 
+					['class' => 'form-control', 'placeholder' => __('Documentos Electrónicos'), 
 					'id' => 'invoice_scheme_id']); !!}
 			</div>
 		</div>
