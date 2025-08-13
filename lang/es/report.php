@@ -65,6 +65,7 @@
      'profit_loss' => 'Informe de Utilidades',
      'opening_stock' => 'Inventario Inicial',
      'closing_stock' => 'Inventario de Cierre', /* modified */
+     'my_closing_stock' => 'Mi Inventario',/* modified */
      'total_expense' => 'Total Gastos',
      'net_profit' => 'Utilidad Neta',
      'total_stock_adjustment' => 'Ajuste total de stock',
