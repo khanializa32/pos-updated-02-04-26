@@ -135,11 +135,11 @@
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
                     <li class="active">
-                        <a href="#input_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-down" aria-hidden="true"></i> @lang('report.input_tax') ( @lang('lang_v1.purchase') )</a>
+                        <a href="#input_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-down" aria-hidden="true"></i> @lang('report.input_tax')</a>
                     </li>
 
                     <li>
-                        <a href="#output_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-up" aria-hidden="true"></i> @lang('report.output_tax')  ( @lang('sale.sells') )</a>
+                        <a href="#output_tax_tab" data-toggle="tab" aria-expanded="true"><i class="fa fas fa-arrow-circle-up" aria-hidden="true"></i> @lang('report.output_tax') </a>
                     </li>
 
                     <li>
