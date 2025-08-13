@@ -46,8 +46,8 @@
                                                 {{-- <span class="display_currency" data-currency_symbol="true">{{$data['inventory']}}</span> --}}
                                                 
                                                 
-                                                <p id="closing_stock_by_sp_1"
-                                                    class="closing_stock_by_sp_1 tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+                                                <p id="closing_stock_by_pp"
+                                                    class="closing_stock_by_pp tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
                                                 </p>
                                             </div>
                                         </div>
@@ -943,7 +943,7 @@
         });
         function get_stock_value() {
     var loader = __fa_awesome();
-    $('#closing_stock_by_sp_1').html(loader);
+    $('#closing_stock_by_pp').html(loader);
     var data = {
         location_id: $('#location_id').val(),
         category_id: $('#category_id').val(),
@@ -955,7 +955,7 @@
         url: '/reports/get-stock-value',
         data: data,
         success: function(data) {
-            $('#closing_stock_by_sp_1').text(__currency_trans_from_en(data.closing_stock_by_sp));
+            $('#closing_stock_by_pp').text(__currency_trans_from_en(data.closing_stock_by_pp));
         },
     });
 }
