@@ -102,40 +102,40 @@
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
                         <li class="active">
-                            <a href="#profit_by_products" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"
+                            <a href="#profit_by_products" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" style="font-size:18px ;color:DarkCyan"
                                     aria-hidden="true"></i> @lang('lang_v1.profit_by_products')</a>
                         </li>
 
                         <li>
-                            <a href="#profit_by_categories" data-toggle="tab" aria-expanded="true"><i class="fa fa-tags"
+                            <a href="#profit_by_categories" data-toggle="tab" aria-expanded="true"><i class="fa fa-tags" style="font-size:18px ;color:coral"
                                     aria-hidden="true"></i> @lang('lang_v1.profit_by_categories')</a>
                         </li>
 
                         <li>
-                            <a href="#profit_by_brands" data-toggle="tab" aria-expanded="true"><i class="fa fa-diamond"
+                            <a href="#profit_by_brands" data-toggle="tab" aria-expanded="true"><i class="fas fa-apple-alt" style="font-size:18px ;color:brown"
                                     aria-hidden="true"></i> @lang('lang_v1.profit_by_brands')</a>
                         </li>
 
                         <li>
                             <a href="#profit_by_locations" data-toggle="tab" aria-expanded="true"><i
-                                    class="fa fa-map-marker" aria-hidden="true"></i> @lang('lang_v1.profit_by_locations')</a>
+                                    class="fa fa-map-marker" style="font-size:18px ;color:CornflowerBlue" aria-hidden="true"></i> @lang('lang_v1.profit_by_locations')</a>
                         </li>
 
                         <li>
-                            <a href="#profit_by_invoice" data-toggle="tab" aria-expanded="true"><i class="fa fa-file-alt"
+                            <a href="#profit_by_invoice" data-toggle="tab" aria-expanded="true"><i class="fa fa-file-alt" style="font-size:18px ;color:DeepPink"
                                     aria-hidden="true"></i> @lang('lang_v1.profit_by_invoice')</a>
                         </li>
 
                         <li>
-                            <a href="#profit_by_date" data-toggle="tab" aria-expanded="true"><i class="fa fa-calendar"
+                            <a href="#profit_by_date" data-toggle="tab" aria-expanded="true"><i class="fa fa-calendar" style="font-size:18px ;color:ForestGreen"
                                     aria-hidden="true"></i> @lang('lang_v1.profit_by_date')</a>
                         </li>
                         <li>
-                            <a href="#profit_by_customer" data-toggle="tab" aria-expanded="true"><i class="fa fa-user"
+                            <a href="#profit_by_customer" data-toggle="tab" aria-expanded="true"><i class="fa fa-user" style="font-size:18px ;color:BlueViolet"
                                     aria-hidden="true"></i> @lang('lang_v1.profit_by_customer')</a>
                         </li>
                         <li>
-                            <a href="#profit_by_day" data-toggle="tab" aria-expanded="true"><i class="fa fa-calendar"
+                            <a href="#profit_by_day" data-toggle="tab" aria-expanded="true"><i class="fa fa-calendar" style="font-size:18px ;color:DarkMagenta"
                                     aria-hidden="true"></i> @lang('lang_v1.profit_by_day')</a>
                         </li>
                     </ul>
