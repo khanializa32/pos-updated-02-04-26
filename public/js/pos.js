@@ -1,6 +1,8 @@
 var global_brand_id = null;
 var global_p_category_id = null;
 var global_is_clear_local_storage = false;
+// Controls whether the next POS product insertion should go to the top
+var should_prepend_pos_row = false;
 $(document).ready(function() {
     customer_set = false;
     //Prevent enter key function except texarea
@@ -1252,11 +1254,14 @@ $(document).ready(function() {
 
     
 
+    // When clicking a product card in POS, add the row at the TOP of the cart
+    // Use a transient flag to limit behavior only to this interaction
     $(document).on('click', 'div.product_box', function() {
         //Check if location is not set then show error message.
         if ($('input#location_id').val() == '') {
             toastr.warning(LANG.select_location);
         } else {
+            should_prepend_pos_row = true;
             pos_product_row($(this).data('variation_id'));
         }
     });
@@ -1735,6 +1740,10 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             is_serial_no = true;
         }
         
+        // Capture insertion intent for this specific request and reset the global flag
+        var insertAtTop = (typeof should_prepend_pos_row !== 'undefined' && should_prepend_pos_row);
+        should_prepend_pos_row = false;
+
         $.ajax({
             method: 'GET',
             url: '/sells/pos/get_product_row/' + variation_id + '/' + location_id,
@@ -1755,14 +1764,17 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             dataType: 'json',
             success: function(result) {
                 if (result.success) {
-                    $('table#pos_table tbody')
-                        .append(result.html_content)
-                        .find('input.pos_quantity');
+                    var $tbody = $('table#pos_table tbody');
+                    if (insertAtTop) {
+                        $tbody.prepend(result.html_content).find('input.pos_quantity');
+                    } else {
+                        $tbody.append(result.html_content).find('input.pos_quantity');
+                    }
                     //increment row count
                     $('input#product_row_count').val(parseInt(product_row) + 1);
                     var this_row = $('table#pos_table tbody')
                         .find('tr')
-                        .last();
+                        [ insertAtTop ? 'first' : 'last' ]();
                     pos_each_row(this_row);
 
                     //For initial discount if present
@@ -1779,7 +1791,7 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                     if (result.enable_sr_no == '1') {
                         var new_row = $('table#pos_table tbody')
                             .find('tr')
-                            .last();
+                            [ insertAtTop ? 'first' : 'last' ]();
                         new_row.find('.row_edit_product_price_model').modal('show');
                     }
 
@@ -1794,13 +1806,17 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                     if (result.html_modifier) {
                         $('table#pos_table tbody')
                             .find('tr')
-                            .last()
+                            [ insertAtTop ? 'first' : 'last' ]()
                             .find('td:first')
                             .append(result.html_modifier);
                     }
 
-                    //scroll bottom of items list
-                    $(".pos_product_div").animate({ scrollTop: $('.pos_product_div').prop("scrollHeight")}, 1000);
+                    // Scroll cart list: top if we prepended, else bottom
+                    if (insertAtTop) {
+                        $(".pos_product_div").animate({ scrollTop: 0 }, 300);
+                    } else {
+                        $(".pos_product_div").animate({ scrollTop: $('.pos_product_div').prop("scrollHeight")}, 1000);
+                    }
                 } else {
                     toastr.error(result.msg);
                     $('input#search_product')
