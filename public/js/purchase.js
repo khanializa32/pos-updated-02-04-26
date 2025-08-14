@@ -263,6 +263,15 @@ $(document).ready(function() {
         update_grand_total();
     });
 
+    $(document).on('keyup', '.purchase_quantity', function() {
+        var row = $(this).closest('tr');
+        var quantity = __read_number($(this), true);
+
+        // Update total stock badge
+        updateTotalStockBadge(row, quantity);
+
+    });
+
     $(document).on('keyup', '.purchase_unit_cost_without_discount', function() {
         __write_number($(this), $(this).val());        
         var purchase_before_discount = __read_number($(this), true);
@@ -787,6 +796,10 @@ function append_purchase_lines(data, row_count, trigger_change = false) {
             update_row_price_for_exchange_rate(row);
 
             update_inline_profit_percentage(row);
+
+            // Update total stock badge for new rows
+            var quantity = __read_number(row.find('.purchase_quantity'), true);
+            updateTotalStockBadge(row, quantity);
 
             update_table_total();
             update_grand_total();
@@ -1370,4 +1383,58 @@ $("#purchase_requisition_ids").on("select2:unselect", function (e) {
     });
 });
 
+// Function to update total stock badge
+function updateTotalStockBadge(row, purchaseQuantity) {
+    var badge = row.find('.total-stock-badge');
+    if (badge.length > 0) {
+        var currentStock = parseFloat(badge.data('current-stock')) || 0;
+        var totalQuantity = currentStock + purchaseQuantity;
+        
+        // Update the badge text
+        badge.find('.total-quantity').text(__number_f(totalQuantity, false));
+        
+        // Change badge color based on total quantity
+        if (totalQuantity > 0) {
+            badge.css('background-color', '#28a745'); // Green for positive
+        } else {
+            badge.css('background-color', '#dc3545'); // Red for zero or negative
+        }
+        
+        // Ensure proper styling is maintained
+        badge.css({
+            'display': 'flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            'width': '60px',
+            'height': '60px',
+            'border-radius': '50%',
+            'font-weight': 'bold',
+            'font-size': '12px',
+            'min-width': '60px',
+            'max-width': '60px',
+            'text-align': 'center',
+            'line-height': '1'
+        });
+        
+        // Ensure text styling is maintained - allow text to wrap and show full quantity
+        badge.find('.total-quantity').css({
+            'display': 'block',
+            'width': '100%',
+            'text-align': 'center',
+            'word-wrap': 'break-word',
+            'hyphens': 'auto'
+        });
+    }
+}
 
+// Initialize total stock badges on page load
+$(document).ready(function() {
+    $('#purchase_entry_table tbody tr').each(function() {
+        var row = $(this);
+        var quantityInput = row.find('.purchase_quantity');
+        if (quantityInput.length > 0) {
+            var quantity = __read_number(quantityInput, true);
+            updateTotalStockBadge(row, quantity);
+        }
+    });
+});
