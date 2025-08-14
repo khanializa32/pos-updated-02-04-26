@@ -15,20 +15,10 @@
     </div>
 
     <div class="modal-body">
-        <div>
-            <strong>@lang('lang_v1.available_tags'):</strong> 
-            @include('notification_template.partials.tags', ['tags' => $tags])
-        </div>
+        
         <div class="box-group" id="accordion">
             {{-- email --}}
-            <div class="panel box box-solid">
-              <div class="box-header with-border">
-                <h4 class="box-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#email_collapse" aria-expanded="true">
-                   @lang('lang_v1.send_email')
-                  </a>
-                </h4>
-              </div>
+    
               <div id="email_collapse" class="panel-collapse collapse in" aria-expanded="true">
                 <div class="box-body">
                     @if($notification_template['template_for'] == 'send_ledger')
@@ -44,8 +34,8 @@
                     </div>
                   <div id="email_div">
                     <div class="form-group">
-                      {!! Form::label('to_email', __('lang_v1.to').':') !!} @show_tooltip(__('lang_v1.notification_email_tooltip'))
-                      {!! Form::text('to_email', $contact->email, ['class' => 'form-control' , 'placeholder' => __('lang_v1.to')]); !!}
+                      {!! Form::label('to_email', __('Para').':') !!} @show_tooltip(__('lang_v1.notification_email_tooltip'))
+                      {!! Form::text('to_email', $contact->email, ['class' => 'form-control' , 'placeholder' => __('Destinatarios')]); !!}
                     </div>
                     <div class="form-group">
                       {!! Form::label('subject', __('lang_v1.email_subject').':') !!}
@@ -55,13 +45,10 @@
                       {!! Form::label('cc', 'CC:') !!}
                       {!! Form::email('cc', $notification_template['cc'], ['class' => 'form-control' , 'placeholder' => 'CC']); !!}
                     </div>
+                    
                     <div class="form-group">
-                      {!! Form::label('bcc', 'BCC:') !!}
-                      {!! Form::email('bcc', $notification_template['bcc'], ['class' => 'form-control' , 'placeholder' => 'BCC']); !!}
-                    </div>
-                    <div class="form-group">
-                      {!! Form::label('email_body', __('lang_v1.email_body').':') !!}
-                      {!! Form::textarea('email_body', $notification_template['email_body'], ['class' => 'form-control', 'placeholder' => __('lang_v1.email_body'), 'rows' => 6]); !!}
+                      {!! Form::label('email_body', __('Escriba Un Mensaje').':') !!}
+                      {!! Form::textarea('email_body', $notification_template['email_body'], ['class' => 'form-control', 'placeholder' => __('Escriba Un Mensaje'), 'rows' => 3]); !!}
                     </div>
                     @if(config('constants.enable_download_pdf') && $notification_template['template_for'] == 'new_sale')
                         <label>
@@ -102,13 +89,13 @@
                             </div>
                           <div id="sms_div" class="hide">
                             <div class="form-group">
-                              {!! Form::label('sms_body', __('lang_v1.sms_body').':') !!}
-                              {!! Form::textarea('sms_body', $notification_template['sms_body'], ['class' => 'form-control', 'placeholder' => __('lang_v1.sms_body'), 'rows' => 6]); !!}
+                              {!! Form::label('sms_body', __('Escriba un Mensaje').':') !!}
+                              {!! Form::textarea('sms_body', $notification_template['sms_body'], ['class' => 'form-control', 'placeholder' => __('Escriba un Mensaje'), 'rows' => 3]); !!}
                             </div>
                           </div>
                           <div id="whatsapp_div" class="hide">
-                              {!! Form::label('whatsapp_text', __('lang_v1.whatsapp_text').':') !!}
-                              {!! Form::textarea('whatsapp_text', $notification_template['whatsapp_text'], ['class' => 'form-control', 'placeholder' => __('lang_v1.whatsapp_text'), 'rows' => 6]); !!}
+                              {!! Form::label('whatsapp_text', __('Escriba un Mensaje').':') !!}
+                              {!! Form::textarea('whatsapp_text', $notification_template['whatsapp_text'], ['class' => 'form-control', 'placeholder' => __('Escriba un Mensaje'), 'rows' => 3]); !!}
                           </div>
                     </div>
                   </div>
@@ -128,7 +115,7 @@
         @endif
         {!! Form::hidden('template_for', $notification_template['template_for']); !!}
         <div class="modal-footer">
-          <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white" id="send_notification_btn">@lang('lang_v1.send')</button>
+          <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black" id="send_notification_btn">@lang('lang_v1.send')</button>
           <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
         </div>
         {!! Form::close() !!}
