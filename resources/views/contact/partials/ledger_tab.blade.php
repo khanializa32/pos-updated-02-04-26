@@ -43,9 +43,9 @@
             </div>
         </div>
         <div class="col-md-2 text-right">
-            <button data-href="{{action([\App\Http\Controllers\ContactController::class, 'getLedger'])}}?contact_id={{$contact->id}}&action=pdf" class="btn btn-default btn-xs" id="print_ledger_pdf"><i class="fas fa-file-pdf"></i></button>
+            <button data-href="{{action([\App\Http\Controllers\ContactController::class, 'getLedger'])}}?contact_id={{$contact->id}}&action=pdf" class="btn btn-default btn-xs" id="print_ledger_pdf" style="font-size:20px ;color:crimson"><i class="fas fa-file-pdf"></i></button>&nbsp;&nbsp;
 
-            <button type="button" class="btn btn-default btn-xs" id="send_ledger"><i class="fas fa-envelope"></i></button>
+            <button type="button" class="btn btn-default btn-xs" id="send_ledger"><i class="fas fa-envelope" style="font-size:20px ;color:ForestGreen"></i></button>
         </div>
     </div>
     <div id="contact_ledger_div"></div>
