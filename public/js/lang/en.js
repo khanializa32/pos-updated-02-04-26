@@ -138,4 +138,10 @@ LANG = {
     'authentication_successfull': 'Authentication successfull',
     'please_enter' : 'Please enter ',
     'or_more_characters' : 'or more characters',
+    // MSP (Minimum Selling Price) confirmations
+    'cost_price_validation_error': 'Selling price cannot be less than cost price',
+    'cost_price_warning_title': 'Price warning',
+    'cost_price_warning_message': 'The selling price is less than the cost price. Are you sure you want to proceed?',
+    'cost_price_warning_accept': 'Accept',
+    'cost_price_warning_cancel': 'Cancel',
 };
