@@ -1349,21 +1349,57 @@ $(document).ready(function() {
     $('table#pos_table').on('change', 'select.sub_unit', function() {
         var tr = $(this).closest('tr');
         var base_unit_selling_price = tr.find('input.hidden_base_unit_sell_price').val();
+        var base_unit_selling_price_inc_tax = tr.find('input.hidden_base_unit_sell_price_inc_tax').val();
 
         var selected_option = $(this).find(':selected');
 
         var multiplier = parseFloat(selected_option.data('multiplier'));
+        if (!selected_option.val()) {
+            // If placeholder selected, revert to base unit behavior without altering current price
+            multiplier = 1;
+        }
 
-        var allow_decimal = parseInt(selected_option.data('allow_decimal'));
+        var allow_decimal = parseInt(selected_option.data('allow_decimal')) || 1;
 
         tr.find('input.base_unit_multiplier').val(multiplier);
 
-        var unit_sp = base_unit_selling_price * multiplier;
+        // If specific price is provided for the selected unit, use it; otherwise fallback to the current product amount in POS (keep user price),
+        // and if that's empty then use base * multiplier
+        var opt_price = selected_option.data('price');
+        var parsed_opt = parseFloat(opt_price);
+        var current_price = __read_number(tr.find('input.pos_unit_price'));
+        
+        // Debug logging
+        console.log('Selected option:', selected_option.val());
+        console.log('Option price data:', opt_price);
+        console.log('Parsed price:', parsed_opt);
+        console.log('Current price:', current_price);
+        console.log('Base unit selling price:', base_unit_selling_price);
+        console.log('Multiplier:', multiplier);
+        
+        var unit_sp = (!isNaN(parsed_opt) && parsed_opt > 0)
+            ? parsed_opt
+            : (current_price || (base_unit_selling_price * multiplier));
+        
+        console.log('Final unit selling price:', unit_sp);
 
         var sp_element = tr.find('input.pos_unit_price');
         __write_number(sp_element, unit_sp);
 
         sp_element.change();
+
+        // Also update inc_tax field if exists on screen
+        var sp_inc_el = tr.find('input.pos_unit_price_inc_tax');
+        var unit_sp_inc = (!isNaN(parsed_opt) && parsed_opt > 0)
+            ? parsed_opt
+            : ((sp_inc_el.length > 0 ? __read_number(sp_inc_el) : 0) || (base_unit_selling_price_inc_tax * multiplier));
+        if (sp_inc_el.length) {
+            __write_number(sp_inc_el, unit_sp_inc);
+            sp_inc_el.change();
+        }
+
+        // Ensure shown subtotal recalculates right after price fallback
+        sp_element.trigger('change');
 
         var qty_element = tr.find('input.pos_quantity');
         var base_max_avlbl = qty_element.data('qty_available');

@@ -450,7 +450,7 @@ class ProductController extends Controller
         }
         try {
             $business_id = $request->session()->get('user.business_id');
-            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',];
+            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'sub_unit_prices', 'sub_unit_sell_prices', 'sub_unit_margins', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',];
 
             $module_form_fields = $this->moduleUtil->getModuleFormField('product_form_fields');
             if (! empty($module_form_fields)) {
@@ -497,6 +497,38 @@ class ProductController extends Controller
             $product_details['warranty_id'] = ! empty($request->input('warranty_id')) ? $request->input('warranty_id') : null;
 
             DB::beginTransaction();
+
+            // Normalize sub_unit_prices numbers
+            if (!empty($product_details['sub_unit_prices']) && is_array($product_details['sub_unit_prices'])) {
+                $normalized_prices = [];
+                foreach ($product_details['sub_unit_prices'] as $uid => $price) {
+                    if ($price === '' || $price === null) { continue; }
+                    $normalized_prices[$uid] = $this->productUtil->num_uf($price);
+                }
+                $product_details['sub_unit_prices'] = $normalized_prices;
+            }
+
+
+
+            // Normalize sub_unit_sell_prices numbers
+            if (!empty($product_details['sub_unit_sell_prices']) && is_array($product_details['sub_unit_sell_prices'])) {
+                $normalized_sell_prices = [];
+                foreach ($product_details['sub_unit_sell_prices'] as $uid => $price) {
+                    if ($price === '' || $price === null) { continue; }
+                    $normalized_sell_prices[$uid] = $this->productUtil->num_uf($price);
+                }
+                $product_details['sub_unit_sell_prices'] = $normalized_sell_prices;
+            }
+
+            // Normalize sub_unit_margins numbers
+            if (!empty($product_details['sub_unit_margins']) && is_array($product_details['sub_unit_margins'])) {
+                $normalized_margins = [];
+                foreach ($product_details['sub_unit_margins'] as $uid => $margin) {
+                    if ($margin === '' || $margin === null) { continue; }
+                    $normalized_margins[$uid] = $this->productUtil->num_uf($margin);
+                }
+                $product_details['sub_unit_margins'] = $normalized_margins;
+            }
 
             $product = Product::create($product_details);
 
@@ -682,7 +714,7 @@ class ProductController extends Controller
 
         try {
             $business_id = $request->session()->get('user.business_id');
-            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',]);
+            $product_details = $request->only(['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'sub_unit_prices', 'sub_unit_sell_prices', 'sub_unit_margins', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',]);
 
             DB::beginTransaction();
 
@@ -732,6 +764,37 @@ class ProductController extends Controller
             $product->product_description = $product_details['product_description'];
             $product->sub_unit_ids = ! empty($product_details['sub_unit_ids']) ? $product_details['sub_unit_ids'] : null;
             $product->preparation_time_in_minutes = $product_details['preparation_time_in_minutes'];
+            // Normalize and assign sub_unit_prices
+            $sub_unit_prices = [];
+            if (!empty($product_details['sub_unit_prices']) && is_array($product_details['sub_unit_prices'])) {
+                foreach ($product_details['sub_unit_prices'] as $uid => $price) {
+                    if ($price === '' || $price === null) { continue; }
+                    $sub_unit_prices[$uid] = $this->productUtil->num_uf($price);
+                }
+            }
+            $product->sub_unit_prices = !empty($sub_unit_prices) ? $sub_unit_prices : null;
+
+
+
+            // Normalize and assign sub_unit_sell_prices
+            $sub_unit_sell_prices = [];
+            if (!empty($product_details['sub_unit_sell_prices']) && is_array($product_details['sub_unit_sell_prices'])) {
+                foreach ($product_details['sub_unit_sell_prices'] as $uid => $price) {
+                    if ($price === '' || $price === null) { continue; }
+                    $sub_unit_sell_prices[$uid] = $this->productUtil->num_uf($price);
+                }
+            }
+            $product->sub_unit_sell_prices = !empty($sub_unit_sell_prices) ? $sub_unit_sell_prices : null;
+
+            // Normalize and assign sub_unit_margins
+            $sub_unit_margins = [];
+            if (!empty($product_details['sub_unit_margins']) && is_array($product_details['sub_unit_margins'])) {
+                foreach ($product_details['sub_unit_margins'] as $uid => $price) {
+                    if ($price === '' || $price === null) { continue; }
+                    $sub_unit_margins[$uid] = $this->productUtil->num_uf($price);
+                }
+            }
+            $product->sub_unit_margins = !empty($sub_unit_margins) ? $sub_unit_margins : null;
             $product->warranty_id = ! empty($request->input('warranty_id')) ? $request->input('warranty_id') : null;
             $product->secondary_unit_id = ! empty($request->input('secondary_unit_id')) ? $request->input('secondary_unit_id') : null;
 
@@ -1462,7 +1525,7 @@ class ProductController extends Controller
         try {
             $business_id = $request->session()->get('user.business_id');
             $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'barcode_type', 'tax_type', 'sku',
-                'alert_quantity', 'type', 'sub_unit_ids', 'sub_category_id', 'weight', 'product_description', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20'];
+                'alert_quantity', 'type', 'sub_unit_ids', 'sub_unit_prices', 'sub_unit_sell_prices', 'sub_unit_margins', 'sub_category_id', 'weight', 'product_description', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20'];
 
             $module_form_fields = $this->moduleUtil->getModuleData('product_form_fields');
             if (! empty($module_form_fields)) {
