@@ -15,6 +15,7 @@
             <th>@lang('lang_v1.payment_method')</th>
             <th>@lang('sale.total_amount')</th>
             <th>@lang('sale.total_paid')</th>
+            <th>@lang('sale.utility_per_invoice')</th>
             <th>@lang('lang_v1.sell_due')</th>
             <th>@lang('lang_v1.sell_return_due')</th>
             <th>@lang('lang_v1.shipping_status')</th>
@@ -36,6 +37,7 @@
             <td class="payment_method_count"></td>
             <td class="footer_sale_total"></td>
             <td class="footer_total_paid"></td>
+            <td class="footer_total_utility"></td>
             <td class="footer_total_remaining"></td>
             <td class="footer_total_sell_return_due"></td>
             <td colspan="2"></td>

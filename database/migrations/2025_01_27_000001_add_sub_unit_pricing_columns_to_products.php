@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             // Add new columns for sub-unit pricing
-            $table->text('sub_unit_sell_prices')->nullable()->after('sub_unit_prices')->comment('JSON map of unit_id => sell_price');
+            $table->text('sub_unit_sell_prices')->nullable()->after('sub_unit_ids')->comment('JSON map of unit_id => sell_price');
             $table->text('sub_unit_margins')->nullable()->after('sub_unit_sell_prices')->comment('JSON map of unit_id => margin_percentage');
         });
     }

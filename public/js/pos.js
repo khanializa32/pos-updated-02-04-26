@@ -7,6 +7,14 @@ var global_is_clear_local_storage = false;
         var qtyInput = tr.find('input.pos_quantity');
         var unitPriceInput = tr.find('input.pos_unit_price_inc_tax, input.pos_unit_price');
         
+        // Check if a sub-unit is selected - if so, skip cost price validation
+        var sub_unit_selected = tr.find('select.sub_unit').val();
+        if (sub_unit_selected && sub_unit_selected !== '') {
+            // Remove any existing warnings for sub-unit rows
+            tr.find('.cost_price_warning').remove();
+            return;
+        }
+        
         if (unitPriceInput.length > 0 && unitPriceInput.data('cost-price')) {
             var quantity = __read_number(qtyInput);
             var unitPrice = __read_number(unitPriceInput);
@@ -981,20 +989,34 @@ $(document).ready(function() {
             var has_cost_price_violation = false;
             var cost_price_violation_rows = [];
             
+            // Clear all existing validation errors before checking
+            $('label.error').remove();
+            $('.error').removeClass('error');
+            
             // Validate minimum selling price based on MSP setting
             if ($('#enable_msp_enabled').length > 0) {
                 // When MSP is enabled, allow below-cost but require confirmation
                 $('.pos_unit_price_inc_tax, .pos_unit_price').each(function(){
                     if ($(this).data('cost-price')) {
-                        var val = __read_number($(this));
-                        var cost_price = parseFloat($(this).data('cost-price'));
-                        if (val < cost_price) {
-                            has_cost_price_violation = true;
-                            cost_price_violation_rows.push($(this).closest('tr'));
+                        var tr = $(this).closest('tr');
+                        var sub_unit_selected = tr.find('select.sub_unit').val();
+                        
+                        // Skip cost price validation if a sub-unit is selected
+                        if (sub_unit_selected && sub_unit_selected !== '') {
+                            // Clear any existing errors for sub-unit rows
+                            var error_msg_td = tr.find('.pos_line_total_text').closest('td');
+                            error_msg_td.find('label.error').remove();
+                        } else {
+                            var val = __read_number($(this));
+                            var cost_price = parseFloat($(this).data('cost-price'));
+                            if (val < cost_price) {
+                                has_cost_price_violation = true;
+                                cost_price_violation_rows.push(tr);
+                            }
+                            // Clear any inline errors
+                            var error_msg_td = tr.find('.pos_line_total_text').closest('td');
+                            error_msg_td.find('label.error').remove();
                         }
-                        // Clear any inline errors
-                        var error_msg_td = $(this).closest('tr').find('.pos_line_total_text').closest('td');
-                        error_msg_td.find('label.error').remove();
                     }
                 });
 
@@ -1024,17 +1046,27 @@ $(document).ready(function() {
                 // If MSP is disabled, enforce cost price validation
                 $('.pos_unit_price_inc_tax, .pos_unit_price').each(function(){
                     if ($(this).data('cost-price')) {
-                        var val = __read_number($(this));
-                        var cost_price = parseFloat($(this).data('cost-price'));
-                        if (val < cost_price) {
-                            is_msp_valid = false;
-                            cost_price_violation_rows.push($(this).closest('tr'));
-                            var error_msg_td = $(this).closest('tr').find('.pos_line_total_text').closest('td');
+                        var tr = $(this).closest('tr');
+                        var sub_unit_selected = tr.find('select.sub_unit').val();
+                        
+                        // Skip cost price validation if a sub-unit is selected
+                        if (sub_unit_selected && sub_unit_selected !== '') {
+                            // Clear any existing errors for sub-unit rows
+                            var error_msg_td = tr.find('.pos_line_total_text').closest('td');
                             error_msg_td.find('label.error').remove();
-                            error_msg_td.append('<label class="error">' + $(this).data('msg-min-value') + '</label>');
                         } else {
-                            var error_msg_td = $(this).closest('tr').find('.pos_line_total_text').closest('td');
-                            error_msg_td.find('label.error').remove();
+                            var val = __read_number($(this));
+                            var cost_price = parseFloat($(this).data('cost-price'));
+                            if (val < cost_price) {
+                                is_msp_valid = false;
+                                cost_price_violation_rows.push(tr);
+                                var error_msg_td = tr.find('.pos_line_total_text').closest('td');
+                                error_msg_td.find('label.error').remove();
+                                error_msg_td.append('<label class="error">' + $(this).data('msg-min-value') + '</label>');
+                            } else {
+                                var error_msg_td = tr.find('.pos_line_total_text').closest('td');
+                                error_msg_td.find('label.error').remove();
+                            }
                         }
                     }
                 });
@@ -1642,8 +1674,30 @@ $(document).ready(function() {
 
         var multiplier = parseFloat(selected_option.data('multiplier'));
         if (!selected_option.val()) {
-            // If placeholder selected, revert to base unit behavior without altering current price
+            // If placeholder selected, revert to base unit behavior and restore original price
             multiplier = 1;
+            
+            // Restore original base unit selling price
+            var sp_element = tr.find('input.pos_unit_price');
+            __write_number(sp_element, base_unit_selling_price);
+            sp_element.change();
+            
+            // Restore cost price validation rules for base unit
+            var cost_price = tr.find('input.pos_unit_price').data('cost-price');
+            if (cost_price) {
+                tr.find('input.pos_unit_price, input.pos_unit_price_inc_tax').each(function() {
+                    $(this).attr('data-rule-min-value', cost_price);
+                    $(this).attr('data-msg-min-value', LANG.cost_price_validation_error.replace(':cost_price', cost_price));
+                });
+            }
+            
+            // Update cost price data attributes to use base unit cost price
+            updateCostPriceDataAttributes(tr, selected_option);
+            
+            // Remove any cost price warnings
+            tr.find('.cost_price_warning').remove();
+            
+            return;
         }
 
         var allow_decimal = parseInt(selected_option.data('allow_decimal')) || 1;
@@ -1675,12 +1729,36 @@ $(document).ready(function() {
 
         sp_element.change();
 
-        // Check if enable_msp exists and value is 1, then validate cost price after sub-unit change
-        if ($('#enable_msp_enabled').length > 0) {
-            setTimeout(function() {
-                checkCostPriceValidation(tr);
-            }, 100);
+        // Check if sub-unit has a specific cost price
+        var sub_unit_cost_price = selected_option.data('cost-price');
+        if (sub_unit_cost_price && sub_unit_cost_price !== '') {
+            // If sub-unit has a cost price, use it for validation
+            var cost_price = parseFloat(sub_unit_cost_price);
+            tr.find('input.pos_unit_price, input.pos_unit_price_inc_tax').each(function() {
+                $(this).attr('data-rule-min-value', cost_price);
+                $(this).attr('data-msg-min-value', LANG.cost_price_validation_error.replace(':cost_price', cost_price));
+            });
+        } else {
+            // When sub-unit is selected but has no specific cost price, remove cost price validation rules to allow any price
+            tr.find('input.pos_unit_price, input.pos_unit_price_inc_tax').each(function() {
+                $(this).removeAttr('data-rule-min-value');
+                $(this).removeAttr('data-msg-min-value');
+            });
         }
+        
+        // Update cost price data attributes
+        updateCostPriceDataAttributes(tr, selected_option);
+        
+        // Remove any existing validation errors
+        tr.find('label.error').remove();
+        tr.find('.error').removeClass('error');
+        
+        // Remove any cost price warnings
+        tr.find('.cost_price_warning').remove();
+        
+        // Clear any validation errors in the line total area
+        var error_msg_td = tr.find('.pos_line_total_text').closest('td');
+        error_msg_td.find('label.error').remove();
 
         var qty_element = tr.find('input.pos_quantity');
         var base_max_avlbl = qty_element.data('qty_available');
@@ -3681,4 +3759,25 @@ function saveFormDataToLocalStorage() {
     localStorage.setItem("pos_form_data_array", JSON.stringify(formArray));
 
     // console.log("Form data successfully saved to LocalStorage.");
+}
+
+// Function to update cost price data attributes based on selected sub-unit
+function updateCostPriceDataAttributes(tr, selected_option) {
+    var sub_unit_cost_price = selected_option.data('cost-price');
+    var base_cost_price = tr.find('input.pos_unit_price').data('cost-price');
+    
+    if (sub_unit_cost_price && sub_unit_cost_price !== '') {
+        // Use sub-unit cost price
+        var cost_price = parseFloat(sub_unit_cost_price);
+        tr.find('input.pos_unit_price, input.pos_unit_price_inc_tax').each(function() {
+            $(this).attr('data-cost-price', cost_price);
+        });
+    } else {
+        // Use base unit cost price
+        if (base_cost_price) {
+            tr.find('input.pos_unit_price, input.pos_unit_price_inc_tax').each(function() {
+                $(this).attr('data-cost-price', base_cost_price);
+            });
+        }
+    }
 }

@@ -120,15 +120,21 @@ class CashRegisterController extends Controller
         $business_id = request()->session()->get('user.business_id');
 
         $register_details = $this->cashRegisterUtil->getRegisterDetails($id);
+        
+        if (!$register_details) {
+            abort(404, 'Cash register not found.');
+        }
+        
         $user_id = $register_details->user_id;
-        $open_time = $register_details['open_time'];
-        $close_time = ! empty($register_details['closed_at']) ? $register_details['closed_at'] : \Carbon::now()->toDateTimeString();
+        $open_time = $register_details->open_time;
+        $close_time = ! empty($register_details->closed_at) ? $register_details->closed_at : \Carbon::now()->toDateTimeString();
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time);
 
         $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_id);
         $backendPaymentAmount = TransactionPayment::where('method', 'cash')
             ->where('created_by', $user_id)
             ->where('method', 'cash')
+            ->whereBetween('created_at', [$open_time, $close_time])
             ->whereHas('transaction', function ($q) {
                 $q->where('type', 'sell');
             })
@@ -155,9 +161,13 @@ class CashRegisterController extends Controller
         $business_id = request()->session()->get('user.business_id');
 
         $register_details = $this->cashRegisterUtil->getRegisterDetails();
+        
+        if (!$register_details) {
+            abort(404, 'No open cash register found.');
+        }
 
         $user_id = auth()->user()->id;
-        $open_time = $register_details['open_time'];
+        $open_time = $register_details->open_time;
         $close_time = \Carbon::now()->toDateTimeString();
 
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
@@ -184,9 +194,13 @@ class CashRegisterController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         $register_details = $this->cashRegisterUtil->getRegisterDetails($id);
+        
+        if (!$register_details) {
+            abort(404, 'Cash register not found.');
+        }
 
         $user_id = $register_details->user_id;
-        $open_time = $register_details['open_time'];
+        $open_time = $register_details->open_time;
         $close_time = \Carbon::now()->toDateTimeString();
 
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
@@ -200,6 +214,7 @@ class CashRegisterController extends Controller
         $backendPaymentAmount = TransactionPayment::where('method', 'cash')
             ->where('created_by', $user_id)
             ->where('method', 'cash')
+            ->whereBetween('created_at', [$open_time, $close_time])
             ->whereHas('transaction', function ($q) {
                 $q->where('type', 'sell');
             })

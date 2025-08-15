@@ -3,7 +3,19 @@
 
     <div class="modal-header mini_print">
       <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h3 class="modal-title">@lang( 'cash_register.register_details' ) ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} -  {{\Carbon::createFromFormat('Y-m-d H:i:s', $close_time)->format('jS M, Y h:i A')}} )</h3>
+      <h3 class="modal-title">@lang( 'cash_register.register_details' ) 
+        @if($register_details->open_time)
+          ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} -  
+          @if(isset($close_time))
+            {{\Carbon::createFromFormat('Y-m-d H:i:s', $close_time)->format('jS M, Y h:i A')}}
+          @else
+            {{\Carbon::now()->format('jS M, Y h:i A')}}
+          @endif
+          )
+        @else
+          ( @lang('cash_register.register_not_opened') )
+        @endif
+      </h3>
     </div>
 
     <div class="modal-body">
