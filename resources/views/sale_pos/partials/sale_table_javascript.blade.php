@@ -174,7 +174,7 @@ function update_statistics() {
         url: '/reports/get-stock-value',
         data: data,
         success: function(data) {
-            $('#closing_stock_by_sp_1').text(__currency_trans_from_en(data.closing_stock_by_pp));
+            $('#closing_stock_by_pp').text(__currency_trans_from_en(data.closing_stock_by_pp));
         },
     });
 }
