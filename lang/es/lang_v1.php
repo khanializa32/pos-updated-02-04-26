@@ -137,7 +137,7 @@ return [
     'cash' => 'Efectivo',
     'card' => 'Tarjeta',
     'retention' => 'RETENCIONES',
-    'cheque' => 'Cheque', /* modified */
+    'cheque' => 'Nequi', /* modified */
     'bank_transfer' => 'Transferencia Bancaria',
     'other' => 'Otro',
     'payment' => 'Pago',
@@ -154,7 +154,7 @@ return [
     'month' => 'Mes',
     'year' => 'Año',
     'security_code' => 'Código de Seguridad',
-    'cheque_no' => 'Número de Cheque',
+    'cheque_no' => 'Número Nequi',
     'bank_account_number' => 'Número de Cuenta Bancaria',
     'paid' => 'Pagada',
     'due' => 'Crédito',
@@ -353,7 +353,7 @@ return [
     'purchase_payment_report' => 'Informe de Pagos de Compra',
     'paid_on' => 'Pagado en',
     'purchase' => 'Compra',
-    'cheque_no' => 'Cheque No.',
+    'cheque_no' => 'Nequi No.',
     'card_transaction_no' => 'Número de transacción de la tarjeta',
     'bank_account_no' => 'Número de Cuenta Bancaria.',
     'sell_payment_report' => 'informe de Pagos de Ventas',
