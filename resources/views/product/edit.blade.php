@@ -122,7 +122,7 @@
             </div>
 
             @if(session('business.enable_sub_units'))
-            <div class="col-sm-12">
+            <div class="col-sm-8">
               <div class="form-group">
                 {!! Form::label('sub_unit_prices', __('lang_v1.sub_unit_prices') . ':') !!}
                                  @php
@@ -459,7 +459,7 @@
 
               <button type="submit" value="save_n_add_another" class="tw-dw-btn tw-text-white tw-dw-btn-lg bg-maroon submit_product_form">@lang('lang_v1.update_n_add_another')</button>
 
-              <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-lg submit_product_form">@lang('messages.update')</button>
+              <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-lg submit_product_form">@lang('messages.update')</button>
             </div>
           </div>
         </div>
