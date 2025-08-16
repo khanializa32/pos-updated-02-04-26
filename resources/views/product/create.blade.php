@@ -113,7 +113,7 @@
             </div>
         </div>
         @if(session('business.enable_sub_units'))
-        <div class="col-sm-12">
+        <div class="col-sm-8">
             <div class="form-group">
                 {!! Form::label('sub_unit_prices', __('lang_v1.sub_unit_prices') . ':') !!}
                 <div class="row" id="sub_unit_prices_wrapper">
