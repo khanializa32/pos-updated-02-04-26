@@ -65,10 +65,18 @@
         </div>
       @endif
       
+    <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!} (Incluye la la Base)
+              {!! Form::text('closing_amount', @num_format($register_details->cash_in_hand + $backendPaymentAmount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_cash_expense), ['class' => 'form-control input_number', 'required', 'placeholder' => __( 'cash_register.total_cash' ) ]); !!}
+          </div>
+        </div>
+      
       <div class="row">
         <div class="col-xs-6">
           <b>@lang('report.user'):</b> {{ $register_details->user_name}}<br>
-          <b>@lang('business.email'):</b> {{ $register_details->email}}<br>
+          <!--<b>@lang('business.email'):</b> {{ $register_details->email}}<br>-->
           <b>@lang('business.business_location'):</b> {{ $register_details->location_name}}<br>
         </div>
         @if(!empty($register_details->closing_note))
