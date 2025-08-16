@@ -20,7 +20,7 @@
       <div class="row">
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!} (Restar la Base)
+            {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!} (Incluye la la Base)
               {!! Form::text('closing_amount', @num_format($register_details->cash_in_hand + $backendPaymentAmount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_cash_expense), ['class' => 'form-control input_number', 'required', 'placeholder' => __( 'cash_register.total_cash' ) ]); !!}
           </div>
         </div>
@@ -83,19 +83,19 @@
         </div>
       </div> 
       
-      <!- INICIO UTILIDAD DEL CIERRE-->
+      <!-- INICIO UTILIDAD DEL CIERRE-->
 {{--       
       <h3 class="text-muted mb-0">
     {{ __('Utilidad del Cierre') }}: 
     <span class="display_currency" data-currency_symbol="true">{{$data['gross_profit']}}</span>
     </h3> --}}
 
-<!- FIN UTILIDAD DEL CIERRE-->
+<!-- FIN UTILIDAD DEL CIERRE-->
 
       <div class="row">
         <div class="col-xs-6">
           <b>@lang('report.user'):</b> {{ $register_details->user_name}}<br>
-          <b>@lang('business.email'):</b> {{ $register_details->email}}<br>
+          <!--<b>@lang('business.email'):</b> {{ $register_details->email}}<br>-->
           <b>@lang('business.business_location'):</b> {{ $register_details->location_name}}<br>
         </div>
         @if(!empty($register_details->closing_note))
