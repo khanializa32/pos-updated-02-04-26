@@ -269,7 +269,7 @@
 			
 			<br>
             <select name="products[{{$row_count}}][sub_unit_id]" class="form-control input-sm sub_unit">
-                <option value="" data-multiplier="1" data-unit_name="" data-allow_decimal="1" data-cost-price="">select sub unit</option>
+                <option value="" data-multiplier="1" data-unit_name="" data-allow_decimal="1" data-cost-price="">Presentacion</option>
                 @foreach($sub_units as $key => $value)
                     <option value="{{$key}}" data-multiplier="{{$value['multiplier']}}" data-unit_name="{{$value['name']}}" data-allow_decimal="{{$value['allow_decimal']}}" data-price="{{$value['price'] ?? ''}}" data-cost-price="{{$value['cost_price'] ?? ''}}" @if(!empty($product->sub_unit_id) && $product->sub_unit_id == $key) selected @endif>
                         {{$value['name']}}
