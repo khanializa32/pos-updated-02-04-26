@@ -226,10 +226,10 @@ class ProductController extends Controller
 
                         $html .= '<li class="divider"></li>';
 
-                        if ($row->enable_stock == 1 && auth()->user()->can('product.opening_stock')) {
-                            $html .=
-                            '<li><a href="#" data-href="'.action([\App\Http\Controllers\OpeningStockController::class, 'add'], ['product_id' => $row->id]).'" class="add-opening-stock"><i class="fas fa-gavel" style=color:dodgerblue></i> '.__('lang_v1.add_edit_opening_stock').'</a></li>';
-                        }
+                        //if ($row->enable_stock == 1 && auth()->user()->can('product.opening_stock')) {
+                            //$html .=
+                            //'<li><a href="#" data-href="'.action([\App\Http\Controllers\OpeningStockController::class, 'add'], ['product_id' => $row->id]).'" class="add-opening-stock"><i class="fas fa-gavel" style=color:dodgerblue></i> '.__('lang_v1.add_edit_opening_stock').'</a></li>';
+                        //}
 
                         if (auth()->user()->can('product.view')) {
                             $html .=
