@@ -26,7 +26,7 @@
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash_expense }}</span>
         </td>
       </tr>
-      <!-- <tr>
+       <tr>
         <td>
           @lang('cash_register.checque_payment'):
         </td>
@@ -37,7 +37,7 @@
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cheque_expense }}</span>
         </td>
       </tr>
-      <tr> -->
+      <tr> 
         <td>
           @lang('cash_register.card_payment'):
         </td>
@@ -48,7 +48,7 @@
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card_expense }}</span>
         </td>
       </tr>
-      <!--  <tr>
+        <tr>
         <td>
           @lang('cash_register.bank_transfer'):
         </td>
@@ -58,7 +58,7 @@
         <td>
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_bank_transfer_expense }}</span>
         </td>
-      </tr> -->
+      </tr> 
       <tr>
         <td>
           @lang('lang_v1.advance_payment'):
@@ -161,7 +161,7 @@
           </td>
         </tr>
       @endif
-    <!--<tr>
+    <tr>
         <td>
           @lang('cash_register.other_payments'):
         </td>
@@ -171,7 +171,7 @@
         <td>
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_other_expense }}</span>
         </td>
-      </tr> -->
+      </tr>
     </table>
     <hr>
     <table class="table table-condensed">
