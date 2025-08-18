@@ -188,7 +188,7 @@
            b) @lang('cash_register.total_refund'):
          </th>
          <td>
-           <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_refund + $sellReturnRefundAmount }}</span></b>
+           <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_refund + ($modalSellReturnRefundTotal ?? 0) }}</span></b>
          </td>
        </tr>
       <tr class="">
@@ -196,7 +196,7 @@
           c) @lang('lang_v1.total_payment'):
         </th>
         <td>
-          <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund }}</span></b>
+          <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund - ($modalCashSellReturnRefund ?? 0) }}</span></b>
         </td>
       </tr>
       <tr class="">
