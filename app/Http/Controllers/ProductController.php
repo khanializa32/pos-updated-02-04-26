@@ -458,6 +458,34 @@ class ProductController extends Controller
             }
 
             $product_details = $request->only($form_fields);
+
+            // Normalize sub_unit_* numbers similar to store()
+            if (!empty($product_details['sub_unit_prices']) && is_array($product_details['sub_unit_prices'])) {
+                $normalized_prices = [];
+                foreach ($product_details['sub_unit_prices'] as $uid => $price) {
+                    if ($price === '' || $price === null) { continue; }
+                    $normalized_prices[$uid] = $this->productUtil->num_uf($price);
+                }
+                $product_details['sub_unit_prices'] = $normalized_prices;
+            }
+
+            if (!empty($product_details['sub_unit_sell_prices']) && is_array($product_details['sub_unit_sell_prices'])) {
+                $normalized_sell_prices = [];
+                foreach ($product_details['sub_unit_sell_prices'] as $uid => $price) {
+                    if ($price === '' || $price === null) { continue; }
+                    $normalized_sell_prices[$uid] = $this->productUtil->num_uf($price);
+                }
+                $product_details['sub_unit_sell_prices'] = $normalized_sell_prices;
+            }
+
+            if (!empty($product_details['sub_unit_margins']) && is_array($product_details['sub_unit_margins'])) {
+                $normalized_margins = [];
+                foreach ($product_details['sub_unit_margins'] as $uid => $margin) {
+                    if ($margin === '' || $margin === null) { continue; }
+                    $normalized_margins[$uid] = $this->productUtil->num_uf($margin);
+                }
+                $product_details['sub_unit_margins'] = $normalized_margins;
+            }
             $product_details['business_id'] = $business_id;
             $product_details['created_by'] = $request->session()->get('user.id');
 
