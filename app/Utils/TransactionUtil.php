@@ -5261,25 +5261,20 @@ class TransactionUtil extends Util
                     'transactions.is_export',
                     DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person"),
                     DB::raw("(
-                        SELECT SUM(
-                            IF(tspl2.id IS NULL AND p2.type='combo',
-                                (SELECT SUM((tspl3.quantity - tspl3.qty_returned) * (tsl2.unit_price_inc_tax - pl3.purchase_price_inc_tax))
-                                    FROM transaction_sell_lines AS tsl2
-                                    JOIN transaction_sell_lines_purchase_lines AS tspl3 ON tsl2.id=tspl3.sell_line_id
-                                    JOIN purchase_lines AS pl3 ON tspl3.purchase_line_id = pl3.id
-                                    WHERE tsl2.parent_sell_line_id = tsl.id
-                                ),
-                                IF(p2.enable_stock=0,
-                                    (tsl.quantity - tsl.quantity_returned) * tsl.unit_price_inc_tax,
-                                    (tspl2.quantity - tspl2.qty_returned) * (tsl.unit_price_inc_tax - pl2.purchase_price_inc_tax)
-                                )
-                            )
-                        )
-                        FROM transaction_sell_lines AS tsl
-                        LEFT JOIN transaction_sell_lines_purchase_lines AS tspl2 ON tsl.id = tspl2.sell_line_id
-                        LEFT JOIN purchase_lines AS pl2 ON tspl2.purchase_line_id = pl2.id
-                        JOIN products AS p2 ON tsl.product_id = p2.id
-                        WHERE tsl.transaction_id = transactions.id AND tsl.children_type != 'combo'
+                        COALESCE((
+                            SELECT SUM( (tsl_rev.quantity - tsl_rev.quantity_returned) * tsl_rev.unit_price_inc_tax )
+                            FROM transaction_sell_lines AS tsl_rev
+                            WHERE tsl_rev.transaction_id = transactions.id AND tsl_rev.children_type != 'combo'
+                        ), 0)
+                        -
+                        COALESCE((
+                            SELECT SUM( (tspl_cogs.quantity - tspl_cogs.qty_returned) * pl_cogs.purchase_price_inc_tax )
+                            FROM transaction_sell_lines AS tsl_cogs
+                            JOIN transaction_sell_lines_purchase_lines AS tspl_cogs ON tsl_cogs.id = tspl_cogs.sell_line_id
+                            JOIN purchase_lines AS pl_cogs ON tspl_cogs.purchase_line_id = pl_cogs.id
+                            JOIN products AS p_cogs ON tsl_cogs.product_id = p_cogs.id
+                            WHERE tsl_cogs.transaction_id = transactions.id AND p_cogs.enable_stock = 1
+                        ), 0)
                     ) as utility")
                 );
 
@@ -5391,6 +5386,65 @@ class TransactionUtil extends Util
         }
 
         return $sells;
+    }
+
+    /**
+     * Calculate transaction profit (utility) with sub-unit awareness.
+     * If a sell line uses a sub unit and the product defines a purchase price for that sub unit,
+     * use that sub-unit purchase price. Otherwise, fall back to mapped purchase line costs.
+     * Revenue is always computed from sell line unit_price_inc_tax.
+     */
+    public function calculateTransactionProfitUsingSubUnits(int $transaction_id): float
+    {
+        $lines = \App\TransactionSellLine::with(['product', 'sub_unit'])
+            ->where('transaction_id', $transaction_id)
+            ->where('children_type', '!=', 'combo')
+            ->get();
+
+        $revenue = 0.0;
+        $cost = 0.0;
+
+        foreach ($lines as $line) {
+            $qty_sold = (float) ($line->quantity - $line->quantity_returned);
+            $revenue += $qty_sold * (float) $line->unit_price_inc_tax;
+
+            $line_cost = 0.0;
+
+            $product = $line->product;
+            $sub_unit_id = $line->sub_unit_id;
+
+            $has_subunit_price = false;
+            if ($sub_unit_id && $product && is_array($product->sub_unit_prices)) {
+                $has_subunit_price = array_key_exists($sub_unit_id, $product->sub_unit_prices)
+                    && $product->sub_unit_prices[$sub_unit_id] !== null
+                    && $product->sub_unit_prices[$sub_unit_id] !== '';
+            }
+
+            if ($has_subunit_price) {
+                $multiplier = 1.0;
+                if ($line->relationLoaded('sub_unit') && $line->sub_unit) {
+                    $multiplier = (float) ($line->sub_unit->base_unit_multiplier ?: 1);
+                }
+                if ($multiplier <= 0) {
+                    $multiplier = 1.0;
+                }
+                $num_subunits = $qty_sold / $multiplier;
+                $purchase_price_per_subunit = (float) $product->sub_unit_prices[$sub_unit_id];
+                $line_cost = $num_subunits * $purchase_price_per_subunit;
+            } else {
+                // Fallback to purchase mapping cost
+                $mapped = \App\TransactionSellLinesPurchaseLines::where('sell_line_id', $line->id)
+                    ->join('purchase_lines as pl', 'pl.id', '=', 'transaction_sell_lines_purchase_lines.purchase_line_id')
+                    ->get(['transaction_sell_lines_purchase_lines.quantity as q', 'transaction_sell_lines_purchase_lines.qty_returned as qr', 'pl.purchase_price_inc_tax as cogs']);
+                foreach ($mapped as $m) {
+                    $line_cost += ((float) $m->q - (float) $m->qr) * (float) $m->cogs;
+                }
+            }
+
+            $cost += $line_cost;
+        }
+
+        return $revenue - $cost;
     }
 
     /**
