@@ -48,7 +48,7 @@
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card_expense }}</span>
         </td>
       </tr>
-      <tr>
+        <tr>
         <td>
           @lang('cash_register.bank_transfer'):
         </td>
@@ -171,7 +171,7 @@
         <td>
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_other_expense }}</span>
         </td>
-      </tr> 
+      </tr>
     </table>
     <hr>
     <table class="table table-condensed">
@@ -183,46 +183,20 @@
           <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_sale }}</span>
         </td>
       </tr>
-      <tr class="">
-        <th>
-          b) @lang('cash_register.total_refund'):
-        </th>
-        <td>
-          <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_refund }}</span></b><br>
-          <small>
-          @if($register_details->total_cash_refund != 0)
-            Efectivo: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cash_refund }}</span><br>
-          @endif
-          @if($register_details->total_cheque_refund != 0) 
-            Cheque: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_cheque_refund }}</span><br>
-          @endif
-          @if($register_details->total_card_refund != 0) 
-            Tarjetas: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_card_refund }}</span><br> 
-          @endif
-          @if($register_details->total_bank_transfer_refund != 0)
-            Bank Transfer: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_bank_transfer_refund }}</span><br>
-          @endif
-          @if(array_key_exists('custom_pay_1', $payment_types) && $register_details->total_custom_pay_1_refund != 0)
-              {{$payment_types['custom_pay_1']}}: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_custom_pay_1_refund }}</span>
-          @endif
-          @if(array_key_exists('custom_pay_2', $payment_types) && $register_details->total_custom_pay_2_refund != 0)
-              {{$payment_types['custom_pay_2']}}: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_custom_pay_2_refund }}</span>
-          @endif
-          @if(array_key_exists('custom_pay_3', $payment_types) && $register_details->total_custom_pay_3_refund != 0)
-              {{$payment_types['custom_pay_3']}}: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_custom_pay_3_refund }}</span>
-          @endif
-          @if($register_details->total_other_refund != 0)
-            Other: <span class="display_currency" data-currency_symbol="true">{{ $register_details->total_other_refund }}</span>
-          @endif
-          </small>
-        </td>
-      </tr>
+             <tr class="">
+         <th>
+           b) @lang('cash_register.total_refund'):
+         </th>
+         <td>
+           <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_refund + ($modalSellReturnRefundTotal ?? 0) }}</span></b>
+         </td>
+       </tr>
       <tr class="">
         <th>
           c) @lang('lang_v1.total_payment'):
         </th>
         <td>
-          <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund }}</span></b>
+          <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->cash_in_hand + $register_details->total_cash - $register_details->total_cash_refund - ($modalCashSellReturnRefund ?? 0) }}</span></b>
         </td>
       </tr>
       <tr class="">

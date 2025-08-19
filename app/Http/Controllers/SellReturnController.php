@@ -361,7 +361,17 @@ class SellReturnController extends Controller
                 $user_id = $request->session()->get('user.id');
 
                 $transactions = Transaction::where('business_id',$business_id)->find($input['transaction_id']);
+                
+                if (!$transactions) {
+                    throw new \Exception('Transaction not found');
+                }
+                
                 $invoice_scheme_parent = InvoiceScheme::where('business_id',$business_id)->find($transactions->invoice_scheme_id);
+                
+                if (!$invoice_scheme_parent) {
+                    throw new \Exception('Invoice scheme parent not found');
+                }
+                
                 $invoice_scheme = null;
 
                 DB::beginTransaction();
@@ -371,6 +381,11 @@ class SellReturnController extends Controller
                 }else if($invoice_scheme_parent->type_document_id == 15)
                 {
                     $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',26)->first();
+                }
+                
+                // If no specific invoice scheme found, use the parent one
+                if (!$invoice_scheme) {
+                    $invoice_scheme = $invoice_scheme_parent;
                 }
                 
                 $sell_return = $this->transactionUtil->addSellReturn($input, $business_id, $user_id,true, $invoice_scheme->id);
