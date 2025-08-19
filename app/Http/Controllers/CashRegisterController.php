@@ -165,9 +165,23 @@ class CashRegisterController extends Controller
                 $q->where('cash_register_id', $id);
             })
             ->sum('amount');
+        
+        // Refunds by method done from modal (not recorded to register)
+        $modalRefundsByMethod = TransactionPayment::selectRaw('method, SUM(amount) as total')
+            ->where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->groupBy('method')
+            ->pluck('total', 'method')
+            ->toArray();
             
         return view('cash_register.register_details')
-                    ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund', 'modalRefundsByMethod'));
     }
 
     /**
@@ -223,8 +237,22 @@ class CashRegisterController extends Controller
             })
             ->sum('amount');
 
+        // Refunds by method done from modal (not recorded to register)
+        $modalRefundsByMethod = TransactionPayment::selectRaw('method, SUM(amount) as total')
+            ->where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($register_details) {
+                $q->where('cash_register_id', $register_details->id);
+            })
+            ->groupBy('method')
+            ->pluck('total', 'method')
+            ->toArray();
+
         return view('cash_register.register_details')
-                ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund'));
+                ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund', 'modalRefundsByMethod'));
     }
 
     /**
@@ -292,9 +320,23 @@ class CashRegisterController extends Controller
                 $q->where('cash_register_id', $id);
             })
             ->sum('amount');
+        
+        // Refunds by method done from modal (not recorded to register)
+        $modalRefundsByMethod = TransactionPayment::selectRaw('method, SUM(amount) as total')
+            ->where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->groupBy('method')
+            ->pluck('total', 'method')
+            ->toArray();
             
         return view('cash_register.close_register_modal')
-                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund', 'modalRefundsByMethod'));
     }
 
     /**

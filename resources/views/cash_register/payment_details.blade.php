@@ -191,6 +191,61 @@
            <b><span class="display_currency" data-currency_symbol="true">{{ $register_details->total_refund + ($modalSellReturnRefundTotal ?? 0) }}</span></b>
          </td>
        </tr>
+       <tr>
+         <td></td>
+         <td>
+           <small>
+           @php($cash_refund_total = $register_details->total_cash_refund + ($modalRefundsByMethod['cash'] ?? 0))
+           @if($cash_refund_total != 0)
+             Efectivo: <span class="display_currency" data-currency_symbol="true">{{ $cash_refund_total }}</span><br>
+           @endif
+           @php($cheque_refund_total = $register_details->total_cheque_refund + ($modalRefundsByMethod['cheque'] ?? 0))
+           @if($cheque_refund_total != 0) 
+             Cheque: <span class="display_currency" data-currency_symbol="true">{{ $cheque_refund_total }}</span><br>
+           @endif
+           @php($card_refund_total = $register_details->total_card_refund + ($modalRefundsByMethod['card'] ?? 0))
+           @if($card_refund_total != 0) 
+             Tarjetas: <span class="display_currency" data-currency_symbol="true">{{ $card_refund_total }}</span><br> 
+           @endif
+           @php($bt_refund_total = $register_details->total_bank_transfer_refund + ($modalRefundsByMethod['bank_transfer'] ?? 0))
+           @if($bt_refund_total != 0)
+             Bank Transfer: <span class="display_currency" data-currency_symbol="true">{{ $bt_refund_total }}</span><br>
+           @endif
+           @php($cp1_refund_total = $register_details->total_custom_pay_1_refund + ($modalRefundsByMethod['custom_pay_1'] ?? 0))
+           @if(array_key_exists('custom_pay_1', $payment_types) && $cp1_refund_total != 0)
+               {{$payment_types['custom_pay_1']}}: <span class="display_currency" data-currency_symbol="true">{{ $cp1_refund_total }}</span><br>
+           @endif
+           @php($cp2_refund_total = $register_details->total_custom_pay_2_refund + ($modalRefundsByMethod['custom_pay_2'] ?? 0))
+           @if(array_key_exists('custom_pay_2', $payment_types) && $cp2_refund_total != 0)
+               {{$payment_types['custom_pay_2']}}: <span class="display_currency" data-currency_symbol="true">{{ $cp2_refund_total }}</span><br>
+           @endif
+           @php($cp3_refund_total = $register_details->total_custom_pay_3_refund + ($modalRefundsByMethod['custom_pay_3'] ?? 0))
+           @if(array_key_exists('custom_pay_3', $payment_types) && $cp3_refund_total != 0)
+               {{$payment_types['custom_pay_3']}}: <span class="display_currency" data-currency_symbol="true">{{ $cp3_refund_total }}</span><br>
+           @endif
+           @php($cp4_refund_total = $register_details->total_custom_pay_4_refund + ($modalRefundsByMethod['custom_pay_4'] ?? 0))
+           @if(array_key_exists('custom_pay_4', $payment_types) && $cp4_refund_total != 0)
+               {{$payment_types['custom_pay_4']}}: <span class="display_currency" data-currency_symbol="true">{{ $cp4_refund_total }}</span><br>
+           @endif
+           @php($cp5_refund_total = $register_details->total_custom_pay_5_refund + ($modalRefundsByMethod['custom_pay_5'] ?? 0))
+           @if(array_key_exists('custom_pay_5', $payment_types) && $cp5_refund_total != 0)
+               {{$payment_types['custom_pay_5']}}: <span class="display_currency" data-currency_symbol="true">{{ $cp5_refund_total }}</span><br>
+           @endif
+           @php($cp6_refund_total = $register_details->total_custom_pay_6_refund + ($modalRefundsByMethod['custom_pay_6'] ?? 0))
+           @if(array_key_exists('custom_pay_6', $payment_types) && $cp6_refund_total != 0)
+               {{$payment_types['custom_pay_6']}}: <span class="display_currency" data-currency_symbol="true">{{ $cp6_refund_total }}</span><br>
+           @endif
+           @php($cp7_refund_total = $register_details->total_custom_pay_7_refund + ($modalRefundsByMethod['custom_pay_7'] ?? 0))
+           @if(array_key_exists('custom_pay_7', $payment_types) && $cp7_refund_total != 0)
+               {{$payment_types['custom_pay_7']}}: <span class="display_currency" data-currency_symbol="true">{{ $cp7_refund_total }}</span><br>
+           @endif
+           @php($other_refund_total = $register_details->total_other_refund + ($modalRefundsByMethod['other'] ?? 0))
+           @if($other_refund_total != 0)
+             Other: <span class="display_currency" data-currency_symbol="true">{{ $other_refund_total }}</span>
+           @endif
+           </small>
+         </td>
+       </tr>
       <tr class="">
         <th>
           c) @lang('lang_v1.total_payment'):
