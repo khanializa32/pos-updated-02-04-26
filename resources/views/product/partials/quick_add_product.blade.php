@@ -43,9 +43,31 @@
           <div class="form-group">
             {!! Form::label('sub_unit_ids', __('lang_v1.related_sub_units') . ':') !!} @show_tooltip(__('lang_v1.sub_units_tooltip'))
 
-            {!! Form::select('sub_unit_ids[]', [], null, ['class' => 'form-control select2', 'multiple', 'id' => 'sub_unit_ids']); !!}
+            {!! Form::select(
+                'sub_unit_ids[]',
+                [],
+                null,
+                [
+                    'class' => 'form-control select2',
+                    'multiple',
+                    'id' => 'sub_unit_ids',
+                    'data-get-sub-units-url' => action([\App\Http\Controllers\ProductController::class, 'getSubUnits'])
+                ]
+            ); !!}
           </div>
         </div>
+
+        @if(session('business.enable_sub_units'))
+        <div class="col-sm-12">
+          <div class="form-group">
+            {!! Form::label('sub_unit_prices', __('lang_v1.sub_unit_prices') . ':') !!}
+            <div class="row" id="sub_unit_prices_wrapper">
+              <!-- Will be populated by JS when sub units are loaded -->
+            </div>
+            <small class="help-block">@lang('lang_v1.enter_price_for_each_selected_unit')</small>
+          </div>
+        </div>
+        @endif
 
         <!--<div class="col-sm-4">
           <div class="form-group">
@@ -242,6 +264,11 @@
 
 <script type="text/javascript">
   $(document).ready(function(){
+    // Ensure product.js behaviors are available for dynamic sub-unit pricing
+    if (typeof window.toggle_dsp_input === 'undefined') {
+      $.getScript("{{ asset('js/product.js?v=' . $asset_v) }}");
+    }
+
     $("form#quick_add_product_form").validate({
       rules: {
           sku: {
