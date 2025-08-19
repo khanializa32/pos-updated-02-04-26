@@ -327,13 +327,35 @@ class AdminSidebarMenu
                     function ($sub) use ($enabled_modules, $is_admin, $pos_settings) {
                        
 
-                        if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
-                            $sub->url(
-                                action([\App\Http\Controllers\SellController::class, 'index']),
-                                __('Facturas Electrónicas'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
-                            );
+                        //if ($is_admin || auth()->user()->hasAnyPermission(['sell.view', 'sell.create', 'direct_sell.access', 'direct_sell.view', 'view_own_sell_only', 'view_commission_agent_sell', 'access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\SellController::class, 'index']),
+                                //__('Facturas Electrónicas'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'sells' && request()->segment(2) == null]
+                            //);
+                        //}
+                        
+                         if (auth()->user()->can('sell.create')) {
+                            if (in_array('pos_sale', $enabled_modules)) {
+                                if (auth()->user()->can('sell.view')) {
+                                    $sub->url(
+                                        action([\App\Http\Controllers\SellPosController::class, 'index']),
+                                        __('Transacciones'),
+                                        ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == null]
+                                    );
+                                }
+
+                                $sub->url(
+                                    action([\App\Http\Controllers\SellPosController::class, 'create']),
+                                    __('Ir al POS'),
+                                    ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == 'create']
+                                );
+                            }
                         }
+                        
+
+
+                        
                         //if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
                             //$sub->url(
                                 //action([\App\Http\Controllers\SellController::class, 'create']),
@@ -351,23 +373,7 @@ class AdminSidebarMenu
                         }
 
                         
-                        if (auth()->user()->can('sell.create')) {
-                            if (in_array('pos_sale', $enabled_modules)) {
-                                if (auth()->user()->can('sell.view')) {
-                                    $sub->url(
-                                        action([\App\Http\Controllers\SellPosController::class, 'index']),
-                                        __('POS Electrónico'),
-                                        ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == null]
-                                    );
-                                }
-
-                                $sub->url(
-                                    action([\App\Http\Controllers\SellPosController::class, 'create']),
-                                    __('sale.pos_sale'),
-                                    ['icon' => '', 'active' => request()->segment(1) == 'pos' && request()->segment(2) == 'create']
-                                );
-                            }
-                        }
+                       
                          if (auth()->user()->can('invoice_settings.access')) {
                             $sub->url(
                                 action([\App\Http\Controllers\CashRegisterInformationController::class, 'index']),
@@ -503,12 +509,12 @@ class AdminSidebarMenu
             //stock adjustment dropdown
             if (in_array('stock_adjustment', $enabled_modules) && (auth()->user()->can('purchase.view') || auth()->user()->can('purchase.create') || auth()->user()->can('view_own_purchase'))) {
                 $menu->dropdown(
-                    __('stock_adjustment.stock_adjustment'),
+                    __('Ajustes'),
                     function ($sub) {
                         if (auth()->user()->can('purchase.view')  || auth()->user()->can('view_own_purchase')) {
                             $sub->url(
                                 action([\App\Http\Controllers\StockAdjustmentController::class, 'index']),
-                                __('Ajustes'),
+                                __('Ajustes de Productos'),
                                 ['icon' => '', 'active' => request()->segment(1) == 'stock-adjustments' && request()->segment(2) == null]
                             );
                         }
@@ -838,15 +844,15 @@ class AdminSidebarMenu
             }
 
             //Backup menu
-            if (auth()->user()->can('backup')) {
-                $menu->url(action([\App\Http\Controllers\BackUpController::class, 'index']), __('lang_v1.backup'), ['icon' => '<svg aria-hidden="true" class="tw-size-5 tw-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="deeppink" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M12 18.004h-5.343c-2.572 -.004 -4.657 -2.011 -4.657 -4.487c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.38 0 2.57 .811 3.128 1.986"></path>
-                <path d="M19 22v-6"></path>
-                <path d="M22 19l-3 -3l-3 3"></path>
-              </svg>', 'active' => request()->segment(1) == 'backup'])->order(60);
-            }
+            //if (auth()->user()->can('backup')) {
+                //$menu->url(action([\App\Http\Controllers\BackUpController::class, 'index']), __('lang_v1.backup'), ['icon' => '<svg aria-hidden="true" class="tw-size-5 tw-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="deeppink" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                //<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                //<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                //<path d="M12 18.004h-5.343c-2.572 -.004 -4.657 -2.011 -4.657 -4.487c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.38 0 2.57 .811 3.128 1.986"></path>
+                //<path d="M19 22v-6"></path>
+                //<path d="M22 19l-3 -3l-3 3"></path>
+              //</svg>', 'active' => request()->segment(1) == 'backup'])->order(60);
+            //}
 
             //Modules menu
             if (auth()->user()->can('manage_modules')) {
@@ -875,14 +881,14 @@ class AdminSidebarMenu
             }
 
             //Notification template menu
-            if (auth()->user()->can('send_notifications')) {
-                $menu->url(action([\App\Http\Controllers\NotificationTemplateController::class, 'index']), __('lang_v1.notification_templates'), ['icon' => '<svg aria-hidden="true" class="tw-size-5 tw-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="darkviolet" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path>
-                    <path d="M3 7l9 6l9 -6"></path>
-                  </svg>', 'active' => request()->segment(1) == 'notification-templates'])->order(80);
-            }
+            //if (auth()->user()->can('send_notifications')) {
+                //$menu->url(action([\App\Http\Controllers\NotificationTemplateController::class, 'index']), __('lang_v1.notification_templates'), ['icon' => '<svg aria-hidden="true" class="tw-size-5 tw-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="darkviolet" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    //<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    //<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    //<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path>
+                    //<path d="M3 7l9 6l9 -6"></path>
+                  //</svg>', 'active' => request()->segment(1) == 'notification-templates'])->order(80);
+            //}
 
             //Settings Dropdown
             if (auth()->user()->can('business_settings.access') ||
@@ -914,20 +920,20 @@ class AdminSidebarMenu
                             );
                         }
                        
-                        if (auth()->user()->can('barcode_settings.access')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\BarcodeController::class, 'index']),
-                                __('Cod. de Barras'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'barcodes']
-                            );
-                        }
-                        if (auth()->user()->can('access_printers')) {
-                            $sub->url(
-                                action([\App\Http\Controllers\PrinterController::class, 'index']),
-                                __('Impresoras'),
-                                ['icon' => '', 'active' => request()->segment(1) == 'printers']
-                            );
-                        }
+                        //if (auth()->user()->can('barcode_settings.access')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\BarcodeController::class, 'index']),
+                                //__('Cod. de Barras'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'barcodes']
+                            //);
+                        //}
+                        //if (auth()->user()->can('access_printers')) {
+                            //$sub->url(
+                                //action([\App\Http\Controllers\PrinterController::class, 'index']),
+                                //__('Impresoras'),
+                                //['icon' => '', 'active' => request()->segment(1) == 'printers']
+                            //);
+                        //}
 
                         
 

@@ -239,12 +239,29 @@ class SellReturnController extends Controller
             $sell->sell_lines[$key]->formatted_qty = $this->transactionUtil->num_f($value->quantity, false, null, true);
         }
 
-        $response_invoice = UtilsDianService::send_credit_note(
-            $business_id, 
-            $sell->contact_id,  
-            $invoice_parent,
-            $sell
-        );
+        // dd($invoice_parent);
+
+        $invoice_scheme_parent = InvoiceScheme::where('business_id',$business_id)->find($invoice_parent->invoice_scheme_id);
+        // dd($invoice_scheme_parent);
+        if($invoice_scheme_parent->type_document_id == 1)
+        {
+            $response_invoice = UtilsDianService::send_credit_note(
+                $business_id, 
+                $sell->contact_id,  
+                $invoice_parent,
+                $sell
+            );
+        }else if($invoice_scheme_parent->type_document_id == 15)
+        {
+            $response_invoice = UtilsDianService::send_credit_note_eqdocs(
+                $business_id, 
+                $sell->contact_id,  
+                $invoice_parent,
+                $sell
+            );
+        }
+
+        
         $output = ['success' => 1,
                     'msg' =>$response_invoice['msg'],
                     'redirect' =>action([\App\Http\Controllers\SellReturnController::class, 'index'])
@@ -331,6 +348,8 @@ class SellReturnController extends Controller
         try {
             $input = $request->except('_token');
 
+            // dd($input);
+
             if (! empty($input['products'])) {
                 $business_id = $request->session()->get('user.business_id');
 
@@ -341,8 +360,34 @@ class SellReturnController extends Controller
 
                 $user_id = $request->session()->get('user.id');
 
+                $transactions = Transaction::where('business_id',$business_id)->find($input['transaction_id']);
+                
+                if (!$transactions) {
+                    throw new \Exception('Transaction not found');
+                }
+                
+                $invoice_scheme_parent = InvoiceScheme::where('business_id',$business_id)->find($transactions->invoice_scheme_id);
+                
+                if (!$invoice_scheme_parent) {
+                    throw new \Exception('Invoice scheme parent not found');
+                }
+                
+                $invoice_scheme = null;
+
                 DB::beginTransaction();
-                $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',4)->first();
+                if($invoice_scheme_parent->type_document_id == 1)
+                {
+                    $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',4)->first();
+                }else if($invoice_scheme_parent->type_document_id == 15)
+                {
+                    $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',26)->first();
+                }
+                
+                // If no specific invoice scheme found, use the parent one
+                if (!$invoice_scheme) {
+                    $invoice_scheme = $invoice_scheme_parent;
+                }
+                
                 $sell_return = $this->transactionUtil->addSellReturn($input, $business_id, $user_id,true, $invoice_scheme->id);
 
                 $receipt = $this->receiptContent($business_id, $sell_return->location_id, $sell_return->id);

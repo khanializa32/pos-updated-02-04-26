@@ -97,8 +97,8 @@
             @component('components.widget', ['class' => 'box-solid'])
             <table class="table no-border">
                 <tr>
-                    <td>@lang('report.closing_stock') (@lang('lang_v1.by_purchase_price'))</td>
-                    <td>@lang('report.closing_stock') (@lang('lang_v1.by_sale_price'))</td>
+                    <td>@lang('report.my_closing_stock') (@lang('lang_v1.my_purchase_price'))</td>
+                    <td>@lang('report.my_closing_stock') (@lang('lang_v1.my_purchase_price'))</td>
                     <td>@lang('lang_v1.potential_profit')</td>
                     <td>@lang('lang_v1.profit_margin')</td>
                 </tr>

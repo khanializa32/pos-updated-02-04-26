@@ -82,6 +82,7 @@ sell_table = $('#sell_table').DataTable({
             { data: 'payment_methods', orderable: false, "searchable": false},
             { data: 'final_total', name: 'final_total'},
             { data: 'total_paid', name: 'total_paid', "searchable": false},
+            { data: 'utility', name: 'utility', orderable: false, searchable: false},
             { data: 'total_remaining', name: 'total_remaining'},
             { data: 'return_due', orderable: false, "searchable": false},
             { data: 'shipping_status', name: 'shipping_status'},
@@ -103,17 +104,20 @@ sell_table = $('#sell_table').DataTable({
             var footer_total_paid = 0;
             var footer_total_remaining = 0;
             var footer_total_sell_return_due = 0;
+            var footer_total_utility = 0;
             for (var r in data){
                 footer_sale_total += $(data[r].final_total).data('orig-value') ? parseFloat($(data[r].final_total).data('orig-value')) : 0;
                 footer_total_paid += $(data[r].total_paid).data('orig-value') ? parseFloat($(data[r].total_paid).data('orig-value')) : 0;
                 footer_total_remaining += $(data[r].total_remaining).data('orig-value') ? parseFloat($(data[r].total_remaining).data('orig-value')) : 0;
                 footer_total_sell_return_due += $(data[r].return_due).find('.sell_return_due').data('orig-value') ? parseFloat($(data[r].return_due).find('.sell_return_due').data('orig-value')) : 0;
+                footer_total_utility += $(data[r].utility).data('orig-value') ? parseFloat($(data[r].utility).data('orig-value')) : 0;
             }
 
             $('.footer_total_sell_return_due').html(__currency_trans_from_en(footer_total_sell_return_due));
             $('.footer_total_remaining').html(__currency_trans_from_en(footer_total_remaining));
             $('.footer_total_paid').html(__currency_trans_from_en(footer_total_paid));
             $('.footer_sale_total').html(__currency_trans_from_en(footer_sale_total));
+            $('.footer_total_utility').html(__currency_trans_from_en(footer_total_utility));
 
             $('.footer_payment_status_count').html(__count_status(data, 'payment_status'));
             $('.service_type_count').html(__count_status(data, 'types_of_service_name'));

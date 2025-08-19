@@ -626,7 +626,14 @@ class SellController extends Controller
                         }
                     }, ])
                 ->addColumn('utility', function ($row) {
-                    return '<span class="display_currency" data-currency_symbol="true">' . ($row->utility ?? 0) . '</span>';
+                    // Prefer sub-unit aware calculation; fall back to precomputed utility if needed
+                    try {
+                        $profit = app(\App\Utils\TransactionUtil::class)->calculateTransactionProfitUsingSubUnits($row->id);
+                    } catch (\Throwable $e) {
+                        \Log::warning('Utility calc failed for transaction '.$row->id.' error: '.$e->getMessage());
+                        $profit = $row->utility ?? 0;
+                    }
+                    return '<span class="display_currency" data-currency_symbol="true" data-orig-value="' . ($profit ?? 0) . '">' . ($profit ?? 0) . '</span>';
                 });
             $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid', 'utility'];
 

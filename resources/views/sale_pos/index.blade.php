@@ -1,11 +1,11 @@
 @extends('layouts.app')
-@section('title', __( 'sale.list_pos'))
+@section('title', __( 'Transacciones'))
 
 @section('content')
 
 <!-- Content Header (Page header) -->
 <section class="content-header no-print">
-    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.pos_sale')
+    <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('Transacciones')
     &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube' id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
      
       </h4>
@@ -39,7 +39,7 @@
                                             <div class="tw-flex-1 tw-min-w-0">
                                                 <p
                                                     class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
-                                                    {{ __('home.total_sell') }}
+                                                    {{ __('Ingresos') }}
                                                 </p>
                                                 
                                                 {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
@@ -222,15 +222,15 @@
         @can('sell.create')
             @slot('tool')
                 <div class="box-tools">
-                    <a class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-rounded-full pull-right"
-                            href="{{action([\App\Http\Controllers\SellPosController::class, 'create'])}}">
+                        <a class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-rounded-full pull-right"
+                            href="{{ action([\App\Http\Controllers\SellController::class, 'create']) }}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
                                         viewBox="0 0 20 20" fill="none" stroke="red" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M12 5l0 14" />
                                             <path d="M5 12l14 0" />
-                                        </svg> @lang('Ir al POS')
+                                        </svg> @lang('Crear Docuemnto Electrónico')
                         </a>
                 </div>
             @endslot

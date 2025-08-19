@@ -1,6 +1,42 @@
 @extends('layouts.app')
 @section('title', __('product.add_new_product'))
 
+@section('css')
+<style>
+.sub-unit-price-input {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+}
+
+.sub-unit-price-input h5 {
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 8px;
+}
+
+.sub-unit-price-input label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.sub-unit-price-input .form-control {
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.sub-unit-price-input .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+</style>
+@endsection
+
 @section('content')
 
 <!-- Content Header (Page header) -->
@@ -73,9 +109,20 @@
             <div class="form-group">
                 {!! Form::label('sub_unit_ids', __('lang_v1.related_sub_units') . ':') !!} @show_tooltip(__('lang_v1.sub_units_tooltip'))
 
-                {!! Form::select('sub_unit_ids[]', [], !empty($duplicate_product->sub_unit_ids) ? $duplicate_product->sub_unit_ids : null, ['class' => 'form-control select2', 'multiple', 'id' => 'sub_unit_ids']); !!}
+                {!! Form::select('sub_unit_ids[]', [], !empty($duplicate_product->sub_unit_ids) ? $duplicate_product->sub_unit_ids : null, ['class' => 'form-control select2', 'multiple', 'id' => 'sub_unit_ids', 'data-get-sub-units-url' => action([\App\Http\Controllers\ProductController::class, 'getSubUnits'])]); !!}
             </div>
         </div>
+        @if(session('business.enable_sub_units'))
+        <div class="col-sm-8">
+            <div class="form-group">
+                {!! Form::label('sub_unit_prices', __('lang_v1.sub_unit_prices') . ':') !!}
+                <div class="row" id="sub_unit_prices_wrapper">
+                    <!-- Will be populated by JS when sub units are loaded -->
+                </div>
+                <small class="help-block">@lang('lang_v1.enter_price_for_each_selected_unit')</small>
+            </div>
+        </div>
+        @endif
         @if(!empty($common_settings['enable_secondary_unit']))
         <div class="col-sm-4">
             <div class="form-group">
@@ -407,7 +454,7 @@
 
                     <button type="submit" value="save_n_add_another" class="tw-dw-btn tw-dw-btn-lg bg-maroon submit_product_form">@lang('lang_v1.save_n_add_another')</button>
 
-                    <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white submit_product_form">@lang('messages.save')</button>
+                    <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black submit_product_form">@lang('Crear Producto')</button>
                 </div>
 
             </div>

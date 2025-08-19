@@ -3,7 +3,19 @@
 
     <div class="modal-header mini_print">
       <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h3 class="modal-title">@lang( 'cash_register.register_details' ) ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} -  {{\Carbon::createFromFormat('Y-m-d H:i:s', $close_time)->format('jS M, Y h:i A')}} )</h3>
+      <h3 class="modal-title">@lang( 'cash_register.register_details' ) 
+        @if($register_details->open_time)
+          ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} -  
+          @if(isset($close_time))
+            {{\Carbon::createFromFormat('Y-m-d H:i:s', $close_time)->format('jS M, Y h:i A')}}
+          @else
+            {{\Carbon::now()->format('jS M, Y h:i A')}}
+          @endif
+          )
+        @else
+          ( @lang('cash_register.register_not_opened') )
+        @endif
+      </h3>
     </div>
 
     <div class="modal-body">
@@ -53,10 +65,18 @@
         </div>
       @endif
       
+    <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!} (Incluye la la Base)
+              {!! Form::text('closing_amount', @num_format($register_details->cash_in_hand + $backendPaymentAmount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_cash_expense), ['class' => 'form-control input_number', 'required', 'placeholder' => __( 'cash_register.total_cash' ) ]); !!}
+          </div>
+        </div>
+      
       <div class="row">
         <div class="col-xs-6">
           <b>@lang('report.user'):</b> {{ $register_details->user_name}}<br>
-          <b>@lang('business.email'):</b> {{ $register_details->email}}<br>
+          <!--<b>@lang('business.email'):</b> {{ $register_details->email}}<br>-->
           <b>@lang('business.business_location'):</b> {{ $register_details->location_name}}<br>
         </div>
         @if(!empty($register_details->closing_note))

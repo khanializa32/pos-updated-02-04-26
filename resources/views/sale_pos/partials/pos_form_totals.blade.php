@@ -3,9 +3,20 @@
 		<table class=" table table-condensed">
 			<tbody style="display: flex">
 				<tr style="display: flex; flex-direction: column; flex:1; font-size: ;">
-					<td><b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.item'):</b>&nbsp;
+					<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.item'):</b>&nbsp;
 						<span class="total_quantity tw-text-base md:tw-text-lg tw-font-semibold" style="font-size: 20px ;color:purple">0</span>
-					</td>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					
+					 @if (empty($edit))
+                    <button type="button"
+                        class=""
+                        id="pos-cancel"> <i class="fas fa-trash"style=" font-size:14px ;color:red"></i> @lang('Vaciar Carrito')</button>
+                @else
+                    <button type="button"
+                        class="tw-font-bold tw-text-white tw-cursor-pointer tw-text-xs md:tw-text-sm tw-bg-red-600 tw-p-2 tw-rounded-md tw-w-[9rem] tw-hidden md:tw-flex lg:tw-flex lg:tw-flex-row lg:tw-items-center lg:tw-justify-center lg:tw-gap-1 hide"
+                        id="pos-delete" @if (!empty($only_payment)) disabled @endif> <i
+                            class="fas fa-trash"></i> @lang('messages.delete')</button>
+                @endif
 					
 					<td @if(!Gate::check('disable_discount') || auth()->user()->can('superadmin') || auth()->user()->can('admin')) class="" @else class="hide" @endif>
 						<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">
@@ -31,11 +42,11 @@
 
 								</span>
 						</b> 
-					</td>
+					
 					
 					<td class="@if($pos_settings['disable_order_tax'] != 0) hide @endif">
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
-							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.order_tax')(+): </b>
+							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('Imp')(+): </b>
 							<i class="fas fa-edit cursor-pointer" title="@lang('sale.edit_order_tax')" aria-hidden="true" style="font-size:24px ;color:orange" data-toggle="modal" data-target="#posEditOrderTaxModal" id="pos-edit-tax" ></i> 
 							<span class="tw-text-base md:tw-text-lg tw-font-semibold" id="order_tax">
 								@if(empty($edit))
@@ -52,13 +63,13 @@
 							<input type="hidden" name="tax_calculation_amount" id="tax_calculation_amount" 
 								value="@if(empty($edit)) {{@num_format($business_details->tax_calculation_amount)}} @else {{@num_format($transaction->tax?->amount)}} @endif" data-default="{{$business_details->tax_calculation_amount}}">
 						</span>
-					</td>
-					<td>
+					
+					
 						<span class="tw-text-base md:tw-text-lg tw-font-semibold">
-							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('sale.shipping')(+)   
+							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 12px">@lang('')   
 								{{-- : @show_tooltip(__('tooltip.shipping')) --}}
 							</b> 
-							<i class="fas fa-edit cursor-pointer"  title="@lang('sale.shipping')" aria-hidden="true" style="font-size:24px ;color:green" data-toggle="modal" data-target="#posShippingModal"></i>
+							<i class="fas fa-motorcycle"  title="@lang('sale.shipping')" aria-hidden="true" style="font-size:24px ;color:green" data-toggle="modal" data-target="#posShippingModal"></i>
 							<span id="shipping_charges_amount" style="font-size: 14px">0</span>
 							<input type="hidden" name="shipping_details" id="shipping_details" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_details}}@endif" data-default="">
 							<input type="hidden" name="shipping_address" id="shipping_address" value="@if(empty($edit)){{''}}@else{{$transaction->shipping_address}}@endif">
@@ -67,7 +78,7 @@
 							<input type="hidden" name="delivery_person" id="delivery_person" value="@if(empty($edit)){{''}}@else{{$transaction->delivery_person}}@endif">
 							<input type="hidden" name="shipping_charges" id="shipping_charges" value="@if(empty($edit)){{@num_format(0.00)}} @else{{@num_format($transaction->shipping_charges)}} @endif" data-default="0.00">
 						</span>
-					</td>
+					
 					@if(in_array('types_of_service', $enabled_modules))
 						<td class="col-sm-10 col-xs-8 d-inline-table">
 							<b class="tw-text-base md:tw-text-lg tw-font-bold" style="font-size: 14px">@lang('lang_v1.packing_charge')(+):</b>
@@ -75,7 +86,7 @@
 							<span  class="tw-text-base md:tw-text-lg tw-font-semibold" style="font-size: 14px" id="packing_charge_text">
 								0
 							</span>
-						</td>
+						
 					@endif
 					@if(!empty($pos_settings['amount_rounding_method']) && $pos_settings['amount_rounding_method'] > 0)
 					<td>

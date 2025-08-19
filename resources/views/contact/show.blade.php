@@ -61,14 +61,14 @@
                             @else
                                 ''
                             @endif">
-                        <a href="#ledger_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-scroll" aria-hidden="true"></i> @lang('lang_v1.ledger')</a>
+                        <a href="#ledger_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-scroll" style="font-size:24px ;color:ForestGreen" aria-hidden="true"></i> @lang('lang_v1.ledger')</a>
                     </li>
                     <li
                             class="
                             @if (!empty($view_type) && $view_type == 'loans') active
                             @else
                                 '' @endif">
-                            <a href="#loans_tab" class="credit_index_btn" data-toggle="tab" data-url="{{route('loans.show', $contact->id)}}" aria-expanded="true"><i class="fas fa-solid fa-credit-card"></i> Creditos</a>
+                            <a href="#loans_tab" class="credit_index_btn" data-toggle="tab" data-url="{{route('loans.show', $contact->id)}}" aria-expanded="true"><i class="fas fa-solid fa-credit-card" style="font-size:24px ;color:DodgerBlue"></i> Creditos</a>
                         </li>
                     @if(in_array($contact->type, ['both', 'supplier']))
                         <li class="
@@ -77,7 +77,7 @@
                             @else
                                 ''
                             @endif">
-                            <a href="#purchases_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-arrow-circle-down" aria-hidden="true"></i> @lang( 'purchase.purchases')</a>
+                            <a href="#purchases_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-arrow-circle-down" style="font-size:24px ;color:FireBrick" aria-hidden="true"></i> @lang( 'purchase.purchases')</a>
                         </li>
                         <li class="
                             @if(!empty($view_type) &&  $view_type == 'stock_report')
@@ -85,7 +85,7 @@
                             @else
                                 ''
                             @endif">
-                            <a href="#stock_report_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-hourglass-half" aria-hidden="true"></i> @lang( 'report.stock_report')</a>
+                            <a href="#stock_report_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-hourglass-half" style="font-size:24px ;color:DarkViolet"  aria-hidden="true"></i> @lang( 'report.stock_report')</a>
                         </li>
                     @endif
                     @if(in_array($contact->type, ['both', 'customer']))
@@ -95,7 +95,7 @@
                             @else
                                 ''
                             @endif">
-                            <a href="#sales_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-arrow-circle-up" aria-hidden="true"></i> @lang( 'Facturas')</a>
+                            <a href="#sales_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-file" style="font-size:24px ;color:DarkOrange" aria-hidden="true"></i> @lang( 'Facturas')</a>
                         </li>
                         @if(in_array('subscription', $enabled_modules))
                             <li class="
@@ -115,7 +115,7 @@
                                 ''
                             @endif
                             ">
-                        <a href="#documents_and_notes_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-paperclip" aria-hidden="true"></i> @lang('lang_v1.documents_and_notes')</a>
+                        <a href="#documents_and_notes_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-paperclip" style="font-size:24px ;color:DeepPink" aria-hidden="true"></i> @lang('lang_v1.documents_and_notes')</a>
                     </li>
                     <li class="
                             @if(!empty($view_type) &&  $view_type == 'payments')
@@ -123,7 +123,7 @@
                             @else
                                 ''
                             @endif">
-                        <a href="#payments_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-money-bill-alt" aria-hidden="true"></i> @lang('sale.payments')</a>
+                        <a href="#payments_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-money-bill-alt" style="font-size:24px ;color:LimeGreen" aria-hidden="true"></i> @lang('sale.payments')</a>
                     </li>
 
                     @if( in_array($contact->type, ['customer', 'both']) && session('business.enable_rp'))
@@ -133,7 +133,7 @@
                             @else
                                 ''
                             @endif">
-                            <a href="#reward_point_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-gift" aria-hidden="true"></i> {{ session('business.rp_name') ?? __( 'lang_v1.reward_points')}}</a>
+                            <a href="#reward_point_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-gift" style="font-size:24px ;color:tomato" aria-hidden="true"></i> {{ session('business.rp_name') ?? __( 'lang_v1.reward_points')}}</a>
                         </li>
                     @endif
 
@@ -143,7 +143,7 @@
                         @else
                             ''
                         @endif">
-                        <a href="#activities_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-pen-square" aria-hidden="true"></i> @lang('lang_v1.activities')</a>
+                        <a href="#activities_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-pen-square" style="font-size:25px ;color:BlueViolet" aria-hidden="true"></i> @lang('lang_v1.activities')</a>
                         </li>
 
                     @if(!empty($contact_view_tabs))

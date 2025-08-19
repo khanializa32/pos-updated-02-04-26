@@ -531,6 +531,7 @@ class ProductUtil extends Util
             'vld.qty_available',
             'variations.default_sell_price',
             'variations.sell_price_inc_tax',
+            'variations.default_purchase_price',
             'variations.id as variation_id',
             'variations.combo_variations',  //Used in combo products
             'units.short_name as unit',

@@ -142,7 +142,7 @@ class InvoiceSchemeController extends Controller
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 
             $output = ['success' => false,
-                'msg' => __('messages.something_went_wrong'),
+                'msg' => 'Error al crear la resolución',
             ];
         }
 

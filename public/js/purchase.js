@@ -202,6 +202,7 @@ $(document).ready(function() {
                 },
                 select: function(event, ui) {
                     $(this).val(null);
+                    should_prepend_purchase_row = true;
                     get_purchase_entry_row(ui.item.product_id, ui.item.variation_id);
                 },
             })
@@ -260,6 +261,15 @@ $(document).ready(function() {
 
         update_table_total();
         update_grand_total();
+    });
+
+    $(document).on('keyup', '.purchase_quantity', function() {
+        var row = $(this).closest('tr');
+        var quantity = __read_number($(this), true);
+
+        // Update total stock badge
+        updateTotalStockBadge(row, quantity);
+
     });
 
     $(document).on('keyup', '.purchase_unit_cost_without_discount', function() {
@@ -730,6 +740,12 @@ $(document).ready(function() {
     toggle_search();
 });
 
+var global_brand_id = null;
+var global_p_category_id = null;
+var global_is_clear_local_storage = false;
+// Controls whether the next purchase product insertion should go to the top
+var should_prepend_purchase_row = false;
+
 function get_purchase_entry_row(product_id, variation_id) {
     if (product_id) {
         var row_count = $('#row_count').val();
@@ -759,17 +775,31 @@ function get_purchase_entry_row(product_id, variation_id) {
 }
 
 function append_purchase_lines(data, row_count, trigger_change = false) {
+    // Capture insertion intent for this specific request and reset the global flag
+    var insertAtTop = (typeof should_prepend_purchase_row !== 'undefined' && should_prepend_purchase_row);
+    should_prepend_purchase_row = false;
+
     $(data)
         .find('.purchase_quantity')
         .each(function() {
             row = $(this).closest('tr');
 
-            $('#purchase_entry_table tbody').append(
-                update_purchase_entry_row_values(row)
-            );
+            if (insertAtTop) {
+                $('#purchase_entry_table tbody').prepend(
+                    update_purchase_entry_row_values(row)
+                );
+            } else {
+                $('#purchase_entry_table tbody').append(
+                    update_purchase_entry_row_values(row)
+                );
+            }
             update_row_price_for_exchange_rate(row);
 
             update_inline_profit_percentage(row);
+
+            // Update total stock badge for new rows
+            var quantity = __read_number(row.find('.purchase_quantity'), true);
+            updateTotalStockBadge(row, quantity);
 
             update_table_total();
             update_grand_total();
@@ -1179,6 +1209,7 @@ $("#purchase_order_ids").on("select2:select", function (e) {
         dataType: 'json',
         success: function(data) {
             set_po_values(data.po);
+            should_prepend_purchase_row = true;
             append_purchase_lines(data.html, row_count);
         },
     });
@@ -1257,6 +1288,7 @@ if ($("div#import_product_dz").length) {
             if (response.success) {
                 toastr.success(response.msg);
                 var row_count = $('#row_count').val();
+                should_prepend_purchase_row = true;
                 append_purchase_lines(response.html, row_count, true);
 
                 this.removeAllFiles();
@@ -1334,6 +1366,7 @@ $("#purchase_requisition_ids").on("select2:select", function (e) {
         url: '/get-purchase-requisition-lines/' + purchase_requisition_id + '?row_count=' + row_count,
         dataType: 'json',
         success: function(data) {
+            should_prepend_purchase_row = true;
             append_purchase_lines(data.html, row_count);
         },
     });
@@ -1350,4 +1383,58 @@ $("#purchase_requisition_ids").on("select2:unselect", function (e) {
     });
 });
 
+// Function to update total stock badge
+function updateTotalStockBadge(row, purchaseQuantity) {
+    var badge = row.find('.total-stock-badge');
+    if (badge.length > 0) {
+        var currentStock = parseFloat(badge.data('current-stock')) || 0;
+        var totalQuantity = currentStock + purchaseQuantity;
+        
+        // Update the badge text
+        badge.find('.total-quantity').text(__number_f(totalQuantity, false));
+        
+        // Change badge color based on total quantity
+        if (totalQuantity > 0) {
+            badge.css('background-color', '#28a745'); // Green for positive
+        } else {
+            badge.css('background-color', '#dc3545'); // Red for zero or negative
+        }
+        
+        // Ensure proper styling is maintained
+        badge.css({
+            'display': 'flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            'width': '60px',
+            'height': '60px',
+            'border-radius': '50%',
+            'font-weight': 'bold',
+            'font-size': '12px',
+            'min-width': '60px',
+            'max-width': '60px',
+            'text-align': 'center',
+            'line-height': '1'
+        });
+        
+        // Ensure text styling is maintained - allow text to wrap and show full quantity
+        badge.find('.total-quantity').css({
+            'display': 'block',
+            'width': '100%',
+            'text-align': 'center',
+            'word-wrap': 'break-word',
+            'hyphens': 'auto'
+        });
+    }
+}
 
+// Initialize total stock badges on page load
+$(document).ready(function() {
+    $('#purchase_entry_table tbody tr').each(function() {
+        var row = $(this);
+        var quantityInput = row.find('.purchase_quantity');
+        if (quantityInput.length > 0) {
+            var quantity = __read_number(quantityInput, true);
+            updateTotalStockBadge(row, quantity);
+        }
+    });
+});

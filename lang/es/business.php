@@ -23,7 +23,7 @@
      'first_name' => 'Nombre',
      'last_name' => 'Apellidos',
      'username' => 'Nombre de Usuario',
-     'email' => 'Email',
+     'email' => 'Correo',
      'password' => 'Contraseña',
      'confirm_password' => 'Confirmar Contraseña',
      'register' => 'Registrate',

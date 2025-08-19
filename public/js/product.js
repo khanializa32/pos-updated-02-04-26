@@ -1,6 +1,137 @@
 //This file contains all functions used products tab
 
 $(document).ready(function() {
+    // When unit changes on product form, reload sub units and rebuild price inputs (create/edit)
+    $(document).on('change', '#unit_id', function () {
+        var unit_id = $(this).val();
+        var subUnitSelect = $('#sub_unit_ids');
+        if (subUnitSelect.length > 0) {
+            var url = subUnitSelect.data('get-sub-units-url');
+            $.ajax({
+                method: 'GET',
+                url: url,
+                data: { unit_id: unit_id },
+                dataType: 'html',
+                success: function (result) {
+                    subUnitSelect.html(result).trigger('change');
+                }
+            });
+        }
+    });
+
+     // Build sub unit price inputs when sub units selection changes (append new, keep existing values; default new value to 0)
+    $(document).on('change', '#sub_unit_ids', function () {
+        var selected = $(this).val() || [];
+        var wrapper = $('#sub_unit_prices_wrapper');
+        if (!wrapper.length) return;
+
+        // Show/hide container
+        if (selected.length === 0) {
+            wrapper.closest('.form-group').hide();
+        } else {
+            wrapper.closest('.form-group').show();
+        }
+
+        // Prefilled prices coming from backend
+        var prefilled = {};
+        var prefilledPurchase = {};
+        var prefilledSell = {};
+        var prefilledMargins = {};
+        
+        try { 
+            prefilledPurchase = JSON.parse(wrapper.attr('data-prices') || '{}');
+            prefilledSell = JSON.parse(wrapper.attr('data-sell-prices') || '{}');
+            prefilledMargins = JSON.parse(wrapper.attr('data-margins') || '{}');
+        } catch (e) { 
+            prefilledPurchase = {};
+            prefilledSell = {};
+            prefilledMargins = {};
+        }
+
+        // Append inputs that don't exist yet for newly selected sub-units
+        for (var i = 0; i < selected.length; i++) {
+            var id = selected[i];
+            if (wrapper.find('.sub-unit-price-input[data-unit-id="' + id + '"]').length === 0) {
+                var option = $(this).find('option[value="' + id + '"]');
+                var label = option.length ? option.text() : ('Unit ' + id);
+                var purchaseVal = (prefilledPurchase[id] !== undefined && prefilledPurchase[id] !== null && prefilledPurchase[id] !== '') ? __number_f(prefilledPurchase[id], false) : '';
+                var sellVal = (prefilledSell[id] !== undefined && prefilledSell[id] !== null && prefilledSell[id] !== '') ? __number_f(prefilledSell[id], false) : '';
+                var marginVal = (prefilledMargins[id] !== undefined && prefilledMargins[id] !== null && prefilledMargins[id] !== '') ? __number_f(prefilledMargins[id], false) : '';
+                
+                var html = '<div class="col-sm-12 tw-mb-3 sub-unit-price-input" data-unit-id="' + id + '">'
+                    + '<div class="row">'
+                    + '<div class="col-sm-12"><h5>' + label + '</h5></div>'
+                    + '<div class="col-sm-4">'
+                    + '<label>Precio de Compra:</label>'
+                    + '<input name="sub_unit_prices[' + id + ']" type="text" class="form-control input_number sub-unit-purchase-price" data-unit-id="' + id + '" value="' + purchaseVal + '" placeholder="Precio de Compra">'
+                    + '</div>'
+                    + '<div class="col-sm-4">'
+                    + '<label>Precio de Venta:</label>'
+                    + '<input name="sub_unit_sell_prices[' + id + ']" type="text" class="form-control input_number sub-unit-sell-price" data-unit-id="' + id + '" value="' + sellVal + '" placeholder="Precio de Venta">'
+                    + '</div>'
+                    + '<div class="col-sm-4">'
+                    + '<label>Utilidad %:</label>'
+                    + '<input name="sub_unit_margins[' + id + ']" type="text" class="form-control input_number sub-unit-margin" data-unit-id="' + id + '" value="' + marginVal + '" placeholder="Utilidad %">'
+                    + '</div>'
+                    + '</div>'
+                    + '</div>';
+                wrapper.append(html);
+            }
+        }
+
+        // Remove inputs for units that are no longer selected
+        wrapper.find('.sub-unit-price-input').each(function () {
+            var id = ($(this).data('unit-id') || '').toString();
+            if (selected.indexOf(id) === -1) {
+                $(this).remove();
+            }
+        });
+    });
+
+    // On load (edit page), build inputs for already selected sub-units
+    if ($('#sub_unit_ids').length) {
+        $('#sub_unit_ids').trigger('change');
+    }
+
+    // Sub-unit pricing calculations
+    $(document).on('keyup', '.sub-unit-purchase-price', function() {
+        var unitId = $(this).data('unit-id');
+        var purchasePrice = __read_number($(this));
+        var marginInput = $('.sub-unit-margin[data-unit-id="' + unitId + '"]');
+        var sellPriceInput = $('.sub-unit-sell-price[data-unit-id="' + unitId + '"]');
+        
+        if (purchasePrice > 0 && marginInput.val() > 0) {
+            var margin = __read_number(marginInput);
+            var sellPrice = purchasePrice + (purchasePrice * margin / 100);
+            __write_number(sellPriceInput, sellPrice);
+        }
+    });
+
+    $(document).on('keyup', '.sub-unit-margin', function() {
+        var unitId = $(this).data('unit-id');
+        var margin = __read_number($(this));
+        var purchasePriceInput = $('.sub-unit-purchase-price[data-unit-id="' + unitId + '"]');
+        var sellPriceInput = $('.sub-unit-sell-price[data-unit-id="' + unitId + '"]');
+        
+        if (margin > 0 && purchasePriceInput.val() > 0) {
+            var purchasePrice = __read_number(purchasePriceInput);
+            var sellPrice = purchasePrice + (purchasePrice * margin / 100);
+            __write_number(sellPriceInput, sellPrice);
+        }
+    });
+
+    $(document).on('keyup', '.sub-unit-sell-price', function() {
+        var unitId = $(this).data('unit-id');
+        var sellPrice = __read_number($(this));
+        var purchasePriceInput = $('.sub-unit-purchase-price[data-unit-id="' + unitId + '"]');
+        var marginInput = $('.sub-unit-margin[data-unit-id="' + unitId + '"]');
+        
+        if (sellPrice > 0 && purchasePriceInput.val() > 0) {
+            var purchasePrice = __read_number(purchasePriceInput);
+            var margin = ((sellPrice - purchasePrice) / purchasePrice) * 100;
+            __write_number(marginInput, margin);
+        }
+    });
     $(document).on('ifChecked', 'input#enable_stock', function() {
         $('div#alert_quantity_div').show();
         $('div#quick_product_opening_stock_div').show();

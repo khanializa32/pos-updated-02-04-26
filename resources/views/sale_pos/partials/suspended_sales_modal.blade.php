@@ -19,15 +19,15 @@
 				@forelse($sales as $sale)
 					@if($sale->is_suspend)
 						<div class="col-xs-6 col-sm-3">
-							<div class="small-box bg-yellow">
+							<div class="small-box bg-purple">
 					            <div class="inner text-center">
 						            @if(!empty($sale->additional_notes))
-						            	<p><i class="fa fa-edit"></i> {{$sale->additional_notes}}</p>
+						            	<p> {{$sale->additional_notes}}</p>
 						            @endif
 					              <p>{{$sale->invoice_no}}<br>
 					              {{@format_date($sale->transaction_date)}}<br>
 					              <strong><i class="fa fa-user"></i> {{$sale->name}}</strong></p>
-					              <p><i class="fa fa-cubes"></i>@lang('lang_v1.total_items'): {{count($sale->sell_lines)}}<br>
+					              <p></i>@lang('Productos'): {{count($sale->sell_lines)}}<br>
 					              <i class="fas fa-money-bill-alt"></i> @lang('sale.total'): <span class="display_currency" data-currency_symbol=true>{{$sale->final_total}}</span>
 					              </p>
 					              @if($is_tables_enabled && !empty($sale->table->name))
@@ -39,7 +39,7 @@
 					            </div>
 								@if(auth()->user()->can('sell.update') || auth()->user()->can('direct_sell.update'))
 									<a href="{{action([\App\Http\Controllers\SellPosController::class, 'edit'], ['po' => $sale->id]).$subtype}}" class="small-box-footer bg-blue p-10">
-									@lang('sale.edit_sale') <i class="fa fa-arrow-circle-right"></i>
+									@lang('Retomar') <i class="fa fa-angle-double-right"></i>
 									</a>
 								@endif
 								@if(auth()->user()->can('sell.delete') || auth()->user()->can('direct_sell.delete'))

@@ -214,14 +214,14 @@
                     <div class="nav-tabs-custom">
                         <ul class="nav nav-tabs">
                             <li class="active">
-                                <a href="#product_list_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes"
-                                        aria-hidden="true"></i> @lang('lang_v1.all_products')</a>
+                                <a href="#product_list_tab" data-toggle="tab" aria-expanded="true"><i class="fa fa-cubes" style=" font-size:24px ;color:orange"
+                                        aria-hidden="true"></i> @lang('Mis Productos')</a>
                             </li>
                             @can('stock_report.view')
                                 <li>
                                     <a href="#product_stock_report" class="product_stock_report" data-toggle="tab"
-                                        aria-expanded="true"><i class="fa fa-hourglass-half" aria-hidden="true"></i>
-                                     @lang('report.stock_report')</a>
+                                        aria-expanded="true"><i class="fas fa-chart-line" style=" font-size:24px ;color:lightseagreen" aria-hidden="true"></i>
+                                     @lang('Valor del Inventario')</a>
                                 </li>
                             @endcan
                         </ul>
@@ -943,7 +943,7 @@
         });
         function get_stock_value() {
     var loader = __fa_awesome();
-    $('#closing_stock_by_sp_1').html(loader);
+    $('#closing_stock_by_pp').html(loader);
     var data = {
         location_id: $('#location_id').val(),
         category_id: $('#category_id').val(),

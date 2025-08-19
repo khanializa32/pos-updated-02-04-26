@@ -116,4 +116,10 @@ LANG = {
 'authentication_successfull': 'Autenticación exitosa',
 'please_enter' : 'Por favor, ingrese',
 'or_more_characters' : 'o más caracteres',
+'cost_price_validation_error': 'Precio de Venta no puede ser menor al de Compra',
+'cost_price_warning_title': 'Alerta',
+'cost_price_warning_message': 'Perderás si vendes a este precio, Deseas vender a este precio?',
+'cost_price_warning_accept': 'Aceptar',
+'cost_price_warning_cancel': 'Cancelar',
+
 };

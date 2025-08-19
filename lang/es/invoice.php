@@ -25,7 +25,7 @@
      'all_your_invoice_layouts' => 'Todos sus diseños de factura',
      'add_invoice_layout' => 'Agregar nuevo diseño de factura',
      'layout_name' => 'Nombre del Diseño',
-     'invoice_scheme' => 'Esquema',
+     'invoice_scheme' => 'Tipo',
      'header_text' => 'Texto para la cabecera',
      'invoice_no_prefix' => 'Etiqueta para Factura no.',
      'invoice_heading' => 'Encabezado de la factura',

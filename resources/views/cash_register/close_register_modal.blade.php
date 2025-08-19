@@ -5,7 +5,13 @@
     {!! Form::hidden('user_id', $register_details->user_id); !!}
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title">@lang( 'cash_register.current_register' ) ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} - {{ \Carbon::now()->format('jS M, Y h:i A') }})</h4>
+      <h4 class="modal-title">@lang( 'cash_register.current_register' ) 
+        @if($register_details->open_time)
+          ( {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} - {{ \Carbon::now()->format('jS M, Y h:i A') }})
+        @else
+          ( @lang('cash_register.register_not_opened') )
+        @endif
+      </h4>
     </div>
 
     <div class="modal-body">
@@ -13,12 +19,12 @@
         <hr>
       <div class="row">
         <div class="col-sm-4">
-          <div class="form-group">
+          <div class="form-group" style="font-size:18px ;color:red">
             {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!} (Restar la Base)
-              {!! Form::text('closing_amount', @num_format($register_details->cash_in_hand + $backendPaymentAmount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_cash_expense), ['class' => 'form-control input_number', 'required', 'placeholder' => __( 'cash_register.total_cash' ) ]); !!}
+              {!! Form::text('closing_amount', @num_format($register_details->cash_in_hand + $backendPaymentAmount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_cash_expense - ($modalCashSellReturnRefund ?? 0)), ['class' => 'form-control input_number', 'required', 'placeholder' => __( 'cash_register.total_cash' ) ]); !!}
           </div>
         </div>
-        <div class="col-sm-4">
+        <!-- <div class="col-sm-4">
           <div class="form-group">
             {!! Form::label('total_card_slips', __( 'cash_register.total_card_slips' ) . ':*') !!} @show_tooltip(__('tooltip.total_card_slips'))
               {!! Form::number('total_card_slips', $register_details->total_card_slips, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_card_slips' ), 'min' => 0 ]); !!}
@@ -30,7 +36,7 @@
               {!! Form::number('total_cheques', $register_details->total_cheques, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_cheques' ), 'min' => 0 ]); !!}
           </div>
         </div> 
-        <hr>
+        <hr> -->
         <!--<div class="col-md-8 col-sm-12">
           <h3>@lang( 'lang_v1.cash_denominations' )</h3>
           @if(!empty($pos_settings['cash_denominations']))
@@ -67,8 +73,8 @@
           @else
             <p class="help-block">@lang('lang_v1.denomination_add_help_text')</p>
           @endif
-        </div> --> 
-        <hr>
+        </div>  
+        <hr>-->
          <div class="col-sm-12">
           <div class="form-group">
             {!! Form::label('closing_note', __( 'cash_register.closing_note' ) . ':') !!}
@@ -77,19 +83,19 @@
         </div>
       </div> 
       
-      <!- INICIO UTILIDAD DEL CIERRE-->
+      <!-- INICIO UTILIDAD DEL CIERRE-->
 {{--       
       <h3 class="text-muted mb-0">
     {{ __('Utilidad del Cierre') }}: 
     <span class="display_currency" data-currency_symbol="true">{{$data['gross_profit']}}</span>
     </h3> --}}
 
-<!- FIN UTILIDAD DEL CIERRE-->
+<!-- FIN UTILIDAD DEL CIERRE-->
 
       <div class="row">
         <div class="col-xs-6">
           <b>@lang('report.user'):</b> {{ $register_details->user_name}}<br>
-          <b>@lang('business.email'):</b> {{ $register_details->email}}<br>
+          <!--<b>@lang('business.email'):</b> {{ $register_details->email}}<br>-->
           <b>@lang('business.business_location'):</b> {{ $register_details->location_name}}<br>
         </div>
         @if(!empty($register_details->closing_note))

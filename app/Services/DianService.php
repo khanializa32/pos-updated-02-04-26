@@ -2706,6 +2706,419 @@ class DianService
 
     }
 
+    public static function send_credit_note_eqdocs($business_id, $contact_id, $input,$sell_return)
+    {
+
+        $i_echeme = '';
+
+        $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',26)->first();
+        $i_echeme = $invoice_scheme->type_document_id;
+
+        $business_data = Business::find($business_id);
+
+        //validamos si se va a enviar factua electronica o no
+        if($i_echeme == '26' && $input['status'] == "final" && $input['type'] == "sell")//final
+        {
+
+            
+            $actual_date = Carbon::now('America/Bogota')->format('Y-m-d');
+            $actual_hous = Carbon::now('America/Bogota')->format('H:m:s');
+
+            $invoice_number = intval($invoice_scheme->start_number) + intval($invoice_scheme->invoice_count) -1;
+
+            $total_tax_products = 0;
+            $total_not_tax_products = 0;
+            // $total_not_tax_products = 0;
+            $line_extension_amount = 0;
+            $tax_inclusive_amount = 0;
+            $tax_exclusive_amount = 0;
+            // $taxes = [];//impuesto por linea de producto
+            $payable_amount = 0;
+            
+
+            $invoiceLines = array();
+
+            $tax_totals_map = [];//array para agregar y sumar los impuestos a nivel de factura
+
+            $tax_total_invoice = [];
+
+            if(isset($input['sell_lines']))
+            {
+                foreach ($input['sell_lines'] as $product){
+                    $tax_totals = [];//impuestos totales de la factura
+                    // $total_product = 0;
+                    // $tax_total_product = 0;
+
+                    $product_db = Product::findOrFail($product['product_id']);
+
+                    $unit_price = self::convert_numeric($product['unit_price']);
+
+                    //calculo de los campos de cada linea convert_numeric($number)
+                    $line_extension_amount_product = (floatval($product['quantity_returned']) * floatval($unit_price));
+
+                    //CONSTRUCCIÓN DEL JSON DE IMPUESTOS
+                    if(isset($product['tax_id'])){
+                        $tax = TaxRate::find($product['tax_id']);
+
+                        $tax_amount_product = self::tax($line_extension_amount_product,floatval($tax['amount']));
+                        // $tax_total_product = $tax_amount_product + $line_extension_amount_product;
+
+                        $tax_totals[] = [
+                            // "tax_id" =>intval($product['tax_id']),//ERROR AQUI
+                            "tax_id" =>$tax->code,
+                            "tax_amount" => self::round_number($tax_amount_product),
+                            "taxable_amount" => self::round_number($line_extension_amount_product),//valor del producto sin impuesto
+                            "percent" => intval($tax['amount'])
+                        ];
+
+                        // Sumar el impuesto al total de impuestos de la factura
+                        $tax_key = intval($tax['code']) . '_' . floatval($tax['amount']);
+                        if (isset($tax_totals_map[$tax_key])) {
+                            // $tax_totals_map[$tax_key]['tax_id'] = intval($tax['tax_id']);
+                            $tax_totals_map[$tax_key]['tax_amount'] += self::round_number($tax_amount_product);
+                            $tax_totals_map[$tax_key]['taxable_amount'] += self::round_number($line_extension_amount_product);
+                        } else {
+                            $tax_totals_map[$tax_key] = [
+                                "tax_id" => $tax->code,
+                                "tax_amount" => self::round_number($tax_amount_product),
+                                "taxable_amount" => self::round_number($line_extension_amount_product),
+                                "percent" => floatval($tax['amount'])
+                            ];
+                        }
+
+
+                        //sumamos el total de las bases productos con impuestos
+                        $tax_exclusive_amount +=  $line_extension_amount_product;
+
+                        //sumamos el excedente del impuesto al total de la linea
+                        $line_extension_amount_product += $tax_amount_product;
+
+
+                        
+                    }
+                    $total_line = floatval($product['quantity_returned']) * $unit_price;
+                    
+                    if(isset($product['tax_id'])){
+                        $invoiceLines[] = [
+                            "unit_measure_id" => 70,
+                            "invoiced_quantity" => floatval($product['quantity_returned']),
+                            "line_extension_amount" => self::round_number($total_line),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
+                            // "line_extension_amount" => $this->round_number($line_extension_amount_product),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
+                            "free_of_charge_indicator" => false,
+                            
+                            "description" => $product_db->name,
+                            "code" => $product_db->sku,
+                            "type_item_identification_id" => 4,
+                            "price_amount" => self::round_number($line_extension_amount_product),//Valor de la linea de la factura
+                            "base_quantity" =>floatval($product['quantity_returned']),
+                            "tax_totals" => $tax_totals
+
+                        ];
+                        unset($tax_totals);
+                    }else{
+                        $invoiceLines[] = [
+                            "unit_measure_id" => 70,
+                            "invoiced_quantity" => floatval($product['quantity_returned']),
+                            "line_extension_amount" => self::round_number($total_line),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
+                            "free_of_charge_indicator" => false,
+                            
+                            "description" => $product_db->name,
+                            "code" => $product_db->sku,
+                            "type_item_identification_id" => 4,
+                            "price_amount" => self::round_number($line_extension_amount_product),//Valor de la linea de la factura
+                            "base_quantity" =>floatval($product['quantity_returned']),
+
+                        ];
+                    }
+
+
+                    $tax_inclusive_amount += $line_extension_amount_product;
+                }
+
+            }
+
+            // Convertir el mapa de impuestos a un array de totales de impuestos
+            $tax_total_invoice = array_values($tax_totals_map);
+
+            //calcular los invoice line
+            if(isset($invoiceLines)){
+                foreach($invoiceLines as $invoice_product)
+                {
+                    if(isset($invoice_product['tax_id']))
+                    {
+                        $total_tax_products += floatval($invoice_product['line_extension_amount']);
+                    }else{
+                        $total_not_tax_products +=  floatval($invoice_product['line_extension_amount']);
+                    }
+                    $line_extension_amount += floatval($invoice_product['line_extension_amount']);
+
+                    //calculñar el total de la factura
+                    $payable_amount = $payable_amount + $invoice_product['price_amount'];
+                }
+            }
+
+
+            // Parámetros dinámicos para notas credito
+            $datetime = Carbon::parse($input->transaction_date);
+            $fecha = $datetime->toDateString();
+
+            $billing_reference = array(
+                "number" => $input->invoice_no,//numero de la factura
+                "uuid" => $input->cufe,//cufe de la factura
+                // "issue_date" => "2024-01-17",//fecha de la factura
+                "issue_date" => $fecha,//fecha de la factura
+                "type_document_id" => 15,//fecha de la factura
+            );
+            $customer_data = Contact::findOrFail($sell_return->contact_id);
+
+            $invoiceNumber = $invoice_number;
+            $discrepancyResponseDescription = "descripcion del motivo de la nota credito";//codigo motivo de la nota credito
+            $discrepancyResponseCode = 2;
+            
+            $prefix = $invoice_scheme->prefix;
+            $typeDocumentId = 26;
+            $date = $actual_date;
+            $time = $actual_hous;
+            $sendmail = false;
+            // $resolutionNumber = $invoice_scheme->resolution;
+            if($customer_data->contact_id == 222222222222)
+            {
+                $customer = array(
+                    "identification_number" => "222222222222",
+                    "name" => "Consumidor Final",
+                    "merchant_registration" => "0000000-00",
+                );
+            }else{
+                $contact_type = 0;
+                $name = '';
+                if($customer_data->contact_type == 'individual')
+                {
+                    $contact_type = 2;
+                    $name = $customer_data->name;
+                }else{
+                    $contact_type = 1;
+                    $name = $customer_data->supplier_business_name;
+                }
+                $customer = array(
+                    "identification_number" => $customer_data->contact_id,
+                    "dv" => $customer_data->dv,
+                    "name" => $name,
+                    "type_organization_id" => $contact_type,
+                    "phone" => $customer_data->mobile,
+                    "merchant_registration" => ($customer_data->merchant_registration)?$customer_data->merchant_registration : "0000000-00",
+                    "type_document_identification_id" => ($customer_data->type_document_identification_id)?$customer_data->type_document_identification_id : "",
+                    "type_regime_id" => ($customer_data->type_regime_id)?$customer_data->type_regime_id : "",
+                    "type_liability_id" => ($customer_data->liability_id)?$customer_data->liability_id : "",
+                    "municipality_id" => ($customer_data->municipality_id)?$customer_data->municipality_id : "",
+                    "email" => $customer_data->email,
+                    "address" => ($customer_data->address_line_1)? $customer_data->address_line_1: 'no'
+                );
+                $sendmail = true;
+            }
+
+            
+            $transaction_payment = TransactionPayment::where('business_id', $business_id)->where('transaction_id',$input->id)->first();
+            // dd($transaction_payment);
+            //leer los metodos y formas de pago
+            $payment_form = 0;
+            $duration_measure = 0;
+            $payment_method = 0;
+
+            if($transaction_payment->method == 'cash')
+            {
+                $payment_method = 10;
+            }else if($transaction_payment->method == 'cheque')
+            {
+                $payment_method = 20;
+            }else if($transaction_payment->method == 'other')
+            {
+                $payment_method = 1;
+            
+            }else{
+                $payment_method = $transaction_payment->method;
+            }
+
+            if($input->payment_status == 'due' || $input->payment_status == 'partial')
+            {
+                if($input->pay_term_number == '' || $input->pay_term_number == 0)
+                {
+                    $duration_measure = 30;
+                }else{
+                    $duration_measure = $input->pay_term_number;
+                }
+
+                $payment_form = 2;//credito
+                
+            }elseif($input->payment_status == 'paid'){
+                $payment_form = 1;//debido
+            }
+            //si is_credit_sale	= 1 es venta a credito
+            $paymentForm = array(
+                "duration_measure" => $duration_measure,//dias de plazo para pago
+                "payment_form_id" => $payment_form,//1 contado 2 credito
+                "payment_method_id" => $payment_method,
+                "payment_due_date" => $actual_date
+            );
+            // $previousBalance = "0";
+            $legalMonetaryTotals = array(
+                "line_extension_amount" => self::round_number($line_extension_amount),
+                "tax_exclusive_amount" => self::round_number($tax_exclusive_amount),//
+                "tax_inclusive_amount" => self::round_number($tax_inclusive_amount),
+                "charge_total_amount" => "0.00",
+                // "payable_amount" => $this->round_number($final_total),
+                "payable_amount" => self::round_number($tax_inclusive_amount),
+                "allowance_total_amount" => "0.00"
+            );
+
+        
+
+
+            // Construcción del JSON dinámicamente
+            $data = array(
+                "number" => $invoiceNumber,
+                "prefix" => $prefix,
+                "is_eqdoc" => true,
+                // "type_operation_id" => 26,
+                "type_document_id" => $typeDocumentId,
+                "discrepancyresponsecode" => $discrepancyResponseCode,
+                "discrepancyresponsedescription" => $discrepancyResponseDescription,
+                "date" => $date,
+                "time" => $time,
+                "sendmail" => $sendmail,
+                "billing_reference" => $billing_reference,
+                // "resolution_number" => $resolutionNumber,
+                "customer" => $customer,
+                "payment_form" => $paymentForm,
+                // "previous_balance" => $previousBalance,
+                "legal_monetary_totals" => $legalMonetaryTotals,
+                // "allowance_charges" => $allowanceCharges,
+            );
+
+            if (!empty($invoiceLines)) {
+                $data["credit_note_lines"] = $invoiceLines;
+            }
+
+            if (!empty($tax_total_invoice)) {
+                $data["tax_totals"] = $tax_total_invoice;
+            }
+
+            // return $data;
+
+            $jsonData = json_encode($data);
+            // dd($jsonData);
+            $curl = curl_init();
+
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => env('APP_API_FE').'/api/ubl2.1/credit-note',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $jsonData,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Accept: application/json',
+                'Authorization: Bearer '.$business_data->dian_token
+            ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+            dd($response);
+            $respuesta = json_decode($response);
+            $ErrorRules = '';
+            $StatusCode = '';
+            $MgsResponse = '';
+
+            if(!isset($respuesta->success) || $respuesta->success){
+                if(isset($respuesta->ResponseDian))
+                {
+                    
+
+                    $response_dian =  $respuesta->ResponseDian;
+                    $IsValid = $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->IsValid;
+                    $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
+                    $cufe = $respuesta->cude;
+                    $QRStr = $respuesta->QRStr;
+                    $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
+                    
+
+                    if($IsValid == "true")
+                    {
+                        //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
+                        $transaction = Transaction::find($sell_return->id);
+                        $transaction->cufe = $cufe;
+                        $transaction->is_valid = true;
+                        $transaction->qrstr = $QRStr;
+                        $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                        $transaction->status_code = $StatusCode;
+                        $transaction->save();
+
+                        $MgsResponse = 'Nota Crédito aceptada por la DIAN';                   
+                    }else{
+                        $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
+                        $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
+                        if($StatusCode == '99')
+                        {
+                            $transaction = Transaction::find($sell_return->id);
+                            $transaction->cufe = $cufe;
+                            $transaction->is_valid = false;
+                            $transaction->qrstr = $QRStr;
+                            $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                            $transaction->status_code = $StatusCode;
+                            $transaction->save();
+                            $MgsResponse = 'Nota Crédito procesada anteriormente';  
+                        }
+                    }
+
+                    $output = [
+                        'success' => 1, 
+                        'msg' => $MgsResponse, 
+                        'input_curl'=> $data, 
+                        'input_factura'=> $input, 
+                        'response' => ($respuesta) ? $respuesta : '',  
+                        'cufe' => ($cufe) ? $cufe : '',
+                        'IsValid' => ($IsValid) ? $IsValid : '',
+                        'QRStr' => ($QRStr) ? $QRStr : '',
+                        'ErrorMessage' => $ErrorRules
+                    ];
+                    return $output;
+                }else{
+
+                    
+                    $output = [
+                        'success' => 0, 
+                        'msg' => $respuesta->error[0], 
+                        'input_curl'=> $data, 
+                    ];
+                    return $output;
+                }
+            }else{
+                $output = [
+                    'success' => 1, 
+                    'msg' => $respuesta->message, 
+                ];
+                return $output;
+            }
+
+        }else{
+
+
+            $output = [
+                'success' => 1, 
+                'msg' => 'No es una factura electrónica', 
+                // 'receipt' => $receipt
+            ];
+            return $output;
+        }
+
+    }
+
     // public static function send_radian($business_id, $cufe, $event_id)
     // {
     //     $output = [];

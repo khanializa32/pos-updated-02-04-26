@@ -19,7 +19,7 @@
      'express_finalize' => 'Pago <br/> Rápido',
      'product' => 'Producto',
      'products' => 'Productos',
-     'unit_price' => 'Precio Unitario',
+     'unit_price' => 'Precio Base',
      'qty' => 'Cantidad',
      'subtotal' => 'Subtotal', /* modified */
      'recent_transactions' => 'Transacciones recientes',
@@ -36,10 +36,10 @@
      'customer_name' => 'Tercero', /* modified */
      'payment_status' => 'Estado', /* modified */
      'status' => 'Estado',
-     'total_amount' => 'Valor Total',
-     'total_paid' => 'Total Pagado',
-     'utility_per_invoice' => 'Utilidad por factura',
-     'total_remaining' => 'Saldo Total',
+     'total_amount' => 'Total',
+     'total_paid' => 'Pagado',
+     'utility_per_invoice' => 'Utilidad',
+     'total_remaining' => 'Saldo',
      'payment_info' => 'Información del Pago',
      'drafts' => 'Borradores',
      'all_drafts' => 'Todos los borradores',
@@ -48,7 +48,7 @@
      'amount' => 'Valor',
      'total_payable' => 'Total a Cobrar',
      'payment_mode' => 'Método de Pago', /* modified */
-     'payment_note' => 'Nota de Pago',
+     'payment_note' => 'Nota del Pago',
      'sell_note' => 'Nota de Venta', /* modified */
      'staff_note' => 'Nota del Cajero',
      'draft_updated' => 'Borrador Actualizado',
@@ -60,6 +60,6 @@
      'list_pos' => 'Tickets POS',
      'edit_sale' => 'Editar Venta',
      'shipping' => 'Domicilio',
-     'shipping_details' => 'Detalles de Envío',
-     'shipping_charges' => 'Gastos de Envío',
+     'shipping_details' => 'Detalles del Envío',
+     'shipping_charges' => 'Domicilio / Flete',
  ];

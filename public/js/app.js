@@ -1,4 +1,7 @@
 $(document).ready(function() {
+    var loader = __fa_awesome();
+    $('.total_expense_card').html(loader);
+
     getTotalUnreadNotifications();
     $('body').on('click', 'label', function(e) {
         var field_id = $(this).attr('for');
@@ -1771,6 +1774,7 @@ $(document).ready(function() {
 
             $('.footer_expense_total').html(__currency_trans_from_en(expense_total));
             $('.footer_total_due').html(__currency_trans_from_en(total_due));
+            $('.total_expense_card').html(__currency_trans_from_en(expense_total));
 
             $('.footer_payment_status_count').html(
                 __sum_status_html($('#expense_table'), 'payment-status')

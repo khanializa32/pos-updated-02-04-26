@@ -120,15 +120,21 @@ class CashRegisterController extends Controller
         $business_id = request()->session()->get('user.business_id');
 
         $register_details = $this->cashRegisterUtil->getRegisterDetails($id);
+        
+        if (!$register_details) {
+            abort(404, 'Cash register not found.');
+        }
+        
         $user_id = $register_details->user_id;
-        $open_time = $register_details['open_time'];
-        $close_time = ! empty($register_details['closed_at']) ? $register_details['closed_at'] : \Carbon::now()->toDateTimeString();
+        $open_time = $register_details->open_time;
+        $close_time = ! empty($register_details->closed_at) ? $register_details->closed_at : \Carbon::now()->toDateTimeString();
         $details = $this->cashRegisterUtil->getRegisterTransactionDetails($user_id, $open_time, $close_time);
 
         $payment_types = $this->cashRegisterUtil->payment_types(null, false, $business_id);
         $backendPaymentAmount = TransactionPayment::where('method', 'cash')
             ->where('created_by', $user_id)
             ->where('method', 'cash')
+            ->whereBetween('created_at', [$open_time, $close_time])
             ->whereHas('transaction', function ($q) {
                 $q->where('type', 'sell');
             })
@@ -136,8 +142,32 @@ class CashRegisterController extends Controller
                 $q->where('cash_register_id', $id);
             })
             ->sum('amount');
+        
+        // Calculate sell return refund amount from modal (all methods) to show in section b)
+        $modalSellReturnRefundTotal = TransactionPayment::where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->sum('amount');
+
+        // Cash-only portion to deduct from cash balance
+        $modalCashSellReturnRefund = TransactionPayment::where('method', 'cash')
+            ->where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->sum('amount');
+            
         return view('cash_register.register_details')
-                    ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'backendPaymentAmount'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund'));
     }
 
     /**
@@ -155,9 +185,13 @@ class CashRegisterController extends Controller
         $business_id = request()->session()->get('user.business_id');
 
         $register_details = $this->cashRegisterUtil->getRegisterDetails();
+        
+        if (!$register_details) {
+            abort(404, 'No open cash register found.');
+        }
 
         $user_id = auth()->user()->id;
-        $open_time = $register_details['open_time'];
+        $open_time = $register_details->open_time;
         $close_time = \Carbon::now()->toDateTimeString();
 
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
@@ -166,8 +200,31 @@ class CashRegisterController extends Controller
 
         $payment_types = $this->cashRegisterUtil->payment_types($register_details->location_id, true, $business_id);
 
+        // Calculate sell return refund amount from modal (all methods) to show in section b)
+        $modalSellReturnRefundTotal = TransactionPayment::where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($register_details) {
+                $q->where('cash_register_id', $register_details->id);
+            })
+            ->sum('amount');
+
+        // Cash-only portion to deduct from cash balance
+        $modalCashSellReturnRefund = TransactionPayment::where('method', 'cash')
+            ->where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($register_details) {
+                $q->where('cash_register_id', $register_details->id);
+            })
+            ->sum('amount');
+
         return view('cash_register.register_details')
-                ->with(compact('register_details', 'details', 'payment_types', 'close_time'));
+                ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund'));
     }
 
     /**
@@ -184,9 +241,13 @@ class CashRegisterController extends Controller
 
         $business_id = request()->session()->get('user.business_id');
         $register_details = $this->cashRegisterUtil->getRegisterDetails($id);
+        
+        if (!$register_details) {
+            abort(404, 'Cash register not found.');
+        }
 
         $user_id = $register_details->user_id;
-        $open_time = $register_details['open_time'];
+        $open_time = $register_details->open_time;
         $close_time = \Carbon::now()->toDateTimeString();
 
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
@@ -200,6 +261,7 @@ class CashRegisterController extends Controller
         $backendPaymentAmount = TransactionPayment::where('method', 'cash')
             ->where('created_by', $user_id)
             ->where('method', 'cash')
+            ->whereBetween('created_at', [$open_time, $close_time])
             ->whereHas('transaction', function ($q) {
                 $q->where('type', 'sell');
             })
@@ -207,9 +269,32 @@ class CashRegisterController extends Controller
                 $q->where('cash_register_id', $id);
             })
             ->sum('amount');
+        
+        // Calculate sell return refund amount from modal (all methods) to show in section b)
+        $modalSellReturnRefundTotal = TransactionPayment::where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->sum('amount');
+
+        // Cash-only portion to deduct from cash balance
+        $modalCashSellReturnRefund = TransactionPayment::where('method', 'cash')
+            ->where('created_by', $user_id)
+            ->whereBetween('created_at', [$open_time, $close_time])
+            ->whereHas('transaction', function ($q) {
+                $q->where('type', 'sell_return');
+            })
+            ->whereDoesntHave('transaction.cash_register_payments', function ($q) use($id) {
+                $q->where('cash_register_id', $id);
+            })
+            ->sum('amount');
             
         return view('cash_register.close_register_modal')
-                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'backendPaymentAmount'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund'));
     }
 
     /**

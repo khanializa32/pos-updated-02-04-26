@@ -1,12 +1,12 @@
 <div class="col-md-2 col-xs-4 product_list no-print create-product-button">
-    <div class="add-product hover:tw-shadow-lg hover:tw-animate-pulse pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal"><br>
+    <div class="add-product hover:tw-shadow-lg hover:tw-animate-pulse pos_add_quick_product" data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" data-container=".quick_add_product_modal">
         <div class="image-container">
-            <i class="fa fa-plus-circle text-danger" style="font-size:6em;"></i>
+            <i class="fa fa-plus-circle text-danger" style="font-size:7.5em;"></i>
         </div>
 
         <div class="text_div">
             <br>
-            <small class="text text-muted">Crear Producto
+            <small class="text text-muted"style="font-size:16px ;color:green">Crear Producto
             </small>
             <br>
           
@@ -50,7 +50,7 @@
 			</small>
 			
 			<small class="text-muted" style="font-size: 110%; float: left; ">
-				${{number_format($product->selling_price,2)}}
+				${{number_format($product->selling_price,0)}}
 			</small><br>
 			
 		</div>

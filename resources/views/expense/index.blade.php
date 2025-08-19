@@ -39,7 +39,7 @@
                                             {{-- <span class="display_currency" data-currency_symbol="true">{{$data['expense']}}</span> --}}
                                             
                                                 <p
-                                                    class="total_sell tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+                                                    class="total_expense_card tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
                                                 </p>
                                             </div>
                                         </div>

@@ -107,15 +107,13 @@
                 
                     
                     
-                    {{--
+                    
                     <div
-                        class="tw-hidden md:tw-block tw-bg-[#646EE4] hover:tw-bg-[#414aac] tw-py-1.5 tw-px-2 tw-rounded-md">
-                        &nbsp; <span
-                            class="curr_datetime text-white tw-font-semibold">{{ @format_datetime('now') }}</span>
-                        <i class="fa fa-keyboard hover-q text-white" aria-hidden="true" data-container="body"
-                            data-toggle="popover" data-placement="bottom" data-content="@include('sale_pos.partials.keyboard_shortcuts_details')"
-                            data-html="true" data-trigger="hover" data-original-title="" title=""></i>
-                    </div>
+                        class="">
+                         <span
+                            class="curr_datetime text-black tw-font-semibold">{{ @format_datetime('now') }}</span>
+                        
+                    </div>&nbsp;&nbsp;
                     @if (empty($pos_settings['hide_product_suggestion']))
                         <button type="button" title="{{ __('lang_v1.view_products') }}" data-placement="bottom"
                             class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-w-8 tw-h-8 tw-text-gray-600 btn-modal pull-right tw-block md:tw-hidden"
@@ -127,7 +125,7 @@
                         <i class="fas hamburger fa-bars tw-mx-5"
                             onclick="document.getElementById('pos_header_more_options').classList.toggle('tw-hidden')"></i>
                     </span>
-                    --}}
+                   
                 </div>
             </div>
              
@@ -136,18 +134,12 @@
                 <a href="{{ $go_back_url }}" title="{{ __('lang_v1.go_back') }}"
                     class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right">
                     <strong class="!tw-m-3">
-                        <i class="fa fa-backward fa-lg fa fa-backward tw-fa-lg tw-text-[#009EE4] !tw-text-sm"></i>
+                        <i class="fa fa-backward fa-lg fa fa-backward" style=" font-size:25px ;color:black"></i>
                         <span class="tw-inline md:tw-hidden">{{ __('lang_v1.go_back') }}</span>
                     </strong>
                 </a>
 
-                <a href="{{ $go_back_url }}" title="{{ __('lang_v1.go_back') }}"
-                class="md:tw-hidden tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right">
-                <strong class="!tw-m-3">
-                    <i class="fa fa-backward fa-lg fa fa-backward tw-fa-lg tw-text-[#009EE4] !tw-text-sm"></i>
-                    <span class="tw-inline md:tw-hidden">{{ __('lang_v1.go_back') }}</span>
-                </strong>
-            </a> 
+                
             </div>
                 {{--
                 @if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
@@ -322,7 +314,7 @@
                     <button type="button" title="{{ __('expense.add_expense') }}" data-placement="bottom"
                         class="tw-bg-white tw-dw-btn tw-cursor-pointer btn-modal"
                         style="margin-top: 10px; height: 5vh; font-size: 15px" id="add_expense">
-                        <strong><i class="fa fas fa-minus-circle"></i> @lang('expense.add_expense')</strong>
+                        <strong><i class="fa fas fa-minus-circle" style=" font-size:14px ;color:red"></i> @lang('expense.add_expense')</strong>
                     </button>
                 @endcan
             </div>
