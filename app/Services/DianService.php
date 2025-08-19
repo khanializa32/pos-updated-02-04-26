@@ -891,7 +891,7 @@ class DianService
                 $payment_method = $input['payment'][0]['method'];
             }
 
-            if($input['is_credit_sale'] == '1' || $input['payment'][0]['amount'] == '0')
+            if((isset($input['is_credit_sale']) && $input['is_credit_sale'] == '1') || $input['payment'][0]['amount'] == '0')
             {
                 if($input['pay_term_number'] == '' || $input['pay_term_number'] == 0)
                 {
@@ -902,8 +902,8 @@ class DianService
 
                 $payment_form = 2;//credito
                 
-            }elseif($input['is_credit_sale'] == '0'){
-                $payment_form = 1;//debido
+            }elseif(!isset($input['is_credit_sale']) || $input['is_credit_sale'] == '0'){
+                $payment_form = 1;//debito
             }
             //si is_credit_sale	= 1 es venta a credito
             $paymentForm = array(
@@ -946,8 +946,8 @@ class DianService
                 "number" => $invoiceNumber,
                 // "number" => 990000547,
                 "prefix" => $prefix,
-                "notes" => $input['sale_note'],
-                "foot_note" => $input['staff_note'],
+                "notes" => (isset($input['sale_note'])) ? $input['sale_note'] : '',
+                "foot_note" => (isset($input['staff_note'])) ? $input['staff_note'] : '',
                 "type_document_id" => $typeDocumentId,
                 "date" => $date,
                 "time" => $time,

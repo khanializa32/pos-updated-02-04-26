@@ -71,7 +71,11 @@
         @endif
         <br>
         @if($sell->qrstr != '')
-           <a href="{{explode("\n", $sell->qrstr)[9] }}" target="_blank" class="badge text-bg-success" style="background-color: #41D78C; color: black;" rel="noopener noreferrer">Ver en la DIAN</a>
+          @if(isset(explode("\n", $sell->qrstr)[9]) && explode("\n", $sell->qrstr)[9] != '')
+            <a href="{{explode("\n", $sell->qrstr)[9] }}" target="_blank" class="badge text-bg-success" style="background-color: #41D78C; color: black;" rel="noopener noreferrer">Ver en la DIAN</a>
+          @else
+          <a href="{{$sell->qrstr }}" target="_blank" class="badge text-bg-success" style="background-color: #41D78C; color: black;" rel="noopener noreferrer">Ver en la DIAN</a>
+          @endif
           {{-- {{explode("\n", $sell->qrstr)[9] }} --}}
         @endif
         @if($sell->qrstr != '')

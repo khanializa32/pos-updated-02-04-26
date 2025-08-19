@@ -533,7 +533,7 @@ class SellController extends Controller
                         $is_valid = '<span style="color:#009166;font-weight:bolder;">Enviado</span>';
                     }else if($row->is_valid == 0 && $row->e_invoice == 'si'){
                         // $is_valid = '<span style="color:#cf2e2e;font-weight:bolder;">Pendiente</span>';
-                        return '<button class="badge-p-warning pulse-warning btn-send-dian" data-id="' . $row->id . '"><span class="icon">!</span> Enviar</button>';
+                        return '<button class="badge-p-warning pulse-warning btn-send-dian" style="font-size:12px; padding: 0.2rem 0.5rem; border-radius: 0.2rem; background-color:rgb(223, 142, 37); color: white;" data-id="' . $row->id . '"><span class="icon">!</span> Enviar</button>';
                     }else{
                         $is_valid = '';
                     }

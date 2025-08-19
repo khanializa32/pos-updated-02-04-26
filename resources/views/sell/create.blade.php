@@ -210,7 +210,8 @@
 		              {!! Form::number('pay_term_number', $walk_in_customer['pay_term_number'], ['class' => 'form-control width-40 pull-left', 'placeholder' => __('contact.pay_term'), 'required' => $is_pay_term_required]); !!}
 
 		              {!! Form::select('pay_term_type', 
-		              	['months' => __('lang_v1.months'), 
+		              	[
+							// 'months' => __('lang_v1.months'), 
 		              		'days' => __('lang_v1.days')], 
 		              		$walk_in_customer['pay_term_type'], 
 		              	['class' => 'form-control width-60 pull-left','placeholder' => __('messages.please_select'), 'required' => $is_pay_term_required]); !!}
@@ -248,7 +249,7 @@
 						<input type="hidden" id="disable_qty_alert">
 					@endif
 				@else
-					<div class="@if(!empty($commission_agent)) col-sm-3 @else col-sm-4 @endif">
+					<div class="@if(!empty($commission_agent)) col-sm-2 @else col-sm-3 @endif">
 						<div class="form-group">
 							{!! Form::label('status', __('sale.status') . ':*') !!}
 							{!! Form::select('status', $statuses, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
@@ -256,21 +257,24 @@
 					</div>
 				@endif
 				@if($sale_type != 'sales_order')
-					<div class="col-sm-3">
+					<div class="col-sm-4">
 						<div class="form-group">
-							{!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':') !!}
-							{!! Form::select('invoice_scheme_id', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
+							{{-- {!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':') !!} --}}
+							{!! Form::label('invoice_scheme_id', __('Resolución de Factura') . ':*') !!}
+							{!! Form::select('invoice_scheme_id', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control select2', 'required', 'placeholder' => __('messages.please_select')]); !!}
+							<p class="help-block">Seleccione la resolución de factura para la venta.</p>
 						</div>
 					</div>
 				@endif
 					@can('edit_invoice_number')
-					<div class="col-sm-3">
+					<input type="hidden" name="invoice_no" value="">
+					{{-- <div class="col-sm-3">
 						<div class="form-group">
 							{!! Form::label('invoice_no', $sale_type == 'sales_order' ? __('restaurant.order_no') : __('sale.invoice_no') . ':') !!}
 							{!! Form::text('invoice_no', null, ['class' => 'form-control', 'placeholder' => $sale_type == 'sales_order' ? __('restaurant.order_no') : __('sale.invoice_no')]); !!}
 							<p class="help-block">@lang('lang_v1.keep_blank_to_autogenerate')</p>
 						</div>
-					</div>
+					</div> --}}
 					@endcan
 				
 				@php
@@ -466,7 +470,7 @@
 					<div class="row">
 		{!! Form::hidden('is_save_and_print', 0, ['id' => 'is_save_and_print']); !!}
 		<div class="col-sm-12 text-center tw-mt-4">
-			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
+			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">Generar Factura</button>
 			<!-- <button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>-->
 		</div>
 	</div>
@@ -914,7 +918,7 @@
 	<div class="row">
 		{!! Form::hidden('is_save_and_print', 0, ['id' => 'is_save_and_print']); !!}
 		<div class="col-sm-12 text-center tw-mt-4">
-			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
+			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('Generar Factura')</button>
 			<!-- <button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>-->
 		</div>
 	</div>

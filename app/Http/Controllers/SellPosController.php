@@ -664,79 +664,81 @@ class SellPosController extends Controller
                     } elseif ($input['status'] == 'final') {
                         $print_invoice = true;
 
-                        // dd($request->invoice_scheme_id	);
-
-                        // Llamar al servicio para enviar la factura
-                        if($request->invoice_scheme_id	 != ''){
-                            $invoice_scheme = InvoiceScheme::where('id',$request->invoice_scheme_id	)->where('business_id',$business_id)->first();
-
-                        }else{
-                            $invoice_scheme = InvoiceScheme::where('is_default',1)->where('business_id',$business_id)->first();
-                            
-                        }
-
-                        if($invoice_scheme->is_fe == 'si'){
-                            $DianService = new UtilsDianService();
-                            if($invoice_scheme->type_document_id == 1)
-                            {
-                                $response = $DianService->send_invoice(
-                                    $invoice_scheme->id, 
-                                    $business_id, 
-                                    $contact_id, 
-                                    $input, 
-                                    $transaction
-                                );
-                                
-                            }elseif($invoice_scheme->type_document_id == 15){
-                                $response = $DianService->send_eqpos(
-                                    $invoice_scheme->id, 
-                                    $business_id, 
-                                    $contact_id, 
-                                    $input, 
-                                    $transaction
-                                );
-    
-                            }else{
-                                $response = null;
-                            }
-                            // dd($response);
-    
-                            // if($response['success'] == true)
-                            // {
-                            //     $message = $response['response'];
-                            //     dd($message);
-                            // }else{
-                            //     if(isset($response['msg']))
-                            //     {
-                            //         if(  $response['msg'] == 'The given data was invalid.')
-                            //         {
-                                        
-                            //             foreach ($response['ErrorMessage'] as $field => $msgArray) {
-                            //                 $message .= "*".$msgArray[0]."<br>"; // Captura el primer mensaje
-                            //             }
-                            //         }
-                                    
-                            //     }
-                            //     $message = $response['msg'].' '.$message;
-                            // }
-
-                            $output = [
-                                'success' => 1, 
-                                // 'msg' => $msg, 
-                                'msg' => ($response) ? $response : $msg, 
-                                // 'msg_error_dian' => $response_invoice['ErrorMessage'], 
-                                'invoice' => ($response) ? $response : '' , 
-                                'receipt' => $receipt,
-                                // 'input_curl'=> $data, 
-                                // 'response' => $respuesta['errors']
-                            ];
-    
-                            
-                           
-                        }else{
-                            $response = null;
-                        }
+                        
                     }
+                }
+
+                // dd($request->invoice_scheme_id	);
+
+                // Llamar al servicio para enviar la factura
+                if($request->invoice_scheme_id	 != ''){
+                    $invoice_scheme = InvoiceScheme::where('id',$request->invoice_scheme_id	)->where('business_id',$business_id)->first();
+
+                }else{
+                    $invoice_scheme = InvoiceScheme::where('is_default',1)->where('business_id',$business_id)->first();
+                    
+                }
+
+                if($invoice_scheme->is_fe == 'si'){
+                    $DianService = new UtilsDianService();
+                    if($invoice_scheme->type_document_id == 1)
+                    {
+                        $response = $DianService->send_invoice(
+                            $invoice_scheme->id, 
+                            $business_id, 
+                            $contact_id, 
+                            $input, 
+                            $transaction
+                        );
+                        
+                    }elseif($invoice_scheme->type_document_id == 15){
+                        $response = $DianService->send_eqpos(
+                            $invoice_scheme->id, 
+                            $business_id, 
+                            $contact_id, 
+                            $input, 
+                            $transaction
+                        );
+
+                    }else{
+                        $response = null;
+                    }
+                    // dd($response);
+
+                    // if($response['success'] == true)
+                    // {
+                    //     $message = $response['response'];
+                    //     dd($message);
+                    // }else{
+                    //     if(isset($response['msg']))
+                    //     {
+                    //         if(  $response['msg'] == 'The given data was invalid.')
+                    //         {
+                                
+                    //             foreach ($response['ErrorMessage'] as $field => $msgArray) {
+                    //                 $message .= "*".$msgArray[0]."<br>"; // Captura el primer mensaje
+                    //             }
+                    //         }
+                            
+                    //     }
+                    //     $message = $response['msg'].' '.$message;
+                    // }
+
+                    $output = [
+                        'success' => 1, 
+                        // 'msg' => $msg, 
+                        'msg' => ($response) ? $response['msg'] : $msg, 
+                        // 'msg_error_dian' => $response_invoice['ErrorMessage'], 
+                        'invoice' => ($response) ? $response : '' , 
+                        'receipt' => $receipt,
+                        // 'input_curl'=> $data, 
+                        // 'response' => $respuesta['errors']
+                    ];
+
+                    
+                    
+                }else{
+                    $response = null;
                 }
 
 
@@ -752,6 +754,7 @@ class SellPosController extends Controller
                 if ($print_invoice) {
                     $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id, null, false, true, $invoice_layout_id);
                 }
+                // dd($msg);
 
                 $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt];
 
@@ -760,7 +763,7 @@ class SellPosController extends Controller
                 }
             } else {
                 $output = ['success' => 0,
-                    'msg' => trans('messages.something_went_wrong'),
+                    'msg' => trans('messages.something_went_wrong').' - Error',
                 ];
             }
         } catch (\Exception $e) {
@@ -776,7 +779,7 @@ class SellPosController extends Controller
             }
 
             $output = ['success' => 0,
-                'msg' => $msg,
+                'msg' => $msg.' - Error'.$e->getMessage().' - '.$e->getFile().' - '.$e->getLine(),
                 'error' => $e->getMessage(),
                 'error_line' => $e->getLine(),
                 'error_file' => $e->getFile(),
@@ -1722,6 +1725,7 @@ class SellPosController extends Controller
                         $receipt = '';
                     }
                 }
+                
 
                 $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt];
 
