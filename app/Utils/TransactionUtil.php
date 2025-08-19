@@ -4820,6 +4820,58 @@ class TransactionUtil extends Util
     }
 
     /**
+     * Calculates gross profit using sub-unit aware per-transaction utility.
+     * This mirrors the per-invoice 'utility' calculation and avoids unit mismatches
+     * that can happen with the aggregate SQL when selling in sub-units.
+     */
+    public function getGrossProfitUsingSubUnits(
+        $business_id,
+        $start_date = null,
+        $end_date = null,
+        $location_id = null,
+        $user_id = null,
+        $permitted_locations = null
+    ) {
+        $query = \App\Transaction::where('type', 'sell')
+            ->where('is_suspend', 0)
+            ->where('status', 'final')
+            ->where('business_id', $business_id);
+
+        if (! empty($permitted_locations) && $permitted_locations != 'all') {
+            $query->whereIn('location_id', $permitted_locations);
+        }
+
+        if (! empty($location_id)) {
+            $query->where('location_id', $location_id);
+        }
+
+        if (! empty($user_id)) {
+            $query->where('created_by', $user_id);
+        }
+
+        if (! empty($start_date) && ! empty($end_date) && $start_date != $end_date) {
+            $query->whereDate('transaction_date', '>=', $start_date)
+                ->whereDate('transaction_date', '<=', $end_date);
+        }
+        if (! empty($start_date) && ! empty($end_date) && $start_date == $end_date) {
+            $query->whereDate('transaction_date', $end_date);
+        }
+
+        $transactions = $query->select('id')->get();
+
+        $total_profit = 0.0;
+        foreach ($transactions as $t) {
+            try {
+                $total_profit += (float) $this->calculateTransactionProfitUsingSubUnits($t->id);
+            } catch (\Throwable $e) {
+                // In case of any anomaly, skip this transaction and continue
+                \Log::warning('Profit calc (subunit) failed for transaction '.$t->id.' error: '.$e->getMessage());
+            }
+        }
+
+        return $total_profit;
+    }
+    /**
      * Calculates reward points to be earned from an order
      *
      * @return int
@@ -5927,7 +5979,8 @@ class TransactionUtil extends Util
             $permitted_locations
         );
 
-        $gross_profit = $this->getGrossProfit(
+        // Use sub-unit aware gross profit to align with per-invoice utility
+        $gross_profit = $this->getGrossProfitUsingSubUnits(
             $business_id,
             $start_date,
             $end_date,
