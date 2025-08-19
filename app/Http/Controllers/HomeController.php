@@ -234,7 +234,8 @@ class HomeController extends Controller
             );
             $permitted_locations = auth()->user()->permitted_locations();
     
-            $gross_profit = $this->transactionUtil->getGrossProfit(
+            // Use sub-unit aware gross profit to match per-invoice utility
+            $gross_profit = $this->transactionUtil->getGrossProfitUsingSubUnits(
                 $business_id,
                 $start,
                 $end,
