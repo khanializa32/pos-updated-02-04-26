@@ -388,9 +388,9 @@ class SellController extends Controller
                         
                         if (! $only_shipments && $row->is_valid !=true) {
                             if ($row->is_direct_sale == 0) {
-                                if (auth()->user()->can('sell.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i> &nbsp;'.__('messages.edit').'</a></li>';
-                                }
+                                //if (auth()->user()->can('sell.update')) {
+                                    //$html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i> &nbsp;'.__('messages.edit').'</a></li>';
+                                //}
                             } elseif ($row->type == 'sales_order') {
                                 if (auth()->user()->can('so.update')) {
                                     $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i>&nbsp;'.__('messages.edit').'</a></li>';
@@ -462,7 +462,7 @@ class SellController extends Controller
                                         $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'addPayment'], [$row->id]).'" class="add_payment_modal"><i class="fas fa-dollar-sign"style="font-size:22px;color:teal"></i> &nbsp;&nbsp;'.__('Pagar / Abonar').'</a></li>';
                                     }
 
-                                    $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'show'], [$row->id]).'" class="view_payment_modal"><i class="fas fa-hand-holding-usd"style="font-size:20px;color:fuchsia"></i> '.__('purchase.view_payments').'</a></li>';
+                                    $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'show'], [$row->id]).'" class="view_payment_modal"><i class="fas fa-hand-holding-usd"style="font-size:20px;color:RoyalBlue"></i> '.__('purchase.view_payments').'</a></li>';
                                 }
 
                                 
