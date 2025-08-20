@@ -201,7 +201,7 @@
            @endif
            @php($cheque_refund_total = $register_details->total_cheque_refund + ($modalRefundsByMethod['cheque'] ?? 0))
            @if($cheque_refund_total != 0) 
-             Cheque: <span class="display_currency" data-currency_symbol="true">{{ $cheque_refund_total }}</span><br>
+             Nequi: <span class="display_currency" data-currency_symbol="true">{{ $cheque_refund_total }}</span><br>
            @endif
            @php($card_refund_total = $register_details->total_card_refund + ($modalRefundsByMethod['card'] ?? 0))
            @if($card_refund_total != 0) 
@@ -209,7 +209,7 @@
            @endif
            @php($bt_refund_total = $register_details->total_bank_transfer_refund + ($modalRefundsByMethod['bank_transfer'] ?? 0))
            @if($bt_refund_total != 0)
-             Bank Transfer: <span class="display_currency" data-currency_symbol="true">{{ $bt_refund_total }}</span><br>
+             Transferencia B: <span class="display_currency" data-currency_symbol="true">{{ $bt_refund_total }}</span><br>
            @endif
            @php($cp1_refund_total = $register_details->total_custom_pay_1_refund + ($modalRefundsByMethod['custom_pay_1'] ?? 0))
            @if(array_key_exists('custom_pay_1', $payment_types) && $cp1_refund_total != 0)
