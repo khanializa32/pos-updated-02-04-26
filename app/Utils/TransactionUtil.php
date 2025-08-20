@@ -220,7 +220,7 @@ class TransactionUtil extends Util
             $pay_term_type = $contact->pay_term_type;
         }
 
-        if(empty(!$invoice_scheme_id))
+        if(isset($invoice_scheme_id) && !empty($invoice_scheme_id))
         {
             $is_fe = InvoiceScheme::findOrFail($invoice_scheme_id);
             $invoice_e = '';

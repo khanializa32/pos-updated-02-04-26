@@ -1485,7 +1485,7 @@ class SellPosController extends Controller
                 //     $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
                 // }
 
-                return response()->json($input);
+                // return response()->json($input);
 
                 //Types of service
                 if ($this->moduleUtil->isModuleEnabled('types_of_service')) {
