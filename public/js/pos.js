@@ -1709,23 +1709,41 @@ $(document).ready(function() {
         var opt_price = selected_option.data('price');
         var parsed_opt = parseFloat(opt_price);
         var current_price = __read_number(tr.find('input.pos_unit_price'));
+        
+        // Debug logging
+        console.log('Selected option:', selected_option.val());
+        console.log('Option price data:', opt_price);
+        console.log('Parsed price:', parsed_opt);
+        console.log('Current price:', current_price);
+        console.log('Base unit selling price:', base_unit_selling_price);
+        console.log('Multiplier:', multiplier);
+        
         var unit_sp = (!isNaN(parsed_opt) && parsed_opt > 0)
             ? parsed_opt
             : (current_price || (base_unit_selling_price * multiplier));
+        
+        console.log('Final unit selling price:', unit_sp);
 
         var sp_element = tr.find('input.pos_unit_price');
         __write_number(sp_element, unit_sp);
 
         sp_element.change();
 
-        // Also update inc_tax field if exists on screen
-        var unit_sp_inc = (!isNaN(parsed_opt) && parsed_opt > 0)
-            ? parsed_opt
-            : (__read_number(sp_inc_el) || (base_unit_selling_price_inc_tax * multiplier));
-        var sp_inc_el = tr.find('input.pos_unit_price_inc_tax');
-        if (sp_inc_el.length) {
-            __write_number(sp_inc_el, unit_sp_inc);
-            sp_inc_el.change();
+        // Check if sub-unit has a specific cost price
+        var sub_unit_cost_price = selected_option.data('cost-price');
+        if (sub_unit_cost_price && sub_unit_cost_price !== '') {
+            // If sub-unit has a cost price, use it for validation
+            var cost_price = parseFloat(sub_unit_cost_price);
+            tr.find('input.pos_unit_price, input.pos_unit_price_inc_tax').each(function() {
+                $(this).attr('data-rule-min-value', cost_price);
+                $(this).attr('data-msg-min-value', LANG.cost_price_validation_error.replace(':cost_price', cost_price));
+            });
+        } else {
+            // When sub-unit is selected but has no specific cost price, remove cost price validation rules to allow any price
+            tr.find('input.pos_unit_price, input.pos_unit_price_inc_tax').each(function() {
+                $(this).removeAttr('data-rule-min-value');
+                $(this).removeAttr('data-msg-min-value');
+            });
         }
         
         // Update cost price data attributes
