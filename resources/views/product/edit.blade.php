@@ -1,40 +1,4 @@
 @extends('layouts.app')
-
-@section('css')
-<style>
-.sub-unit-price-input {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #f9f9f9;
-}
-
-.sub-unit-price-input h5 {
-    margin-bottom: 15px;
-    color: #333;
-    font-weight: 600;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 8px;
-}
-
-.sub-unit-price-input label {
-    font-weight: 500;
-    color: #555;
-    margin-bottom: 5px;
-}
-
-.sub-unit-price-input .form-control {
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
-.sub-unit-price-input .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-</style>
-@endsection
 @section('title', __('product.edit_product'))
 
 @section('content')
@@ -122,18 +86,13 @@
             </div>
 
             @if(session('business.enable_sub_units'))
-            <div class="col-sm-12">
+            <div class="col-sm-8">
               <div class="form-group">
                 {!! Form::label('sub_unit_prices', __('lang_v1.sub_unit_prices') . ':') !!}
-                                 @php
-                   $existing_purchase_prices = is_array($product->sub_unit_prices) ? $product->sub_unit_prices : [];
-                   $existing_sell_prices = is_array($product->sub_unit_sell_prices) ? $product->sub_unit_sell_prices : [];
-                   $existing_margins = is_array($product->sub_unit_margins) ? $product->sub_unit_margins : [];
-                 @endphp
-                                 <div class="row" id="sub_unit_prices_wrapper"
-                      data-prices='@json($existing_purchase_prices)'
-                      data-sell-prices='@json($existing_sell_prices)'
-                      data-margins='@json($existing_margins)'></div>
+                @php
+                  $existing_prices = is_array($product->sub_unit_prices) ? $product->sub_unit_prices : [];
+                @endphp
+                <div class="row" id="sub_unit_prices_wrapper" data-prices='@json($existing_prices)'></div>
                 <small class="help-block">@lang('lang_v1.enter_price_for_each_selected_unit')</small>
               </div>
             </div>

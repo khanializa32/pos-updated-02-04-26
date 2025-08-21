@@ -1,42 +1,6 @@
 @extends('layouts.app')
 @section('title', __('product.add_new_product'))
 
-@section('css')
-<style>
-.sub-unit-price-input {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #f9f9f9;
-}
-
-.sub-unit-price-input h5 {
-    margin-bottom: 15px;
-    color: #333;
-    font-weight: 600;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 8px;
-}
-
-.sub-unit-price-input label {
-    font-weight: 500;
-    color: #555;
-    margin-bottom: 5px;
-}
-
-.sub-unit-price-input .form-control {
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
-.sub-unit-price-input .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-</style>
-@endsection
-
 @section('content')
 
 <!-- Content Header (Page header) -->
@@ -113,7 +77,7 @@
             </div>
         </div>
         @if(session('business.enable_sub_units'))
-        <div class="col-sm-12">
+        <div class="col-sm-8">
             <div class="form-group">
                 {!! Form::label('sub_unit_prices', __('lang_v1.sub_unit_prices') . ':') !!}
                 <div class="row" id="sub_unit_prices_wrapper">

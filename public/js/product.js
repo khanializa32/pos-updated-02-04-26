@@ -34,19 +34,7 @@ $(document).ready(function() {
 
         // Prefilled prices coming from backend
         var prefilled = {};
-        var prefilledPurchase = {};
-        var prefilledSell = {};
-        var prefilledMargins = {};
-        
-        try { 
-            prefilledPurchase = JSON.parse(wrapper.attr('data-prices') || '{}');
-            prefilledSell = JSON.parse(wrapper.attr('data-sell-prices') || '{}');
-            prefilledMargins = JSON.parse(wrapper.attr('data-margins') || '{}');
-        } catch (e) { 
-            prefilledPurchase = {};
-            prefilledSell = {};
-            prefilledMargins = {};
-        }
+        try { prefilled = JSON.parse(wrapper.attr('data-prices') || '{}'); } catch (e) { prefilled = {}; }
 
         // Append inputs that don't exist yet for newly selected sub-units
         for (var i = 0; i < selected.length; i++) {
@@ -54,26 +42,10 @@ $(document).ready(function() {
             if (wrapper.find('.sub-unit-price-input[data-unit-id="' + id + '"]').length === 0) {
                 var option = $(this).find('option[value="' + id + '"]');
                 var label = option.length ? option.text() : ('Unit ' + id);
-                var purchaseVal = (prefilledPurchase[id] !== undefined && prefilledPurchase[id] !== null && prefilledPurchase[id] !== '') ? __number_f(prefilledPurchase[id], false) : '';
-                var sellVal = (prefilledSell[id] !== undefined && prefilledSell[id] !== null && prefilledSell[id] !== '') ? __number_f(prefilledSell[id], false) : '';
-                var marginVal = (prefilledMargins[id] !== undefined && prefilledMargins[id] !== null && prefilledMargins[id] !== '') ? __number_f(prefilledMargins[id], false) : '';
-                
-                var html = '<div class="col-sm-12 tw-mb-3 sub-unit-price-input" data-unit-id="' + id + '">'
-                    + '<div class="row">'
-                    + '<div class="col-sm-12"><h5>' + label + '</h5></div>'
-                    + '<div class="col-sm-4">'
-                    + '<label>Purchase Price:</label>'
-                    + '<input name="sub_unit_prices[' + id + ']" type="text" class="form-control input_number sub-unit-purchase-price" data-unit-id="' + id + '" value="' + purchaseVal + '" placeholder="Purchase Price">'
-                    + '</div>'
-                    + '<div class="col-sm-4">'
-                    + '<label>Sell Price:</label>'
-                    + '<input name="sub_unit_sell_prices[' + id + ']" type="text" class="form-control input_number sub-unit-sell-price" data-unit-id="' + id + '" value="' + sellVal + '" placeholder="Sell Price">'
-                    + '</div>'
-                    + '<div class="col-sm-4">'
-                    + '<label>Margin %:</label>'
-                    + '<input name="sub_unit_margins[' + id + ']" type="text" class="form-control input_number sub-unit-margin" data-unit-id="' + id + '" value="' + marginVal + '" placeholder="Margin %">'
-                    + '</div>'
-                    + '</div>'
+                var val = (prefilled[id] !== undefined && prefilled[id] !== null && prefilled[id] !== '') ? __number_f(prefilled[id], false) : '0';
+                var html = '<div class="col-sm-3 tw-mb-2 sub-unit-price-input" data-unit-id="' + id + '">'
+                    + '<label style="display:block">' + label + '</label>'
+                    + '<input name="sub_unit_prices[' + id + ']" type="text" class="form-control input_number" value="' + val + '" placeholder="' + LANG.selling_price + '">'
                     + '</div>';
                 wrapper.append(html);
             }
@@ -92,46 +64,6 @@ $(document).ready(function() {
     if ($('#sub_unit_ids').length) {
         $('#sub_unit_ids').trigger('change');
     }
-
-    // Sub-unit pricing calculations
-    $(document).on('keyup', '.sub-unit-purchase-price', function() {
-        var unitId = $(this).data('unit-id');
-        var purchasePrice = __read_number($(this));
-        var marginInput = $('.sub-unit-margin[data-unit-id="' + unitId + '"]');
-        var sellPriceInput = $('.sub-unit-sell-price[data-unit-id="' + unitId + '"]');
-        
-        if (purchasePrice > 0 && marginInput.val() > 0) {
-            var margin = __read_number(marginInput);
-            var sellPrice = purchasePrice + (purchasePrice * margin / 100);
-            __write_number(sellPriceInput, sellPrice);
-        }
-    });
-
-    $(document).on('keyup', '.sub-unit-margin', function() {
-        var unitId = $(this).data('unit-id');
-        var margin = __read_number($(this));
-        var purchasePriceInput = $('.sub-unit-purchase-price[data-unit-id="' + unitId + '"]');
-        var sellPriceInput = $('.sub-unit-sell-price[data-unit-id="' + unitId + '"]');
-        
-        if (margin > 0 && purchasePriceInput.val() > 0) {
-            var purchasePrice = __read_number(purchasePriceInput);
-            var sellPrice = purchasePrice + (purchasePrice * margin / 100);
-            __write_number(sellPriceInput, sellPrice);
-        }
-    });
-
-    $(document).on('keyup', '.sub-unit-sell-price', function() {
-        var unitId = $(this).data('unit-id');
-        var sellPrice = __read_number($(this));
-        var purchasePriceInput = $('.sub-unit-purchase-price[data-unit-id="' + unitId + '"]');
-        var marginInput = $('.sub-unit-margin[data-unit-id="' + unitId + '"]');
-        
-        if (sellPrice > 0 && purchasePriceInput.val() > 0) {
-            var purchasePrice = __read_number(purchasePriceInput);
-            var margin = ((sellPrice - purchasePrice) / purchasePrice) * 100;
-            __write_number(marginInput, margin);
-        }
-    });
     $(document).on('ifChecked', 'input#enable_stock', function() {
         $('div#alert_quantity_div').show();
         $('div#quick_product_opening_stock_div').show();
