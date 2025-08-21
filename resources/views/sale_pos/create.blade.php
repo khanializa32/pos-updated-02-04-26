@@ -101,7 +101,7 @@
                     </div>
                     
                     @if (empty($pos_settings['hide_product_suggestion']) && !isMobile())
-                        <div class="col-lg-9" style="height: 65%;">
+                        <div class="col-lg-9" style="height: calc(100vh - 200px); min-height: 60vh;">
                             @include('sale_pos.partials.pos_sidebar')
                         </div>
                     @endif
