@@ -17,9 +17,7 @@
                                 {{ __('home.welcome_message', ['name' => Session::get('user.first_name')]) }}
                             </h2>
                             
-                            <h5 class="tw-text-2xl tw-font-medium tw-tracking-tight tw-text-white">
-                    Esto es lo que pasa en tu tienda hoy
-                </h5>
+                            <p class="tw-text-sm tw-font-medium tw-text-white tw-mb-10 md:tw-mb-0"> Esto es lo que pasa en tu tienda hoy</p>
                         </div>
     
                         @if (auth()->user()->can('dashboard.data'))
