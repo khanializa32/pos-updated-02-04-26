@@ -7,7 +7,7 @@
 <section class="content-header no-print">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('Transacciones')
     &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube' id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
-     
+     <p class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap"> Esto es lo que pasa en tu tienda hoy</p>
       </h4>
       
       
