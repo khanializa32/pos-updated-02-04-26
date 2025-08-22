@@ -5,7 +5,7 @@
 
 			<div class="input-group">
 				<span class="input-group-addon">
-					<i class="fa fa-user"></i>
+					<i class="fas fa-user-plus" style='font-size:18px;color:teal'></i>
 				</span>
 				<input type="hidden" id="default_customer_id" 
 				value="{{ $walk_in_customer['id'] ?? ''}}" >
@@ -26,7 +26,7 @@
 				!!}
 				
 				<span class="input-group-btn">
-					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-warning fa-lg"></i></button>
+					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-danger fa-lg"></i></button>
 					
 				</span>
 			</div>
@@ -39,7 +39,7 @@
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-btn">
-					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="fas fa-search-plus"></i></button>
+					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="glyphicon glyphicon-qrcode" style='font-size:16px;color:teal'></i></button>
 				</div>
                 {{-- Removed mousetrap class as it was causing issue with barcode scanning --}}
 				{!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
