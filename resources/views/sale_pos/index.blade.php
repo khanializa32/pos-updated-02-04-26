@@ -92,7 +92,7 @@
 
                                             </p>
                                         </div>
-                                        
+                                        <a href="https://sistema.ziscoplus.com/expenses">Ver Más</a>
                                     </div>
                                 </div>
                             </div>
@@ -130,7 +130,7 @@
 
                                             </p>
                                         </div>
-                                        
+                                        <a href="https://sistema.ziscoplus.com/reports/profit-loss">Ver Más</a>
                                     </div>
                                 </div>
                             </div>  
@@ -171,7 +171,7 @@
 
                                             </p>
                                         </div>
-                                        
+                                        <a href="https://sistema.ziscoplus.com/reports/stock-report">Ver Más</a>
                                     </div>
                                 </div>
                             </div>  
