@@ -12,10 +12,14 @@
             </div> --}}
                     <div class="sm:tw-flex sm:tw-items-center sm:tw-justify-between sm:tw-gap-12">
                         <div class="tw-mt-2 sm:tw-w-1/2 md:tw-w-1/2">
-                            <h1
+                            <h2
                                 class="tw-text-2xl md:tw-text-4xl tw-tracking-tight tw-text-primary-800 tw-font-semibold text-white tw-mb-10 md:tw-mb-0">
                                 {{ __('home.welcome_message', ['name' => Session::get('user.first_name')]) }}
-                            </h1>
+                            </h2>
+                            
+                            <h5 class="tw-text-2xl tw-font-medium tw-tracking-tight tw-text-white">
+                    Esto es lo que pasa en tu tienda hoy
+                </h5>
                         </div>
     
                         @if (auth()->user()->can('dashboard.data'))
