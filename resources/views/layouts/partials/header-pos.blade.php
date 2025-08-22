@@ -118,7 +118,7 @@
                         <button type="button" title="{{ __('lang_v1.view_products') }}" data-placement="bottom"
                             class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md tw-w-8 tw-h-8 tw-text-gray-600 btn-modal pull-right tw-block md:tw-hidden"
                             data-toggle="modal" data-target="#mobile_product_suggestion_modal">
-                            <strong><i class="fa fa-cubes fa-lg tw-text-[#00935F] !tw-text-sm"></i></strong>
+                            <strong><i class="fa fa-cubes fa-lg tw-text-!tw-text-sm" style="font-size:24px ;color:purple"></i></strong>
                         </button>
                     @endif
                     <span class="tw-block md:tw-hidden">
