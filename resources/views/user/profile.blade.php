@@ -58,7 +58,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right">@lang('messages.update')</button>
+                <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right">Cambiar Contraseña</button>
             </div>
         </div>
     </div>
@@ -74,7 +74,7 @@
                 </div>
             </div>
             <div class="box-body">
-                <div class="form-group col-md-2">
+                 <!--<div class="form-group col-md-2">
                     {!! Form::label('surname', __('business.prefix') . ':') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
@@ -82,7 +82,7 @@
                         </span>
                         {!! Form::text('surname', $user->surname, ['class' => 'form-control','placeholder' => __('business.prefix_placeholder')]); !!}
                     </div>
-                </div>
+                </div> -->
                 <div class="form-group col-md-5">
                     {!! Form::label('first_name', __('business.first_name') . ':') !!}
                     <div class="input-group">
@@ -142,7 +142,7 @@
 @include('user.edit_profile_form_part', ['bank_details' => !empty($user->bank_details) ? json_decode($user->bank_details, true) : null])
 <div class="row">
     <div class="col-md-12 text-center">
-        <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-lg">@lang('messages.update')</button>
+        <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black tw-dw-btn-lg">Actualizar Mi Perfil</button>
     </div>
 </div>
 {!! Form::close() !!}
