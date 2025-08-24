@@ -4,8 +4,8 @@
     @endif
 </div>
 <div class="row tw-mb-1">
-    {{-- @if (!empty($categories))
-        <div class="col-md-6 !tw-px-2" id="product_category_div">
+     @if (!empty($categories))
+        <div class="col-md-6 !tw-px-2 tw-block lg:!tw-hidden" id="product_category_div">
             <div class="tw-dw-drawer tw-dw-drawer-end">
                 <input id="my-drawer-4" type="checkbox" class="tw-dw-drawer-toggle">
                 <div class="tw-dw-drawer-content">
@@ -101,7 +101,7 @@
                 </div>
             </div>
         </div>
-    @endif --}}
+    @endif 
 
     {{-- @if (!empty($brands))
         <div class="col-sm-6 !tw-px-2" id="product_brand_div">
