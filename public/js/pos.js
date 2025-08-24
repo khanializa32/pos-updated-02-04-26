@@ -77,6 +77,52 @@ function handleMSPValidationRules() {
     }
 }
 
+// Compute total quantity in cart for a given variation id
+function getCartQtyForVariation(variationId) {
+    var total = 0;
+    try {
+        $('table#pos_table tbody').find('tr').each(function() {
+            var vId = $(this).find('.row_variation_id').val();
+            if (vId && vId.toString() === variationId.toString()) {
+                total += __read_number($(this).find('input.pos_quantity'));
+            }
+        });
+    } catch (e) {}
+    return total;
+}
+
+// Update a single product card's quantity badge using current cart counts
+function updateProductQtyBadge(variationId) {
+    var box = $('.product_box[data-variation_id="' + variationId + '"]');
+    if (box.length === 0) return;
+    var enableStock = (box.data('enable-stock') == 1 || box.data('enable-stock') === '1');
+    var initialQty = parseFloat(box.attr('data-initial-qty'));
+    var badge = box.find('.qty-badge');
+    if (!enableStock) {
+        if (badge.length) { badge.text('--'); }
+        return;
+    }
+    if (isNaN(initialQty)) return;
+    var soldQty = getCartQtyForVariation(variationId);
+    var remaining = initialQty - soldQty;
+    if (badge.length) {
+        badge.text(__number_f(remaining < 0 ? 0 : remaining, false));
+        if (remaining <= 0) {
+            badge.removeClass('text-green').addClass('text-danger');
+        } else {
+            badge.removeClass('text-danger').addClass('text-green');
+        }
+    }
+}
+
+// Update all product card badges
+function updateAllProductQtyBadges() {
+    $('.product_box[data-variation_id]').each(function() {
+        var vId = $(this).data('variation-id') || $(this).attr('data-variation_id');
+        if (vId) { updateProductQtyBadge(vId); }
+    });
+}
+
 // Function to show cost price warning (only if enable_msp exists and value is 1)
 function showCostPriceWarning(tr, totalPrice, totalCostPrice) {
     // Remove existing warnings
@@ -449,6 +495,14 @@ $(document).ready(function() {
         if ($('#enable_msp_enabled').length > 0) {
             checkCostPriceValidation(tr);
         }
+
+        // Update product quantity badge for this variation in product grid
+        try {
+            var variationIdForRow = tr.find('.row_variation_id').val();
+            if (typeof updateProductQtyBadge === 'function' && variationIdForRow) {
+                updateProductQtyBadge(variationIdForRow);
+            }
+        } catch (e) {}
     });
     
     // Add event handler for quantity up/down buttons
@@ -461,6 +515,13 @@ $(document).ready(function() {
             if ($('#enable_msp_enabled').length > 0) {
                 checkCostPriceValidation(tr);
             }
+            // Also refresh badge for this product variation
+            try {
+                var variationIdForRow = tr.find('.row_variation_id').val();
+                if (typeof updateProductQtyBadge === 'function' && variationIdForRow) {
+                    updateProductQtyBadge(variationIdForRow);
+                }
+            } catch (e) {}
         }, 100);
     });
 
@@ -652,10 +713,16 @@ $(document).ready(function() {
 
     //Remove row on click on remove row
     $('table#pos_table tbody').on('click', 'i.pos_remove_row', function() {
-        $(this)
-            .parents('tr')
-            .remove();
+        var tr = $(this).parents('tr');
+        var variationIdForRow = tr.find('.row_variation_id').val();
+        tr.remove();
         pos_total_row();
+        // Update product badge after removal
+        try {
+            if (typeof updateProductQtyBadge === 'function' && variationIdForRow) {
+                updateProductQtyBadge(variationIdForRow);
+            }
+        } catch (e) {}
     });
 
     //Cancel the invoice
@@ -1974,6 +2041,8 @@ function get_product_suggestion_list(category_id, brand_id, location_id, url = n
             $('div#product_list_body').append(result);
             $('.create-product-button').not(':first').remove();
             $('#suggestion_page_loader').fadeOut(700);
+            // After rendering suggestions, update all badges to reflect current cart quantities
+            try { if (typeof updateAllProductQtyBadges === 'function') { updateAllProductQtyBadges(); } } catch (e) {}
         },
     });
 }
@@ -2058,6 +2127,9 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                     $('input#search_product')
                         .focus()
                         .select();
+
+                    // Update product badge for this variation
+                    try { if (typeof updateProductQtyBadge === 'function') { updateProductQtyBadge(row_v_id); } } catch (e) {}
                 }
         });
     }
@@ -2201,6 +2273,9 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                     } else {
                         $(".pos_product_div").animate({ scrollTop: $('.pos_product_div').prop("scrollHeight")}, 1000);
                     }
+
+                    // Update product badge for this variation
+                    try { if (typeof updateProductQtyBadge === 'function') { updateProductQtyBadge(variation_id); } } catch (e) {}
                 } else {
                     toastr.error(result.msg);
                     $('input#search_product')

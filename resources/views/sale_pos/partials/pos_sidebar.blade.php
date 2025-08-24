@@ -173,7 +173,7 @@
             id="show_featured_products">MIS FAVORITOS</button>
     </div>
 </div>
-<style>#product_list_body{max-height: 650px;overflow-y: scroll;overflow-x: hidden;}</style>
+<style>#product_list_body{max-height: calc(100vh - 280px); overflow-y: auto; overflow-x: hidden;}</style>
 <div class="row">   
     <input type="hidden" id="suggestion_page" value="1">
     <div class="col-md-12">
