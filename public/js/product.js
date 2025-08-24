@@ -95,13 +95,14 @@ $(document).ready(function() {
 
     // Sub-unit pricing calculations
     $(document).on('keyup', '.sub-unit-purchase-price', function() {
+        __write_number($(this), $(this).val());
         var unitId = $(this).data('unit-id');
         var purchasePrice = __read_number($(this));
         var marginInput = $('.sub-unit-margin[data-unit-id="' + unitId + '"]');
         var sellPriceInput = $('.sub-unit-sell-price[data-unit-id="' + unitId + '"]');
         
-        if (purchasePrice > 0 && marginInput.val() > 0) {
-            var margin = __read_number(marginInput);
+        var margin = __read_number(marginInput);
+        if (purchasePrice > 0 && margin > 0) {
             var sellPrice = purchasePrice + (purchasePrice * margin / 100);
             __write_number(sellPriceInput, sellPrice);
         }
@@ -113,21 +114,22 @@ $(document).ready(function() {
         var purchasePriceInput = $('.sub-unit-purchase-price[data-unit-id="' + unitId + '"]');
         var sellPriceInput = $('.sub-unit-sell-price[data-unit-id="' + unitId + '"]');
         
-        if (margin > 0 && purchasePriceInput.val() > 0) {
-            var purchasePrice = __read_number(purchasePriceInput);
+        var purchasePrice = __read_number(purchasePriceInput);
+        if (margin > 0 && purchasePrice > 0) {
             var sellPrice = purchasePrice + (purchasePrice * margin / 100);
             __write_number(sellPriceInput, sellPrice);
         }
     });
 
     $(document).on('keyup', '.sub-unit-sell-price', function() {
+        __write_number($(this), $(this).val());
         var unitId = $(this).data('unit-id');
         var sellPrice = __read_number($(this));
         var purchasePriceInput = $('.sub-unit-purchase-price[data-unit-id="' + unitId + '"]');
         var marginInput = $('.sub-unit-margin[data-unit-id="' + unitId + '"]');
         
-        if (sellPrice > 0 && purchasePriceInput.val() > 0) {
-            var purchasePrice = __read_number(purchasePriceInput);
+        var purchasePrice = __read_number(purchasePriceInput);
+        if (sellPrice > 0 && purchasePrice > 0) {
             var margin = ((sellPrice - purchasePrice) / purchasePrice) * 100;
             __write_number(marginInput, margin);
         }
