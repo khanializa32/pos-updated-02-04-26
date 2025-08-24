@@ -221,12 +221,21 @@
                         </li>
                         <li>
                             
+
+                        <li>
+                           <a href="https://test.ziscoplus.com/business-location/" 
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-key' style='font-size:20px;color:purple'></i>
+                                Mis Llaves
+                            </a>
+                        </li>   
                             
                             <li>
                            <a href="https://help.ziscoplus.com/" target=_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-question-circle' style='font-size:20px;color:purple'></i>
+                                <i class='fas fa-question-circle' style='font-size:20px;color:orange'></i>
                                 Soporte
                             </a>
                         </li>
