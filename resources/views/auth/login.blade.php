@@ -2,6 +2,21 @@
 @section('title', __('lang_v1.login'))
 @inject('request', 'Illuminate\Http\Request')
 @section('content')
+<style>
+    .pace-done {
+        min-height: 100vh;
+        width: 100%;
+        position: relative;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('../img/login-bg.gif') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+    }
+</style>
     @php
         $username = old('username');
         $password = null;
@@ -107,11 +122,18 @@
         
     @endif
         </div>
+        <!-- Middle column: Empty for spacing -->
+        <div class="col-md-4"></div>
+        
+        <!-- Right column: Login form -->
         <div class="col-md-4">
             <div
-                class="tw-p-5 md:tw-p-6 tw-mb-4 tw-rounded-2xl tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm tw-ring-1 tw-ring-gray-200">
+                class="tw-p-5 md:tw-p-6 tw-mb-4 tw-rounded-2xl tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm tw-ring-1 tw-ring-gray-200" style="margin-top: 40px; margin-right: 40px;">
                 <div class="tw-flex tw-flex-col tw-gap-4 tw-dw-rounded-box tw-dw-p-6 tw-dw-max-w-md">
                     <div class="tw-flex tw-items-center tw-flex-col">
+                        <div class="tw-w-12 tw-h-12 md:tw-w-16 md:tw-h-16 tw-flex tw-items-center tw-justify-center tw-overflow-hidden tw-bg-white tw-rounded-full tw-p-0.5 tw-mb-2">
+                            <img src="{{ asset('img/logo-small.png')}}" alt="logo" class="tw-rounded-full tw-object-fill" />
+                        </div>
                         <h1 class="tw-text-lg md:tw-text-xl tw-font-semibold tw-text-[#1e1e1e]">
                             @lang('lang_v1.welcome_back')
                         </h1>
@@ -196,9 +218,9 @@
                         </div>
                         @endif
                         <button type="submit"
-                            class="tw-bg-gradient-to-r tw-from-indigo-500 tw-to-purple-500 tw-h-12 tw-rounded-xl tw-text-sm md:tw-text-base tw-text-white tw-font-semibold tw-w-full tw-max-w-full mt-2 hover:tw-from-indigo-600 hover:tw-to-purple-600 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-purple-500 focus:tw-ring-offset-2 active:tw-from-indigo-700 active:tw-to-purple-700">
-                            Ingresar
-                        </button>
+                        class="login-btn tw-h-12 tw-rounded-xl tw-text-sm md:tw-text-base tw-text-white tw-font-semibold tw-w-full tw-max-w-full mt-2 focus:tw-outline-none focus:tw-ring-2 focus:tw-ring-purple-500 focus:tw-ring-offset-2 hover:tw-opacity-90">
+                        Ingresar
+                    </button>
                     </form>
 
                     <div class="tw-flex tw-items-center tw-flex-col">
@@ -217,7 +239,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4"></div>
     </div>
 
 @stop
