@@ -2,7 +2,7 @@
 
  return [
      'home' => 'Estadísticas', /* modified */
-     'welcome_message' => 'Bienvenido a Zisco Plus :name',
+     'welcome_message' => 'Bienvenido a Zisco Plus :name, 👋',
      'total_sell' => 'Total Ventas',
      'total_purchase' => 'Total Compras', /* modified */
      'invoice_due' => 'Cuentas Por Cobrar',
