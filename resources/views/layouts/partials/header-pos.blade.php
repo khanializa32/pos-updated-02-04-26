@@ -110,8 +110,8 @@
                     
                     <div
                         class="">
-                         <span
-                            class="curr_datetime text-black tw-font-semibold">{{ @format_datetime('now') }}</span>
+                         {{--<span
+                            class="curr_datetime text-black tw-font-semibold">{{ @format_datetime('now') }}</span>--}}
                         
                     </div>&nbsp;&nbsp;
                     @if (empty($pos_settings['hide_product_suggestion']))
