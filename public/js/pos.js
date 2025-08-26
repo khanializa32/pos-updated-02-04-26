@@ -181,7 +181,78 @@ $(document).ready(function() {
     }
 
     $('select#select_location_id').change(function() {
+        // capture current cart before resetting
+        var prevCartItems = [];
+        $('table#pos_table tbody tr.product_row').each(function() {
+            var variationId = $(this).find('.row_variation_id').val();
+            var qty = __read_number($(this).find('.pos_quantity')) || 0;
+            if (variationId && qty > 0) {
+                prevCartItems.push({ variationId: variationId, qty: qty });
+            }
+        });
+
+        // reset form (switches branch and clears cart)
         reset_pos_form();
+
+        // After reset, selectively restore items that have enough stock in new branch
+        var newLocationId = $('input#location_id').val() || $(this).val();
+        if (prevCartItems.length > 0 && newLocationId) {
+            // restore sequentially to preserve row order
+            (async function restoreCartSequentially(items){
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    try {
+                        var product_row = $('input#product_row_count').val();
+                        var customer_id = $('select#customer_id').val();
+                        var is_direct_sell = ($('input[name="is_direct_sale"]').length > 0 && $('input[name="is_direct_sale"]').val() == 1);
+                        var is_serial_no = ($('input[name="is_serial_no"]').length > 0 && $('input[name="is_serial_no"]').val() == 1);
+                        var price_group = '';
+                        if ($('#price_group').length > 0) {
+                            price_group = parseInt($('#price_group').val());
+                        }
+                        if ($('#default_price_group').length > 0 && price_group === '') {
+                            price_group = $('#default_price_group').val();
+                        }
+                        var is_sales_order = $('#sale_type').length && $('#sale_type').val() == 'sales_order' ? true : false;
+                        var disable_qty_alert = $('#disable_qty_alert').length ? true : false;
+                        var is_draft = ($('#status') && ($('#status').val()=='quotation' || $('#status').val()=='draft')) ? true : false;
+
+                        // preview the product row to read available qty at new location
+                        const preview = await $.ajax({
+                            method: 'GET',
+                            url: '/sells/pos/get_product_row/' + item.variationId + '/' + newLocationId,
+                            data: {
+                                product_row: product_row,
+                                customer_id: customer_id,
+                                is_direct_sell: is_direct_sell,
+                                is_serial_no: is_serial_no,
+                                price_group: price_group,
+                                quantity: item.qty,
+                                is_sales_order: is_sales_order,
+                                disable_qty_alert: disable_qty_alert,
+                                is_draft: is_draft
+                            },
+                            dataType: 'json'
+                        });
+
+                        if (preview && preview.success && preview.html_content) {
+                            var $tmp = $('<tbody>'+preview.html_content+'</tbody>');
+                            var qtyAttr = $tmp.find('input.pos_quantity').attr('data-qty_available');
+                            var enableStock = $tmp.find('input.pos_quantity').is('[data-qty_available]');
+                            var qtyAvailable = enableStock ? parseFloat(qtyAttr || '0') : Number.POSITIVE_INFINITY;
+                            if (qtyAvailable >= item.qty) {
+                                // re-add item with original quantity
+                                pos_product_row(item.variationId, null, null, item.qty);
+                            } // else: skip to effectively remove from cart
+                        }
+                    } catch (e) {
+                        // silently skip item on error
+                    }
+                }
+                // recalc totals after restore
+                pos_total_row();
+            })(prevCartItems);
+        }
 
         var default_price_group = $(this).find(':selected').data('default_price_group')
         if (default_price_group) {
@@ -3101,8 +3172,12 @@ $(document).on('change', '.payment_types_dropdown', function(e) {
     var payment_type = $(this).val();
     var payment_row = $(this).closest('.payment_row');
     if (payment_type && payment_type != 'advance') {
-        var default_account = default_accounts && default_accounts[payment_type]['account'] ? 
-            default_accounts[payment_type]['account'] : '';
+        console.log(payment_type, '<<<<<<<<<<------------------->>>>>>>>',default_accounts);
+        var default_account = (default_accounts 
+            && default_accounts[payment_type] 
+            && default_accounts[payment_type]['account']) 
+            ? default_accounts[payment_type]['account'] 
+            : '';
         var row_index = payment_row.find('.payment_row_index').val();
 
         var account_dropdown = payment_row.find('select#account_' + row_index);
