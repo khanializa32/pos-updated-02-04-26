@@ -244,26 +244,37 @@ $(document).ready(function() {
                             var enableStock = $tmp.find('input.pos_quantity').is('[data-qty_available]');
                             var qtyAvailable = enableStock ? parseFloat(qtyAttr || '0') : Number.POSITIVE_INFINITY;
                             if (qtyAvailable >= item.qty) {
-                                // Append row HTML directly and finalize like in pos_product_row success
+                                // Merge by same variation and same original line location; else append
                                 var $tbody = $('table#pos_table tbody');
-                                $tbody.append(preview.html_content).find('input.pos_quantity');
-                                // increment row count
-                                $('input#product_row_count').val(parseInt(product_row) + 1);
-                                var this_row = $('table#pos_table tbody').find('tr').last();
-                                // Ensure the hidden line_location_id is set to original
-                                this_row.find('input.line_location_id').val(restoreLocationId);
-                                pos_each_row(this_row);
-                                var line_total = __read_number(this_row.find('input.pos_line_total'));
-                                this_row.find('span.pos_line_total_text').text(line_total);
-                                pos_total_row();
-                                if(__getUnitMultiplier(this_row) > 1){
-                                    this_row.find('select.sub_unit').trigger('change');
+                                var $existingRow = $tbody.find('tr.product_row').filter(function() {
+                                    var vId = $(this).find('.row_variation_id').val();
+                                    var lineLoc = $(this).find('input.line_location_id').val();
+                                    return String(vId) === String(item.variationId) && String(lineLoc) === String(restoreLocationId);
+                                }).first();
+
+                                if ($existingRow.length) {
+                                    var prevQty = __read_number($existingRow.find('input.pos_quantity')) || 0;
+                                    __write_number($existingRow.find('input.pos_quantity'), prevQty + __number_uf(item.qty));
+                                    pos_each_row($existingRow);
+                                    pos_total_row();
+                                } else {
+                                    $tbody.append(preview.html_content).find('input.pos_quantity');
+                                    $('input#product_row_count').val(parseInt(product_row) + 1);
+                                    var this_row = $('table#pos_table tbody').find('tr').last();
+                                    this_row.find('input.line_location_id').val(restoreLocationId);
+                                    pos_each_row(this_row);
+                                    var line_total = __read_number(this_row.find('input.pos_line_total'));
+                                    this_row.find('span.pos_line_total_text').text(line_total);
+                                    pos_total_row();
+                                    if(__getUnitMultiplier(this_row) > 1){
+                                        this_row.find('select.sub_unit').trigger('change');
+                                    }
+                                    if (preview.enable_sr_no == '1') {
+                                        this_row.find('.row_edit_product_price_model').modal('show');
+                                    }
+                                    round_row_to_iraqi_dinnar(this_row);
+                                    __currency_convert_recursively(this_row);
                                 }
-                                if (preview.enable_sr_no == '1') {
-                                    this_row.find('.row_edit_product_price_model').modal('show');
-                                }
-                                round_row_to_iraqi_dinnar(this_row);
-                                __currency_convert_recursively(this_row);
                             } // else: skip to effectively remove from cart
                         }
                     } catch (e) {
@@ -2172,6 +2183,7 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
         add_via_ajax = true;
     } else {
         var is_added = false;
+        var currentLocationId = $('#location_id').val();
 
         //Search for variation id in each row of pos table
         $('#pos_table tbody')
@@ -2188,8 +2200,10 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                     modifiers_exist = true;
                 }
 
+                var row_line_loc = $(this).find('input.line_location_id').val();
                 if (
                     row_v_id == variation_id &&
+                    String(row_line_loc) === String(currentLocationId) &&
                     enable_sr_no !== '1' &&
                     !modifiers_exist &&
                     !is_added
@@ -2302,7 +2316,28 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
             dataType: 'json',
             success: function(result) {
                 if (result.success) {
+                    var currentLocationId = $('#location_id').val();
                     var $tbody = $('table#pos_table tbody');
+
+                    // Check if a row for same variation and same line location already exists
+                    var $existingRow = $tbody.find('tr.product_row').filter(function() {
+                        var vId = $(this).find('.row_variation_id').val();
+                        var lineLoc = $(this).find('input.line_location_id').val();
+                        return String(vId) === String(variation_id) && String(lineLoc) === String(currentLocationId);
+                    }).first();
+
+                    if ($existingRow.length) {
+                        // Increase quantity instead of adding a new row
+                        var prevQty = __read_number($existingRow.find('input.pos_quantity')) || 0;
+                        var addQty = __number_uf(quantity);
+                        __write_number($existingRow.find('input.pos_quantity'), prevQty + addQty);
+                        pos_each_row($existingRow);
+                        pos_total_row();
+                        $('input#search_product').focus().select();
+                        return; // skip appending new row
+                    }
+
+                    // Append as a new row when no existing row with same location
                     if (insertAtTop) {
                         $tbody.prepend(result.html_content).find('input.pos_quantity');
                     } else {

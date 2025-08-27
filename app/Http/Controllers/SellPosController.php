@@ -2814,13 +2814,14 @@ class SellPosController extends Controller
             //Create sell lines
             $this->transactionUtil->createOrUpdateSellLines($transaction, $order_data['products'], $order_data['location_id'], false, null, [], false);
 
-            //update product stock
+            //update product stock (respect per-line location if provided)
             foreach ($order_data['products'] as $product) {
                 if ($product['enable_stock']) {
+                    $line_location_id = !empty($product['line_location_id']) ? $product['line_location_id'] : $order_data['location_id'];
                     $this->productUtil->decreaseProductQuantity(
                         $product['product_id'],
                         $product['variation_id'],
-                        $order_data['location_id'],
+                        $line_location_id,
                         $product['quantity']
                     );
                 }
@@ -3036,15 +3037,16 @@ class SellPosController extends Controller
             $transaction->is_quotation = 0;
             $transaction->save();
 
-            //update product stock
+            //update product stock (respect per-line location)
             foreach ($transaction->sell_lines as $sell_line) {
                 $decrease_qty = $sell_line->quantity;
 
                 if ($sell_line->product->enable_stock == 1) {
+                    $line_location_id = !empty($sell_line->location_id) ? $sell_line->location_id : $transaction->location_id;
                     $this->productUtil->decreaseProductQuantity(
                         $sell_line->product_id,
                         $sell_line->variation_id,
-                        $transaction->location_id,
+                        $line_location_id,
                         $decrease_qty
                     );
                 }
