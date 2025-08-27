@@ -445,6 +445,13 @@ class TransactionUtil extends Util
                     'secondary_unit_quantity' => ! empty($product['secondary_unit_quantity']) ? $this->num_uf($product['secondary_unit_quantity']) : 0,
                 ];
 
+                // per-line location support
+                if (! empty($product['line_location_id'])) {
+                    $line['location_id'] = $product['line_location_id'];
+                } else {
+                    $line['location_id'] = $location_id;
+                }
+
                 foreach ($extra_line_parameters as $key => $value) {
                     $line[$key] = isset($product[$value]) ? $product[$value] : '';
                 }
@@ -531,6 +538,12 @@ class TransactionUtil extends Util
                 //Save sell line warranty if set
                 if (! empty($sell_line_warranties[$key])) {
                     $value->warranties()->sync([$sell_line_warranties[$key]]);
+                }
+
+                // ensure line has location_id set
+                if (empty($value->location_id)) {
+                    $value->location_id = $location_id;
+                    $value->save();
                 }
             }
         }
@@ -1081,6 +1094,17 @@ class TransactionUtil extends Util
             }
             $output['display_name'] .= $output['location_name'];
         }
+
+        // Collate per-line locations for display (if different from transaction location)
+        $line_locations = \App\TransactionSellLine::where('transaction_id', $transaction_id)
+            ->whereNull('parent_sell_line_id')
+            ->leftJoin('business_locations as bl', 'transaction_sell_lines.location_id', '=', 'bl.id')
+            ->pluck('bl.name')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+        $output['line_locations'] = $line_locations;
 
         //Codes
         if (! empty($business_details->code_label_1) && ! empty($business_details->code_1)) {

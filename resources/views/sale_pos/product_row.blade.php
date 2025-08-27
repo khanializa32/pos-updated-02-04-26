@@ -50,6 +50,7 @@
 					@endif" alt="product-img" loading="lazy"style="height: 30%;display: inline;margin-left: 3px; border: black;border-radius: 3px; margin-top: 3px; width: 30px;object-fit: cover;">	
 
 		<input type="hidden" class="enable_sr_no" value="{{$product->enable_sr_no}}">
+		<input type="hidden" name="products[{{$row_count}}][line_location_id]" class="line_location_id" value="{{ $location_id ?? '' }}">
 		<input type="hidden" 
 			class="product_type" 
 			name="products[{{$row_count}}][product_type]" 
@@ -99,7 +100,7 @@
   		@endphp
 
 		@if(!empty($discount))
-			{!! Form::hidden("products[$row_count][discount_id]", $discount->id); !!}
+			{!! Form::hidden("products[$row_count][discount_id]", $discount->id) !!}
 		@endif
 
 		@php
@@ -342,7 +343,7 @@
 			<td>
 				<div class="form-group">
 					<div class="input-group">
-						{!! Form::select("products[" . $row_count . "][res_service_staff_id]", $waiters, !empty($product->res_service_staff_id) ? $product->res_service_staff_id : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]); !!}
+						{!! Form::select("products[" . $row_count . "][res_service_staff_id]", $waiters, !empty($product->res_service_staff_id) ? $product->res_service_staff_id : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]) !!}
 					</div>
 				</div>
 			</td>
@@ -363,8 +364,8 @@
 			@endif
 		</td>
 		<td @if(!$edit_discount) class="hide" @endif>
-			{!! Form::text("products[$row_count][line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number row_discount_amount']); !!}<br>
-			{!! Form::select("products[$row_count][line_discount_type]", ['fixed' => __('lang_v1.fixed'), 'percentage' => __('lang_v1.percentage')], $discount_type , ['class' => 'form-control row_discount_type']); !!}
+			{!! Form::text("products[$row_count][line_discount_amount]", @num_format($discount_amount), ['class' => 'form-control input_number row_discount_amount']) !!}<br>
+			{!! Form::select("products[$row_count][line_discount_type]", ['fixed' => __('lang_v1.fixed'), 'percentage' => __('lang_v1.percentage')], $discount_type , ['class' => 'form-control row_discount_type']) !!}
 			@if(!empty($discount))
 				<p class="help-block">{!! __('lang_v1.applied_discount_text', ['discount_name' => $discount->name, 'starts_at' => $discount->formated_starts_at, 'ends_at' => $discount->formated_ends_at]) !!}</p>
 			@endif
@@ -382,9 +383,9 @@
 			@endif
 		</td>
 		<td class="text-center {{$hide_tax}}">
-			{!! Form::hidden("products[$row_count][item_tax]", @num_format($item_tax), ['class' => 'item_tax']); !!}
+			{!! Form::hidden("products[$row_count][item_tax]", @num_format($item_tax), ['class' => 'item_tax']) !!}
 		
-			{!! Form::select("products[$row_count][tax_id]", $tax_dropdown['tax_rates'], $tax_id, ['placeholder' => 'Select', 'class' => 'form-control tax_id'], $tax_dropdown['attributes']); !!}
+			{!! Form::select("products[$row_count][tax_id]", $tax_dropdown['tax_rates'], $tax_id, ['placeholder' => 'Select', 'class' => 'form-control tax_id'], $tax_dropdown['attributes']) !!}
 		</td>
 
 	@else
@@ -392,7 +393,7 @@
 			<td>
 				<div class="form-group">
 					<div class="input-group">
-						{!! Form::select("products[" . $row_count . "][res_service_staff_id]", $waiters, !empty($product->res_service_staff_id) ? $product->res_service_staff_id : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]); !!}
+						{!! Form::select("products[" . $row_count . "][res_service_staff_id]", $waiters, !empty($product->res_service_staff_id) ? $product->res_service_staff_id : null, ['class' => 'form-control select2 order_line_service_staff', 'placeholder' => __('restaurant.select_service_staff'), 'required' => (!empty($pos_settings['is_service_staff_required']) && $pos_settings['is_service_staff_required'] == 1) ? true : false ]) !!}
 					</div>
 				</div>
 			</td>
@@ -403,7 +404,7 @@
 	</td>
 	@if(!empty($common_settings['enable_product_warranty']) && !empty($is_direct_sell))
 		<td>
-			{!! Form::select("products[$row_count][warranty_id]", $warranties, $warranty_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control']); !!}
+			{!! Form::select("products[$row_count][warranty_id]", $warranties, $warranty_id, ['placeholder' => __('messages.please_select'), 'class' => 'form-control']) !!}
 		</td>
 	@endif
     <td class="text-center">

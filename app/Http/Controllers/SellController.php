@@ -634,6 +634,28 @@ class SellController extends Controller
                         $profit = $row->utility ?? 0;
                     }
                     return '<span class="display_currency" data-currency_symbol="true" data-orig-value="' . ($profit ?? 0) . '">' . ($profit ?? 0) . '</span>';
+                })
+                ->editColumn('business_location', function($row) {
+                    // Preserve original label; only append non-null, different line locations
+                    $baseName = $row->business_location;
+                    $baseId = $row->location_id;
+
+                    $lineLocs = \App\TransactionSellLine::where('transaction_id', $row->id)
+                        ->whereNull('parent_sell_line_id')
+                        ->whereNotNull('transaction_sell_lines.location_id')
+                        ->where('transaction_sell_lines.location_id', '!=', $baseId)
+                        ->leftJoin('business_locations as bl', 'transaction_sell_lines.location_id', '=', 'bl.id')
+                        ->pluck('bl.name', 'bl.id')
+                        ->toArray();
+
+                    if (empty($lineLocs)) {
+                        return $baseName;
+                    }
+
+                    ksort($lineLocs, SORT_NUMERIC);
+                    $names = array_values(array_unique(array_filter($lineLocs)));
+                    array_unshift($names, $baseName);
+                    return implode(', ', $names);
                 });
             $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid', 'utility'];
 
@@ -1451,6 +1473,17 @@ class SellController extends Controller
             $sells->groupBy('transactions.id');
 
             return Datatables::of($sells)
+                ->editColumn('business_location', function($row) {
+                    $locations = \App\TransactionSellLine::where('transaction_id', $row->id)
+                        ->whereNull('parent_sell_line_id')
+                        ->leftJoin('business_locations as bl', 'transaction_sell_lines.location_id', '=', 'bl.id')
+                        ->pluck('bl.name')
+                        ->filter()
+                        ->toArray();
+                    $locations[] = $row->business_location;
+                    $locations = array_values(array_unique(array_filter($locations)));
+                    return implode(', ', $locations);
+                })
                  ->addColumn(
                     'action', function ($row) {
                         $html = '<div class="btn-group">

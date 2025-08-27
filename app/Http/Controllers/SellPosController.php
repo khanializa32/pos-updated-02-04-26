@@ -567,7 +567,7 @@ class SellPosController extends Controller
                             }
                         }
                     }
-                    //update product stock
+                    //update product stock (per-line location aware)
                     foreach ($input['products'] as $product) {
                         $decrease_qty = $this->productUtil
                             ->num_uf($product['quantity']);
@@ -575,11 +575,13 @@ class SellPosController extends Controller
                             $decrease_qty = (float) $decrease_qty * (float) $product['base_unit_multiplier'];
                         }
 
+                        $line_location_id = !empty($product['line_location_id']) ? $product['line_location_id'] : $input['location_id'];
+
                         if ($product['enable_stock']) {
                             $this->productUtil->decreaseProductQuantity(
                                 $product['product_id'],
                                 $product['variation_id'],
-                                $input['location_id'],
+                                $line_location_id,
                                 $decrease_qty
                             );
                         }
@@ -589,7 +591,7 @@ class SellPosController extends Controller
                             $this->productUtil
                                 ->decreaseProductQuantityCombo(
                                     $product['combo'],
-                                    $input['location_id']
+                                    $line_location_id
                                 );
                         }
                     }
@@ -1983,7 +1985,7 @@ class SellPosController extends Controller
             }
 
             $output['html_content'] = view('sale_pos.product_row')
-                ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order', 'last_sell_line'))
+                ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order', 'last_sell_line', 'location_id'))
                 ->render();
         }
 

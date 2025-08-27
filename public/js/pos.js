@@ -181,22 +181,22 @@ $(document).ready(function() {
     }
 
     $('select#select_location_id').change(function() {
-        // capture current cart before resetting
+        // capture current cart before resetting, including per-line location
         var prevCartItems = [];
         $('table#pos_table tbody tr.product_row').each(function() {
             var variationId = $(this).find('.row_variation_id').val();
             var qty = __read_number($(this).find('.pos_quantity')) || 0;
+            var lineLoc = $(this).find('input.line_location_id').val();
             if (variationId && qty > 0) {
-                prevCartItems.push({ variationId: variationId, qty: qty });
+                prevCartItems.push({ variationId: variationId, qty: qty, locationId: lineLoc });
             }
         });
 
         // reset form (switches branch and clears cart)
         reset_pos_form();
 
-        // After reset, selectively restore items that have enough stock in new branch
-        var newLocationId = $('input#location_id').val() || $(this).val();
-        if (prevCartItems.length > 0 && newLocationId) {
+        // After reset, restore items using their original line location
+        if (prevCartItems.length > 0) {
             // restore sequentially to preserve row order
             (async function restoreCartSequentially(items){
                 for (var i = 0; i < items.length; i++) {
@@ -217,10 +217,13 @@ $(document).ready(function() {
                         var disable_qty_alert = $('#disable_qty_alert').length ? true : false;
                         var is_draft = ($('#status') && ($('#status').val()=='quotation' || $('#status').val()=='draft')) ? true : false;
 
-                        // preview the product row to read available qty at new location
+                        // Use original line location to fetch the row
+                        var restoreLocationId = item.locationId || $('input#location_id').val() || $('select#select_location_id').val();
+
+                        // preview the product row to read available qty at original line location
                         const preview = await $.ajax({
                             method: 'GET',
-                            url: '/sells/pos/get_product_row/' + item.variationId + '/' + newLocationId,
+                            url: '/sells/pos/get_product_row/' + item.variationId + '/' + restoreLocationId,
                             data: {
                                 product_row: product_row,
                                 customer_id: customer_id,
@@ -241,8 +244,26 @@ $(document).ready(function() {
                             var enableStock = $tmp.find('input.pos_quantity').is('[data-qty_available]');
                             var qtyAvailable = enableStock ? parseFloat(qtyAttr || '0') : Number.POSITIVE_INFINITY;
                             if (qtyAvailable >= item.qty) {
-                                // re-add item with original quantity
-                                pos_product_row(item.variationId, null, null, item.qty);
+                                // Append row HTML directly and finalize like in pos_product_row success
+                                var $tbody = $('table#pos_table tbody');
+                                $tbody.append(preview.html_content).find('input.pos_quantity');
+                                // increment row count
+                                $('input#product_row_count').val(parseInt(product_row) + 1);
+                                var this_row = $('table#pos_table tbody').find('tr').last();
+                                // Ensure the hidden line_location_id is set to original
+                                this_row.find('input.line_location_id').val(restoreLocationId);
+                                pos_each_row(this_row);
+                                var line_total = __read_number(this_row.find('input.pos_line_total'));
+                                this_row.find('span.pos_line_total_text').text(line_total);
+                                pos_total_row();
+                                if(__getUnitMultiplier(this_row) > 1){
+                                    this_row.find('select.sub_unit').trigger('change');
+                                }
+                                if (preview.enable_sr_no == '1') {
+                                    this_row.find('.row_edit_product_price_model').modal('show');
+                                }
+                                round_row_to_iraqi_dinnar(this_row);
+                                __currency_convert_recursively(this_row);
                             } // else: skip to effectively remove from cart
                         }
                     } catch (e) {
