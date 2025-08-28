@@ -528,6 +528,14 @@ $(document).ready(function() {
    
 
 
+    // Track when user is actively typing in the price including tax field (Precio)
+    $('table#pos_table tbody').on('focusin', 'input.pos_unit_price_inc_tax', function() {
+        $(this).data('editing-price', true);
+    });
+    $('table#pos_table tbody').on('focusout', 'input.pos_unit_price_inc_tax', function() {
+        $(this).data('editing-price', false);
+    });
+
     //If change in unit price update price including tax and line total
     $('table#pos_table tbody').on('change', 'input.pos_unit_price', function() {
         var tr = $(this).parents('tr');
@@ -545,7 +553,11 @@ $(document).ready(function() {
         var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
         var line_total = quantity * unit_price_inc_tax;
 
-        __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
+        // Do not overwrite Precio field if user is editing it
+        var priceIncTaxInput = tr.find('input.pos_unit_price_inc_tax');
+        if (!priceIncTaxInput.data('editing-price')) {
+            __write_number(priceIncTaxInput, unit_price_inc_tax);
+        }
         __write_number(tr.find('input.pos_line_total'), line_total);
         tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
         pos_each_row(tr);
@@ -591,14 +603,11 @@ $(document).ready(function() {
         pos_each_row(tr);
     });
 
-    //If change in unit price including tax, update unit price
+    //If change in unit price including tax, update Base Price and totals
     $('table#pos_table tbody').on('keyup', 'input.pos_unit_price_inc_tax', function() {
         var unit_price_inc_tax = __read_number($(this));
-
-        if (iraqi_selling_price_adjustment) {
-            unit_price_inc_tax = round_to_iraqi_dinnar(unit_price_inc_tax);
-            __write_number($(this), unit_price_inc_tax);
-        }
+        // Format the Precio field only (thousand separators/decimals), do not recalculate it
+        __write_number($(this), unit_price_inc_tax, false);
 
         var tr = $(this).parents('tr');
 
@@ -702,7 +711,11 @@ $(document).ready(function() {
             var unit_price_inc_tax = __add_percent(discounted_unit_price, tax_rate);
             var line_total = quantity * unit_price_inc_tax;
 
-            __write_number(tr.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
+            // Do not overwrite Precio field if user is editing it
+            var priceIncTaxInput2 = tr.find('input.pos_unit_price_inc_tax');
+            if (!priceIncTaxInput2.data('editing-price')) {
+                __write_number(priceIncTaxInput2, unit_price_inc_tax);
+            }
             __write_number(tr.find('input.pos_line_total'), line_total, false);
             tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
             pos_each_row(tr);
@@ -2299,7 +2312,11 @@ function pos_each_row(row_obj) {
 
     var unit_price_inc_tax =
         discounted_unit_price + __calculate_amount('percentage', tax_rate, discounted_unit_price);
-    __write_number(row_obj.find('input.pos_unit_price_inc_tax'), unit_price_inc_tax);
+    // Respect user editing of Precio: never overwrite while input is focused/being edited
+    var priceIncTaxInputRow = row_obj.find('input.pos_unit_price_inc_tax');
+    if (!priceIncTaxInputRow.data('editing-price')) {
+        __write_number(priceIncTaxInputRow, unit_price_inc_tax);
+    }
 
     var discount = __read_number(row_obj.find('input.row_discount_amount'));
 
@@ -2735,9 +2752,12 @@ $('body').on('focus', 'select', function(e) {
 function round_row_to_iraqi_dinnar(row) {
     if (iraqi_selling_price_adjustment) {
         var element = row.find('input.pos_unit_price_inc_tax');
-        var unit_price = round_to_iraqi_dinnar(__read_number(element));
-        __write_number(element, unit_price);
-        element.change();
+        // Do not modify Precio while the user is editing
+        if (!element.data('editing-price')) {
+            var unit_price = round_to_iraqi_dinnar(__read_number(element));
+            __write_number(element, unit_price);
+            element.change();
+        }
     }
 }
 
