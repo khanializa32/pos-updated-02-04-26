@@ -2299,7 +2299,7 @@ class SellPosController extends Controller
             )
                 ->with(['media', 'group_prices'])
                 ->orderBy('p.name', 'asc')
-                ->paginate(50);
+                ->paginate(80);
 
             $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->pluck('name', 'id');
 
