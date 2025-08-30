@@ -567,7 +567,7 @@ class SellPosController extends Controller
                             }
                         }
                     }
-                    //update product stock
+                    //update product stock (per-line location aware)
                     foreach ($input['products'] as $product) {
                         $decrease_qty = $this->productUtil
                             ->num_uf($product['quantity']);
@@ -575,11 +575,13 @@ class SellPosController extends Controller
                             $decrease_qty = (float) $decrease_qty * (float) $product['base_unit_multiplier'];
                         }
 
+                        $line_location_id = !empty($product['line_location_id']) ? $product['line_location_id'] : $input['location_id'];
+
                         if ($product['enable_stock']) {
                             $this->productUtil->decreaseProductQuantity(
                                 $product['product_id'],
                                 $product['variation_id'],
-                                $input['location_id'],
+                                $line_location_id,
                                 $decrease_qty
                             );
                         }
@@ -589,7 +591,7 @@ class SellPosController extends Controller
                             $this->productUtil
                                 ->decreaseProductQuantityCombo(
                                     $product['combo'],
-                                    $input['location_id']
+                                    $line_location_id
                                 );
                         }
                     }
@@ -1983,7 +1985,7 @@ class SellPosController extends Controller
             }
 
             $output['html_content'] = view('sale_pos.product_row')
-                ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order', 'last_sell_line'))
+                ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order', 'last_sell_line', 'location_id'))
                 ->render();
         }
 
@@ -2812,13 +2814,14 @@ class SellPosController extends Controller
             //Create sell lines
             $this->transactionUtil->createOrUpdateSellLines($transaction, $order_data['products'], $order_data['location_id'], false, null, [], false);
 
-            //update product stock
+            //update product stock (respect per-line location if provided)
             foreach ($order_data['products'] as $product) {
                 if ($product['enable_stock']) {
+                    $line_location_id = !empty($product['line_location_id']) ? $product['line_location_id'] : $order_data['location_id'];
                     $this->productUtil->decreaseProductQuantity(
                         $product['product_id'],
                         $product['variation_id'],
-                        $order_data['location_id'],
+                        $line_location_id,
                         $product['quantity']
                     );
                 }
@@ -3034,15 +3037,16 @@ class SellPosController extends Controller
             $transaction->is_quotation = 0;
             $transaction->save();
 
-            //update product stock
+            //update product stock (respect per-line location)
             foreach ($transaction->sell_lines as $sell_line) {
                 $decrease_qty = $sell_line->quantity;
 
                 if ($sell_line->product->enable_stock == 1) {
+                    $line_location_id = !empty($sell_line->location_id) ? $sell_line->location_id : $transaction->location_id;
                     $this->productUtil->decreaseProductQuantity(
                         $sell_line->product_id,
                         $sell_line->variation_id,
-                        $transaction->location_id,
+                        $line_location_id,
                         $decrease_qty
                     );
                 }

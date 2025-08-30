@@ -39,6 +39,11 @@ class TransactionSellLine extends Model
         return $this->hasMany(\App\TransactionSellLinesPurchaseLines::class, 'sell_line_id');
     }
 
+    public function location()
+    {
+        return $this->belongsTo(\App\BusinessLocation::class, 'location_id');
+    }
+
     /**
      * Get the quantity column.
      *
