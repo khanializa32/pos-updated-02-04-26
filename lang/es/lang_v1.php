@@ -438,7 +438,7 @@ return [
     'selling_price_help_text' => 'Cree las listas de precios para luego ser configuradas en Grupo de Clientes',
     'price_group' => 'Lista de Precios',
     'group_price' => 'Lista de Precios',
-    'default_selling_price' => 'Precio de Venta',
+    'default_selling_price' => 'Precio Full',
     'price_group_help_text' => 'Lista de Precios en el que desea vender',
     'group_prices' => 'Lista de Precios',
     'view_group_prices' => 'Listas de Precios',
