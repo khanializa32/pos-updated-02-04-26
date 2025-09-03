@@ -17,5 +17,6 @@
      'tax_groups' => 'Grupos de Impuestos',
      'edit_tax_group' => 'Editar grupo de impuestos',
      'sub_taxes' => 'Sub impuestos',
+     'base' => 'Base Imponible',
      'can_not_be_deleted' => 'Esta tasa de impuestos pertenece a algunos grupos de impuestos',
  ];
