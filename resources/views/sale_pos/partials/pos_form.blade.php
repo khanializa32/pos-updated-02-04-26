@@ -122,11 +122,11 @@
 	@endif
 	--}}
 	@if(!empty($price_groups) && count($price_groups) > 1)
-		<div class="col-md-8 col-sm-6">
+		<div class="col-md-6 col-sm-6">
 			<div class="form-group">
 				<div class="input-group">
 					<span class="input-group-addon">
-						<i class="fas fa-money-bill-alt"></i>
+						<i class="fas fa-tags" style="font-size:19px ;color:teal"></i>
 					</span>
 					@php
 						reset($price_groups);
@@ -134,9 +134,7 @@
 					@endphp
 					{!! Form::hidden('hidden_price_group', key($price_groups), ['id' => 'hidden_price_group']) !!}
 					{!! Form::select('price_group', $price_groups, $selected_price_group, ['class' => 'form-control select2', 'id' => 'price_group', 'style' => 'max-width: 100%; min-width: 0;']) !!}
-					<span class="input-group-addon">
-						@show_tooltip(__('lang_v1.price_group_help_text'))
-					</span> 
+					 
 				</div>
 			</div>
 		</div>
@@ -205,7 +203,7 @@
 				$invoice_scheme_id = $default_location->invoice_scheme_id;
 			}
 		@endphp
-		<div class="col-md-4 col-sm-6">
+		<div class="col-md-5 col-sm-6">
 			<div class="form-group">
 				{!! Form::select('invoice_scheme_id', $invoice_schemes, $invoice_scheme_id, 
 					['class' => 'form-control', 'placeholder' => __('Documentos Electrónicos'), 
