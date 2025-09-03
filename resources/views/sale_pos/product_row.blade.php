@@ -36,7 +36,7 @@
 		</span>
 		</div>
 		@else
-			{!! $product_name !!}
+			<span class="pos-location-indicator"></span>{!! $product_name !!}
 		@endif
 		
 		

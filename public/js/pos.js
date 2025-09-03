@@ -2456,6 +2456,46 @@ function pos_each_row(row_obj) {
     //var unit_price_inc_tax = __read_number(row_obj.find('input.pos_unit_price_inc_tax'));
 
     __write_number(row_obj.find('input.item_tax'), unit_price_inc_tax - discounted_unit_price);
+
+    // Location indicator (A..Z): assign letter per unique location order
+    try {
+        var allLocs = [];
+        $('table#pos_table tbody tr').each(function() {
+            var locVal = $(this).find('input.line_location_id').val();
+            if (locVal) allLocs.push(String(locVal));
+        });
+        var uniqueLocs = Array.from(new Set(allLocs.map(function(v){ return String(v); })));
+        // sort by ascending numeric location id for stable mapping
+        uniqueLocs.sort(function(a,b){ return Number(a) - Number(b); });
+        var hasMulti = uniqueLocs.length > 1;
+        var thisLoc = String(row_obj.find('input.line_location_id').val() || '');
+        var indicatorSpan = row_obj.find('span.pos-location-indicator');
+        if (indicatorSpan.length === 0) {
+            // Backfill in case DOM changed
+            var nameContainer = row_obj.find('td').first();
+            nameContainer.prepend('<span class="pos-location-indicator"></span>');
+            indicatorSpan = row_obj.find('span.pos-location-indicator');
+        }
+        if (hasMulti && thisLoc) {
+            // Look up printable code from the location select (data-location-code) if available
+            var code = '';
+            var $sel = $('#select_location_id');
+            if ($sel.length) {
+                var opt = $sel.find('option[value="' + thisLoc + '"]');
+                code = opt.data('location-code') || '';
+            }
+            if (code) {
+                indicatorSpan.text('(' + code + ') ');
+            } else {
+                // If no code, show nothing per requirement
+                indicatorSpan.text('');
+            }
+        } else {
+            indicatorSpan.text('');
+        }
+    } catch (e) {
+        // fail silently
+    }
 }
 
 function pos_total_row() {
@@ -2486,6 +2526,11 @@ function pos_total_row() {
     }
     // store on any update
     saveFormDataToLocalStorage();
+
+    // Refresh location indicators across all rows whenever totals recompute
+    $('table#pos_table tbody tr').each(function(){
+        pos_each_row($(this));
+    });
 
 }
 
