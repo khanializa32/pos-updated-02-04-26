@@ -717,11 +717,11 @@ $(document).ready(function() {
         var unit_price_inc_tax = __read_number($(this));
         // Format the Precio field only (thousand separators/decimals), do not recalculate it
         __write_number($(this), unit_price_inc_tax, false);
-        
+
         // Update all inputs with the same name in this row to keep them synchronized
         var tr = $(this).parents('tr');
         tr.find('input.pos_unit_price_inc_tax').not(this).val($(this).val());
-        
+
         console.log(__read_number($(this)));
         var tax_rate = tr
             .find('select.tax_id')

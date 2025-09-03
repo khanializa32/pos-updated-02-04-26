@@ -5338,18 +5338,10 @@ class TransactionUtil extends Util
                     DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person"),
                     DB::raw("(
                         COALESCE((
-                            SELECT SUM( (tsl_rev.quantity - tsl_rev.quantity_returned) * tsl_rev.unit_price_inc_tax )
+                            SELECT SUM( (tsl_rev.quantity - tsl_rev.quantity_returned) * ((tsl_rev.unit_price + tsl_rev.item_tax) - COALESCE(v.dpp_inc_tax, 0)) )
                             FROM transaction_sell_lines AS tsl_rev
+                            JOIN variations AS v ON tsl_rev.variation_id = v.id
                             WHERE tsl_rev.transaction_id = transactions.id AND tsl_rev.children_type != 'combo'
-                        ), 0)
-                        -
-                        COALESCE((
-                            SELECT SUM( (tspl_cogs.quantity - tspl_cogs.qty_returned) * pl_cogs.purchase_price_inc_tax )
-                            FROM transaction_sell_lines AS tsl_cogs
-                            JOIN transaction_sell_lines_purchase_lines AS tspl_cogs ON tsl_cogs.id = tspl_cogs.sell_line_id
-                            JOIN purchase_lines AS pl_cogs ON tspl_cogs.purchase_line_id = pl_cogs.id
-                            JOIN products AS p_cogs ON tsl_cogs.product_id = p_cogs.id
-                            WHERE tsl_cogs.transaction_id = transactions.id AND p_cogs.enable_stock = 1
                         ), 0)
                     ) as utility")
                 );
@@ -5465,30 +5457,31 @@ class TransactionUtil extends Util
     }
 
     /**
-     * Calculate transaction profit (utility) with sub-unit awareness.
-     * If a sell line uses a sub unit and the product defines a purchase price for that sub unit,
-     * use that sub-unit purchase price. Otherwise, fall back to mapped purchase line costs.
-     * Revenue is always computed from sell line unit_price_inc_tax.
+     * Calculate transaction profit (utility) using formula: (unit_price + item_tax) - dpp_inc_tax
+     * Uses the default purchase price from the product variation (dpp_inc_tax).
      */
     public function calculateTransactionProfitUsingSubUnits(int $transaction_id): float
     {
-        $lines = \App\TransactionSellLine::with(['product', 'sub_unit'])
+        $lines = \App\TransactionSellLine::with(['product', 'sub_unit', 'variation'])
             ->where('transaction_id', $transaction_id)
             ->where('children_type', '!=', 'combo')
             ->get();
 
-        $revenue = 0.0;
-        $cost = 0.0;
+        $total_profit = 0.0;
 
         foreach ($lines as $line) {
             $qty_sold = (float) ($line->quantity - $line->quantity_returned);
-            $revenue += $qty_sold * (float) $line->unit_price_inc_tax;
-
-            $line_cost = 0.0;
-
+            
+            // Sale price per unit (from transaction) = unit_price + item_tax
+            $sale_price_per_unit = (float) $line->unit_price + (float) $line->item_tax;
+            
+            // Purchase price per unit (from product variation)
+            $purchase_price_per_unit = 0.0;
+            
             $product = $line->product;
             $sub_unit_id = $line->sub_unit_id;
 
+            // Check if product has sub-unit purchase price defined
             $has_subunit_price = false;
             if ($sub_unit_id && $product && is_array($product->sub_unit_prices)) {
                 $has_subunit_price = array_key_exists($sub_unit_id, $product->sub_unit_prices)
@@ -5497,30 +5490,19 @@ class TransactionUtil extends Util
             }
 
             if ($has_subunit_price) {
-                $multiplier = 1.0;
-                if ($line->relationLoaded('sub_unit') && $line->sub_unit) {
-                    $multiplier = (float) ($line->sub_unit->base_unit_multiplier ?: 1);
-                }
-                if ($multiplier <= 0) {
-                    $multiplier = 1.0;
-                }
-                $num_subunits = $qty_sold / $multiplier;
-                $purchase_price_per_subunit = (float) $product->sub_unit_prices[$sub_unit_id];
-                $line_cost = $num_subunits * $purchase_price_per_subunit;
+                // Use sub-unit purchase price
+                $purchase_price_per_unit = (float) $product->sub_unit_prices[$sub_unit_id];
             } else {
-                // Fallback to purchase mapping cost
-                $mapped = \App\TransactionSellLinesPurchaseLines::where('sell_line_id', $line->id)
-                    ->join('purchase_lines as pl', 'pl.id', '=', 'transaction_sell_lines_purchase_lines.purchase_line_id')
-                    ->get(['transaction_sell_lines_purchase_lines.quantity as q', 'transaction_sell_lines_purchase_lines.qty_returned as qr', 'pl.purchase_price_inc_tax as cogs']);
-                foreach ($mapped as $m) {
-                    $line_cost += ((float) $m->q - (float) $m->qr) * (float) $m->cogs;
-                }
+                // Use default purchase price from variation (dpp_inc_tax)
+                $purchase_price_per_unit = (float) $line->variation->dpp_inc_tax;
             }
 
-            $cost += $line_cost;
+            // Calculate profit for this line: (Sale Price - Purchase Price) × Quantity
+            $line_profit = ($sale_price_per_unit - $purchase_price_per_unit) * $qty_sold;
+            $total_profit += $line_profit;
         }
 
-        return $revenue - $cost;
+        return $total_profit;
     }
 
     /**
