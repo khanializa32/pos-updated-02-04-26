@@ -259,7 +259,7 @@ legend {
   background-position: center;
 }
 .left-col-content {
-  color: #1A7BF9;
+  color: #590c94;
   width: 100%;
 }
 .login-header {
@@ -316,7 +316,7 @@ legend {
   width: 50%;
 }
 .bg-manufacturing {
-  background-color: #ff851b;
+  background-color: #590c94;
 }
 .img-thumbnail {
   position: relative;
@@ -454,7 +454,7 @@ div.pos-tab-menu div.list-group>a{
 }
 div.pos-tab-menu div.list-group>a .glyphicon,
 div.pos-tab-menu div.list-group>a .fa {
-  color: #5A55A3;
+  color: #590c94;
 }
 div.pos-tab-menu div.list-group>a:first-child{
   border-top-right-radius: 0;
@@ -469,9 +469,9 @@ div.pos-tab-menu div.list-group>a:last-child{
 /* div.pos-tab-menu div.list-group>a.active,
 div.pos-tab-menu div.list-group>a.active .glyphicon,
 div.pos-tab-menu div.list-group>a.active .fa{
-  background-color: #3c8dbc;
+  background-color: #590c94;
   color: #ffffff;
-    border-color: #3c8dbc;
+    border-color: #590c94;
 } */
 
 div.pos-tab-menu div.list-group > a.active,
@@ -492,7 +492,7 @@ div.pos-tab-menu div.list-group>a.active:after{
   border-left: 0;
   border-bottom: 13px solid transparent;
   border-top: 13px solid transparent;
-  border-left: 10px solid #3c8dbc;
+  border-left: 10px solid #590c94;
 }
 
 div.pos-tab-content{
@@ -527,7 +527,7 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0; 
 }
 .active-cell {
-    border: 2px dotted #3c8dbc !important;
+    border: 2px dotted #590c94 !important;
 }
 .cursor-pointer{
     cursor: pointer !important;
@@ -1043,7 +1043,7 @@ table.table-text-center td, table.table-text-center th{
 
 /* Solid color login button (replaces gradient) */
 .login-btn{
-  background-color: #6d28d9; /* change this color anytime */
+  background-color: #590c94; /* change this color anytime */
 }
 .login-btn:hover{
   opacity: 0.95;
