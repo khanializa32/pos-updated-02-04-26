@@ -429,6 +429,14 @@
 			</thead>
 			<tbody>
 				@php
+					$locIds = collect($receipt_details->lines ?? [])->pluck('line_location_id')->filter()->map(function($v){return (int)$v;})->unique()->sort()->values()->all();
+					$hasMultiLocs = count($locIds) > 1;
+					$locCodeMap = collect();
+					if ($hasMultiLocs) {
+						$locCodeMap = \App\BusinessLocation::whereIn('id', $locIds)->pluck('location_id','id');
+					}
+				@endphp
+				@php
 					$subtotal = 0;
 				@endphp
 				@foreach($receipt_details->lines as $line)
@@ -440,31 +448,37 @@
 							@if(!empty($line['image']))
 								<img src="{{$line['image']}}" alt="Image" width="50" style="float: left; margin-right: 8px;">
 							@endif
-                            {{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
-                            @if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif
-                            @if(!empty($line['product_custom_fields'])), {{$line['product_custom_fields']}} @endif
-                            @if(!empty($line['product_description']))
-                            	<small>
-                            		{!!$line['product_description']!!}
-                            	</small>
-                            @endif
-                            @if(!empty($line['sell_line_note']))
-                            <br>
-                            <small>{!!$line['sell_line_note']!!}</small>
-                            @endif
-                            @if(!empty($line['lot_number']))<br> {{$line['lot_number_label']}}:  {{$line['lot_number']}} @endif 
-                            @if(!empty($line['product_expiry'])), {{$line['product_expiry_label']}}:  {{$line['product_expiry']}} @endif 
+							@if($hasMultiLocs)
+								@php $locCode = $locCodeMap[(int)($line['line_location_id'] ?? 0)] ?? null; @endphp
+								@if($locCode)
+									({{ $locCode }})
+								@endif
+							@endif
+							{{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
+							@if(!empty($line['sub_sku'])), {{$line['sub_sku']}} @endif @if(!empty($line['brand'])), {{$line['brand']}} @endif
+							@if(!empty($line['product_custom_fields'])), {{$line['product_custom_fields']}} @endif
+							@if(!empty($line['product_description']))
+								<small>
+									{!!$line['product_description']!!}
+								</small>
+							@endif
+							@if(!empty($line['sell_line_note']))
+							<br>
+							<small>{!!$line['sell_line_note']!!}</small>
+							@endif
+							@if(!empty($line['lot_number']))<br> {{$line['lot_number_label']}}:  {{$line['lot_number']}} @endif 
+							@if(!empty($line['product_expiry'])), {{$line['product_expiry_label']}}:  {{$line['product_expiry']}} @endif 
 
-                            @if(!empty($line['warranty_name'])) <br><small>{{$line['warranty_name']}} </small>@endif @if(!empty($line['warranty_exp_date'])) <small>- {{@format_date($line['warranty_exp_date'])}} </small>@endif
-                            @if(!empty($line['warranty_description'])) <small> {{$line['warranty_description'] ?? ''}}</small>@endif
+							@if(!empty($line['warranty_name'])) <br><small>{{$line['warranty_name']}} </small>@endif @if(!empty($line['warranty_exp_date'])) <small>- {{@format_date($line['warranty_exp_date'])}} </small>@endif
+							@if(!empty($line['warranty_description'])) <small> {{$line['warranty_description'] ?? ''}}</small>@endif
 
-                            @if($receipt_details->show_base_unit_details && $line['quantity'] && $line['base_unit_multiplier'] !== 1)
-                            <br><small>
-                            	1 {{$line['units']}} = {{$line['base_unit_multiplier']}} {{$line['base_unit_name']}} <br>
-                            	{{$line['base_unit_price']}} x {{$line['orig_quantity']}} = {{$line['line_total']}}
-                            </small>
-                            @endif
-                        </td>
+							@if($receipt_details->show_base_unit_details && $line['quantity'] && $line['base_unit_multiplier'] !== 1)
+							<br><small>
+								1 {{$line['units']}} = {{$line['base_unit_multiplier']}} {{$line['base_unit_name']}} <br>
+								{{$line['base_unit_price']}} x {{$line['orig_quantity']}} = {{$line['line_total']}}
+							</small>
+							@endif
+						</td>
 
 						@if($receipt_details->show_cat_code == 1)
 	                        <td>

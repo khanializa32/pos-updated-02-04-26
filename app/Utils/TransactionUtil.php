@@ -2142,6 +2142,8 @@ class TransactionUtil extends Util
                 'line_total_exc_tax' => $this->num_f($line->unit_price * $line->quantity, false, $business_details),
                 'line_total_exc_tax_uf' => $line->unit_price * $line->quantity,
                 'variation_id' => $variation->id,
+                // expose per-line location for printing indicators
+                'line_location_id' => $line->location_id,
             ];
 
             $temp = [];

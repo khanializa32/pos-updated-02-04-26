@@ -36,13 +36,18 @@
                     <div>
                         @if (empty($transaction->location_id))
                             @if (count($business_locations) > 1)
-                                {!! Form::select(
-                                    'select_location_id',
-                                    $business_locations,
-                                    $default_location->id ?? null,
-                                    ['class' => 'control input-sm', 'id' => 'select_location_id', 'required', 'autofocus', 'style' => 'background:white; border:1px solid black; width: 120px;'],
-                                    $bl_attributes,
-                                ) !!}
+                                @php
+                                    $locOptions = [];
+                                    foreach($business_locations as $id => $name){
+                                        $code = optional(\App\BusinessLocation::find($id))->location_id;
+                                        $locOptions[$id] = ['value' => $id, 'label' => $name, 'code' => $code];
+                                    }
+                                @endphp
+                                <select name="select_location_id" id="select_location_id" class="control input-sm" required autofocus style="background:white; border:1px solid black; width: 120px;">
+                                    @foreach($locOptions as $id => $opt)
+                                        <option value="{{$opt['value']}}" data-location-code="{{$opt['code']}}" @if(($default_location->id ?? null) == $opt['value']) selected @endif>{{$opt['label']}}</option>
+                                    @endforeach
+                                </select>
                             @else
                                 {{ $default_location->name }}
                             @endif

@@ -1,3 +1,19 @@
+@php
+    $location_ids = $sell->sell_lines->pluck('location_id')->filter()->values()->all();
+    if (empty($location_ids)) {
+        $location_ids = [$sell->location_id];
+    }
+    $unique_location_ids = array_values(array_unique($location_ids));
+    sort($unique_location_ids, SORT_NUMERIC);
+    $has_multiple_locations = count($unique_location_ids) > 1;
+    $first_location_id = $unique_location_ids[0] ?? $sell->location_id;
+    $loc_code_map = collect();
+    if ($has_multiple_locations) {
+        $loc_code_map = \App\BusinessLocation::whereIn('id', $unique_location_ids)
+            ->pluck('location_id', 'id');
+    }
+@endphp
+
 <table class="table @if(!empty($for_ledger)) table-slim mb-0 bg-light-gray @else bg-gray @endif" @if(!empty($for_pdf)) style="width: 100%;" @endif>
         <tr @if(empty($for_ledger)) class="bg-green" @endif>
         <th>#</th>
@@ -24,6 +40,15 @@
         <tr>
             <td>{{ $loop->iteration }}</td>
             <td>
+                @if($has_multiple_locations)
+                    @php 
+                        $cur_loc_id = (int)($sell_line->location_id ?? $sell->location_id);
+                        $loc_code = $loc_code_map[$cur_loc_id] ?? null;
+                    @endphp
+                    @if($loc_code)
+                        ({{ $loc_code }})
+                    @endif
+                @endif
                 {{ $sell_line->product->name }}
                 @if( $sell_line->product->type == 'variable')
                 - {{ $sell_line->variations->product_variation->name ?? ''}}

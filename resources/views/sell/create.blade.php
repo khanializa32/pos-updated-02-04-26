@@ -68,12 +68,21 @@
 				<span class="input-group-addon">
 					<i class="fa fa-map-marker"></i>
 				</span>
-			{!! Form::select('select_location_id', $business_locations, $default_location->id ?? null, ['class' => 'form-control input-sm',
-			'id' => 'select_location_id', 
-			'required', 'autofocus'], $bl_attributes); !!}
-			<span class="input-group-addon">
-					@show_tooltip(__('tooltip.sale_location'))
-				</span> 
+            @php
+                $locOptions = [];
+                foreach($business_locations as $id => $name){
+                    $code = optional(\App\BusinessLocation::find($id))->location_id;
+                    $locOptions[$id] = ['value' => $id, 'label' => $name, 'code' => $code];
+                }
+            @endphp
+            <select name="select_location_id" id="select_location_id" class="form-control input-sm" required autofocus>
+                @foreach($locOptions as $id => $opt)
+                    <option value="{{$opt['value']}}" data-location-code="{{$opt['code']}}" @if(($default_location->id ?? null) == $opt['value']) selected @endif>{{$opt['label']}}</option>
+                @endforeach
+            </select>
+            <span class="input-group-addon">
+                    @show_tooltip(__('tooltip.sale_location'))
+                </span> 
 			</div>
 		</div>
 	</div>
