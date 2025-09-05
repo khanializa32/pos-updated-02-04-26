@@ -2296,6 +2296,7 @@ class SellPosController extends Controller
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.sell_price_inc_tax as selling_price',
+                'variations.default_purchase_price as purchase_price',
                 'variations.sub_sku',
                 'u.short_name as unit'
             )
