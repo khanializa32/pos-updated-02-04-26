@@ -1686,7 +1686,6 @@ class TransactionUtil extends Util
         if (! empty($transaction->additional_expense_value_4) && ! empty($transaction->additional_expense_key_4)) {
             $output['additional_expenses'][$transaction->additional_expense_key_4] = $this->num_f($transaction->additional_expense_value_4, $show_currency, $business_details);
         }
-
         //Check for barcode
         $output['barcode'] = ($il->show_barcode == 1) ? $transaction->invoice_no : false;
 
@@ -5338,9 +5337,29 @@ class TransactionUtil extends Util
                     DB::raw("CONCAT(COALESCE(dp.surname, ''),' ',COALESCE(dp.first_name, ''),' ',COALESCE(dp.last_name,'')) as delivery_person"),
                     DB::raw("(
                         COALESCE((
-                            SELECT SUM( (tsl_rev.quantity - tsl_rev.quantity_returned) * ((tsl_rev.unit_price + tsl_rev.item_tax) - COALESCE(v.dpp_inc_tax, 0)) )
+                            SELECT SUM(
+                                (tsl_rev.quantity - tsl_rev.quantity_returned) * (
+                                    (tsl_rev.unit_price + tsl_rev.item_tax)
+                                    - COALESCE(
+                                        CASE
+                                            WHEN tsl_rev.sub_unit_id IS NOT NULL THEN
+                                                CAST(
+                                                    JSON_UNQUOTE(
+                                                        JSON_EXTRACT(
+                                                            p_rev.sub_unit_prices,
+                                                            CONCAT('$.\"', tsl_rev.sub_unit_id, '\"')
+                                                        )
+                                                    ) AS DECIMAL(20,4)
+                                                )
+                                        END,
+                                        v.dpp_inc_tax,
+                                        0
+                                    )
+                                )
+                            )
                             FROM transaction_sell_lines AS tsl_rev
                             JOIN variations AS v ON tsl_rev.variation_id = v.id
+                            JOIN products AS p_rev ON tsl_rev.product_id = p_rev.id
                             WHERE tsl_rev.transaction_id = transactions.id AND tsl_rev.children_type != 'combo'
                         ), 0)
                     ) as utility")
@@ -5462,7 +5481,7 @@ class TransactionUtil extends Util
      */
     public function calculateTransactionProfitUsingSubUnits(int $transaction_id): float
     {
-        $lines = \App\TransactionSellLine::with(['product', 'sub_unit', 'variation'])
+        $lines = \App\TransactionSellLine::with(['product', 'sub_unit', 'variations'])
             ->where('transaction_id', $transaction_id)
             ->where('children_type', '!=', 'combo')
             ->get();
@@ -5494,7 +5513,7 @@ class TransactionUtil extends Util
                 $purchase_price_per_unit = (float) $product->sub_unit_prices[$sub_unit_id];
             } else {
                 // Use default purchase price from variation (dpp_inc_tax)
-                $purchase_price_per_unit = (float) $line->variation->dpp_inc_tax;
+                $purchase_price_per_unit = (float) optional($line->variations)->dpp_inc_tax;
             }
 
             // Calculate profit for this line: (Sale Price - Purchase Price) × Quantity
@@ -5892,7 +5911,6 @@ class TransactionUtil extends Util
 
         return $query;
     }
-
     /**
      * Query to get payment details for a customer
      */
@@ -6432,7 +6450,6 @@ class TransactionUtil extends Util
 
         return $parent_payment;
     }
-
     public function addSellReturn($input, $business_id, $user_id, $uf_number = true,$invoice_scheme_id)
     {
         $discount = [
