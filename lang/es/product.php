@@ -14,7 +14,7 @@
      'tax' => 'Impuesto',
      'sku' => 'Código de Barras',
      'alert_quantity' => 'Cantidad para alerta', /* modified */
-     'product_name' => 'Nombre del Producto',
+     'product_name' => 'Producto',
      'auto_generate' => 'Generar Automáticamente',
      'manage_stock' => 'Maneja Inventario?',
      'enable_stock_help' => 'Si el producto es un servicio desmarque esta casilla', /* modified */
