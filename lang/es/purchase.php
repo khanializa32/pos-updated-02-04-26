@@ -2,7 +2,7 @@
 
  return [
      'supplier' => 'Proveedor',
-     'ref_no' => 'Numero del Documento',
+     'ref_no' => 'Numero de Factura',
      'business_location' => 'Sucursal',
      'purchases' => 'Compras',
      'add_payment' => 'Pagar',
@@ -25,10 +25,10 @@
      'grand_total' => 'Total',
      'add_purchase' => 'Crear Compra',
      'purchase_date' => 'Fecha de Compra',
-     'purchase_quantity' => 'Cantidad Comprada',
+     'purchase_quantity' => 'Cantidad',
      'unit_cost_before_tax' => 'Precio Base (antes de impuestos)',
      'subtotal_before_tax' => 'Subtotal (antes de impuestos)',
-     'product_tax' => 'Impuesto sobre el producto',
+     'product_tax' => 'Impuesto',
      'net_cost' => 'PRECIO DE COMPRA', /* modified */
      'line_total' => 'Total',
      'unit_selling_price' => 'PRECIO DE VENTA', /* modified */
@@ -53,8 +53,8 @@
      'p_exchange_rate' => 'Tasa de cambio de moneda',
      'diff_purchase_currency_help' => 'La divisa de compra está configurada en <strong> :currency </strong>',
      'list_purchase' => 'Ver Compras',
-     'attach_document' => 'Documento Adjunto',
+     'attach_document' => 'Adjuntar Documento',
      'download_document' => 'Descargar Documento',
      'return' => 'Devolver',
-     'max_file_size' => 'Tamaño máximo de archivo: :sizeMB',
+     'max_file_size' => 'Tamaño máximo: :sizeMB',
  ];
