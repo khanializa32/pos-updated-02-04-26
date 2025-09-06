@@ -108,10 +108,6 @@
     </div>
     <div class="modal-footer">
         <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'cash_register.close_register' )</button>
-      <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white no-print print-mini-button" 
-          aria-label="Print">
-      <i class="fa fa-print"></i> @lang('messages.print_mini')
-  </button>
          <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white no-print" 
         aria-label="Print" 
           onclick="$(this).closest('div.modal').printThis();">
@@ -123,10 +119,3 @@
     {!! Form::close() !!}
   </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->
-<script>
-  $(document).ready(function () {
-      $(document).on('click', '.print-mini-button', function () {
-          $('.mini_print').printThis();
-      });
-  });
-</script>
