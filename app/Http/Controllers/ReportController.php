@@ -1198,7 +1198,7 @@ class ReportController extends Controller
 
                     return '<span data-orig-value="'.$total.'" >'.$this->transactionUtil->num_f($total, true).'</span>';
                 })
-                ->addColumn('action', '<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@show\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max btn-modal" 
+                ->addColumn('action', '<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@show\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-warning tw-w-max btn-modal" 
                     data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))
                     <button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@getCloseRegister\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error tw-w-max btn-modal" 
                         data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
