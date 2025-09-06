@@ -105,7 +105,7 @@
 
 				@if(!empty($price_groups))
 					@if(count($price_groups) > 1)
-						<div class="col-sm-4">
+						<div class="col-sm-2">
 							<div class="form-group">
 								<div class="input-group">
 									<span class="input-group-addon">
@@ -240,7 +240,7 @@
 					</div>
 				</div>
 				@endif
-				<div class="@if(!empty($commission_agent)) col-sm-3 @else col-sm-4 @endif">
+				<div class="@if(!empty($commission_agent)) col-sm-3 @else col-sm-2 @endif">
 					<div class="form-group">
 						{!! Form::label('transaction_date', __('sale.sale_date') . ':*') !!}
 						<div class="input-group">
@@ -258,7 +258,7 @@
 						<input type="hidden" id="disable_qty_alert">
 					@endif
 				@else
-					<div class="@if(!empty($commission_agent)) col-sm-2 @else col-sm-3 @endif">
+					<div class="@if(!empty($commission_agent)) col-sm-2 @else col-sm-2 @endif">
 						<div class="form-group">
 							{!! Form::label('status', __('sale.status') . ':*') !!}
 							{!! Form::select('status', $statuses, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
@@ -266,7 +266,7 @@
 					</div>
 				@endif
 				@if($sale_type != 'sales_order')
-					<div class="col-sm-4">
+					<div class="col-sm-2">
 						<div class="form-group">
 							{{-- {!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':') !!} --}}
 							{!! Form::label('invoice_scheme_id', __('Resolución de Factura') . ':*') !!}
@@ -376,7 +376,7 @@
 		        <div class="clearfix"></div>
 
 		        @if((!empty($pos_settings['enable_sales_order']) && $sale_type != 'sales_order') || $is_order_request_enabled)
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<div class="form-group">
 							{!! Form::label('sales_order_ids', __('lang_v1.sales_order').':') !!}
 							{!! Form::select('sales_order_ids[]', [], null, ['class' => 'form-control select2', 'multiple', 'id' => 'sales_order_ids']); !!}
