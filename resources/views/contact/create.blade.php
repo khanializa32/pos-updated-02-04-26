@@ -605,7 +605,7 @@
     </div>
     
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Crear Cliente' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Crear Tercero' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 
