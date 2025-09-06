@@ -3075,19 +3075,34 @@ class ReportController extends Controller
             ->where('sale.is_suspend', 0)
             ->where('sale.status', 'final')
             ->join('products as P', 'transaction_sell_lines.product_id', '=', 'P.id')
+            ->leftJoin('variations as V2', 'transaction_sell_lines.variation_id', '=', 'V2.id')
             ->where('sale.business_id', $business_id)
             ->where('transaction_sell_lines.children_type', '!=', 'combo');
-        //If type combo: find childrens, sale price parent - get PP of childrens
-        $query->select(DB::raw('SUM(IF (TSPL.id IS NULL AND P.type="combo", ( 
-            SELECT Sum((tspl2.quantity - tspl2.qty_returned) * (tsl.unit_price_inc_tax - pl2.purchase_price_inc_tax)) AS total
-                FROM transaction_sell_lines AS tsl
-                    JOIN transaction_sell_lines_purchase_lines AS tspl2
-                ON tsl.id=tspl2.sell_line_id 
-                JOIN purchase_lines AS pl2 
-                ON tspl2.purchase_line_id = pl2.id 
-                WHERE tsl.parent_sell_line_id = transaction_sell_lines.id), IF(P.enable_stock=0,(transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * transaction_sell_lines.unit_price_inc_tax,   
-                (TSPL.quantity - TSPL.qty_returned) * (transaction_sell_lines.unit_price_inc_tax - PL.purchase_price_inc_tax)) )) AS gross_profit')
-            );
+        // Gross profit aligned with POS utilidad and sub-unit purchase pricing:
+        // sale_unit_price = unit_price + item_tax
+        // purchase_unit_price = if sub-unit price exists in product JSON, use it; else use variation.dpp_inc_tax
+        $query->select(DB::raw("
+        SUM(
+            (transaction_sell_lines.quantity - transaction_sell_lines.quantity_returned) * (
+                (transaction_sell_lines.unit_price + transaction_sell_lines.item_tax) -
+                COALESCE(
+                    NULLIF(
+                        CAST(
+                            JSON_UNQUOTE(
+                                JSON_EXTRACT(
+                                    P.sub_unit_prices,
+                                    CONCAT('$.', transaction_sell_lines.sub_unit_id)
+                                )
+                            ) AS DECIMAL(20,2)
+                        ),
+                        ''
+                    ),
+                    COALESCE(V2.dpp_inc_tax, 0)
+                )
+            )
+        ) AS gross_profit
+    "));
+    
 
         $permitted_locations = auth()->user()->permitted_locations();
         if ($permitted_locations != 'all') {
@@ -3172,15 +3187,7 @@ class ReportController extends Controller
 
         if (in_array($by, ['invoice'])) {
             $datatable->editColumn('gross_profit', function ($row) {
-                $discount = $row->discount_amount;
-                if ($row->discount_type == 'percentage') {
-                    $discount = ($row->discount_amount * $row->total_before_tax) / 100;
-                }
-
-                $profit = $row->gross_profit - $discount;
-                $html = '<span class="gross-profit" data-orig-value="'.$profit.'" >'.$this->transactionUtil->num_f($profit, true).'</span>';
-
-                return $html;
+                return '<span class="gross-profit" data-orig-value="'.$row->gross_profit.'" >'.$this->transactionUtil->num_f($row->gross_profit, true).'</span>';
             });
         } else {
             $datatable->editColumn(
