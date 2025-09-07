@@ -3,21 +3,21 @@
 
 @section('content')
 
-    <div class="tw-pb-6 tw-bg-gradient-to-r tw-from-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 tw-to-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-900 xl:tw-pb-0 ">
+    <div class=" ">
         <div class="tw-px-5 tw-pt-3">
             {{-- <div class="sm:tw-flex sm:tw-items-center sm:tw-justify-between sm:tw-gap-12">
-                <h1 class="tw-text-2xl tw-font-medium tw-tracking-tight tw-text-white">
+                <h1 class="tw-text-2xl tw-font-medium tw-tracking-tight tw-text-black">
                     {{ __('home.welcome_message', ['name' => Session::get('user.first_name')]) }}
                 </h1>
             </div> --}}
                     <div class="sm:tw-flex sm:tw-items-center sm:tw-justify-between sm:tw-gap-12">
                         <div class="tw-mt-2 sm:tw-w-1/2 md:tw-w-1/2">
                             <h2
-                                class="tw-text-2xl md:tw-text-4xl tw-tracking-tight tw-text-primary-800 tw-font-semibold text-white tw-mb-10 md:tw-mb-0">
+                                class="tw-text-2xl md:tw-text-4xl tw-tracking-tight tw-text-primary-800 tw-font-semibold text-black tw-mb-10 md:tw-mb-0">
                                 {{ __('home.welcome_message', ['name' => Session::get('user.first_name')]) }}
                             </h2>
                             
-                            <p class="tw-text-sm tw-font-medium tw-text-white tw-mb-10 md:tw-mb-0"> Esto es lo que pasa en tu tienda hoy</p>
+                            <p class="tw-text-sm tw-font-medium tw-text-black tw-mb-10 md:tw-mb-0"> Esto es lo que pasa en su tienda hoy</p>
                         </div>
     
                         @if (auth()->user()->can('dashboard.data'))
@@ -99,28 +99,6 @@
                                     <div class="tw-p-4 sm:tw-p-5">
                                         <div class="tw-flex tw-items-center tw-gap-4">
                                             <div
-                                                class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-green-500 tw-bg-green-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 tw-shrink-0">
-                                                <i class='fas fa-funnel-dollar' style='font-size:24px;color:green'></i>
-                                            </div>
-
-                                            <div class="tw-flex-1 tw-min-w-0">
-                                                <p
-                                                    class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
-                                                    {{ __('Ingresos Netos (-Gastos - Créditos)') }} @show_tooltip(__('lang_v1.net_home_tooltip'))
-                                                </p>
-                                                <p
-                                                    class="net tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm hover:tw-shadow-md tw-rounded-xl hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
-                                    <div class="tw-p-4 sm:tw-p-5">
-                                        <div class="tw-flex tw-items-center tw-gap-4">
-                                            <div
                                                 class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-yellow-500 tw-bg-yellow-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 shrink-0">
                                                 <i class='fas fa-money-bill-alt' style='font-size:24px;color:orange'></i>
                                             </div>
@@ -138,51 +116,9 @@
                                     </div>
                                 </div>
 
-                                <div
-                                    class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm hover:tw-shadow-md tw-rounded-xl hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
-                                    <div class="tw-p-4 sm:tw-p-5">
-                                        <div class="tw-flex tw-items-center tw-gap-4">
-                                            <div
-                                                class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-red-500 tw-bg-red-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 shrink-0">
-                                                <i class='fas fa-file-pdf' style='font-size:24px;color:red'></i>
-                                            </div>
 
-                                            <div class="tw-flex-1 tw-min-w-0">
-                                                <p
-                                                    class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
-                                                    {{ __('Devoluciones N.C.') }}
-                                                    <i class="fa fa-info-circle text-info hover-q no-print" aria-hidden="true" data-container="body"
-                                                    data-toggle="popover" data-placement="auto bottom" id="total_srp"
-                                                    data-value="{{ __('lang_v1.total_sell_return') }}-{{ __('lang_v1.total_sell_return_paid') }}"
-                                                    data-content="" data-html="true" data-trigger="hover"></i>
-                                                </p>
-                                                <p
-                                                    class="total_sell_return tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
-                                                </p>
-                                                {{-- <p class="mb-0 text-muted fs-10 mt-5">{{ __('lang_v1.total_sell_return') }}: <span
-                                                        class="total_sr"></span><br>
-                                                    {{ __('lang_v1.total_sell_return_paid') }}<span class="total_srp"></span></p> --}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    @endif
-              
-        </div>
-        @if (auth()->user()->can('dashboard.data'))
-            @if ($is_admin)
-                <div class="tw-relative">
-                    <div class="tw-absolute tw-inset-0 tw-grid" aria-hidden="true">
-                        <div class="tw-bg-gradient-to-r tw-from-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 tw-to-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-900"></div>
-                        <div class="tw-bg-gradient-to-r tw-from-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 tw-to-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-900 xl:tw-bg-none xl:tw-bg-gray-100">
-                        </div>
-                    </div>
-                    <div class="tw-px-5 tw-isolate">
-                        <div
-                            class="tw-grid tw-grid-cols-1 tw-gap-4 tw-mt-4 sm:tw-mt-6 sm:tw-grid-cols-2 xl:tw-grid-cols-4 sm:tw-gap-5">
-                            <div
+                                
+                                <div
                                 class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
                                 <div class="tw-p-4 sm:tw-p-5">
                                     <div class="tw-flex tw-items-center tw-gap-4">
@@ -203,28 +139,8 @@
                                     </div>
                                 </div>
                             </div>
+                            
                             <div
-                                class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
-                                <div class="tw-p-4 sm:tw-p-5">
-                                    <div class="tw-flex tw-items-center tw-gap-4">
-                                        <div
-                                            class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-yellow-500 tw-bg-yellow-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 shrink-0">
-                                            <i class='fas fa-file-pdf' style='font-size:24px;color:MediumPurple'></i>
-                                        </div>
-
-                                        <div>
-                                            <p class="tw-text-sm tw-font-medium tw-text-gray-500">
-                                                {{ __('home.purchase_due') }}
-                                            </p>
-                                            <p
-                                                class="purchase_due tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
-
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-<div
                                 class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
                                 <div class="tw-p-4 sm:tw-p-5">
                                     <div class="tw-flex tw-items-center tw-gap-4">
@@ -246,30 +162,140 @@
                                     </div>
                                 </div>
                             </div>
-                            <div
-                                class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
-                                <div class="tw-p-4 sm:tw-p-5">
-                                    <div class="tw-flex tw-items-center tw-gap-4">
-                                        <div
-                                            class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-red-500 tw-bg-red-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 shrink-0">
-                                            <i class='fas fa-file-alt' style='font-size:24px;color:chocolate'></i>
-                                        </div>
-
-                                        <div class="tw-flex-1 tw-min-w-0">
-                                            <p
-                                                class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
-                                                Vencimiento de Resoluciones
-                                                
-                                            </p>
-                                           
-                                            
-                                        </div>
+                            
+                            
+                            
+                        @endif
+                    @endif
+              </div>
+        </div>
+        @if (auth()->user()->can('dashboard.data'))
+            @if ($is_admin)
+                <div class="tw-relative">
+                   
+                    <div class="tw-px-5 tw-isolate">
+                        <div
+                            class="tw-grid tw-grid-cols-1 tw-gap-4 tw-mt-4 sm:tw-mt-6 sm:tw-grid-cols-2 xl:tw-grid-cols-4 sm:tw-gap-5">
+                            
+                            
+                            
+                            
+                             @if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view'))
+                    <div
+                        class="tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
+                        <div class="tw-p-4 sm:tw-p-5">
+                            <div class="tw-flex tw-items-center tw-gap-2.5">
+                                <div
+                                    class="tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-full tw-w-10 tw-h-10">
+                                    <svg aria-hidden="true" class="tw-text-yellow-500 tw-size-5 tw-shrink-0"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
+                                        stroke="currentColor" fill="none" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M12 9v4"></path>
+                                        <path
+                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                        </path>
+                                        <path d="M12 16h.01"></path>
+                                    </svg>
+                                </div>
+                                <div class="tw-flex tw-items-center tw-flex-1 tw-min-w-0 tw-gap-1">
+                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
+                                        <h3 class="tw-font-bold tw-text-base lg:tw-text-xl">
+                                            {{ __('Cuentas Por Cobrar') }}
+                                            @show_tooltip(__('lang_v1.tooltip_sales_payment_dues'))
+                                        </h3>
+                                    </div>
+                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
+                                        {!! Form::select('sales_payment_dues_location', $all_locations, null, [
+                                            'class' => 'form-control select2',
+                                            'placeholder' => __('lang_v1.select_location'),
+                                            'id' => 'sales_payment_dues_location',
+                                        ]) !!}
                                     </div>
                                 </div>
                             </div>
 
-                            
+
+                            <div class="tw-flow-root tw-mt-5  tw-border-gray-200">
+                                <div class="tw--mx-4 tw--my-2 tw-overflow-x-auto sm:tw--mx-5">
+                                    <div class="tw-inline-block tw-min-w-full tw-py-2 tw-align-middle sm:tw-px-5">
+                                        <table class="table table-bordered table-striped" id="sales_payment_dues_table"
+                                            style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>@lang('contact.customer')</th>
+                                                    <th>@lang('sale.invoice_no')</th>
+                                                    <th>@lang('home.due_amount')</th>
+                                                    <th>@lang('messages.action')</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                @endif
+                @can('purchase.view')
+                    <div
+                        class="tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
+                        <div class="tw-p-4 sm:tw-p-5">
+                            <div class="tw-flex tw-items-center tw-gap-2.5">
+                                <div
+                                    class="tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-full tw-w-10 tw-h-10">
+                                    <svg aria-hidden="true" class="tw-text-yellow-500 tw-size-5 tw-shrink-0"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
+                                        stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M12 9v4"></path>
+                                        <path
+                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
+                                        </path>
+                                        <path d="M12 16h.01"></path>
+                                    </svg>
+                                </div>
+                                <div class="tw-flex tw-items-center tw-flex-1 tw-min-w-0 tw-gap-1">
+                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
+                                        <h3 class="tw-font-bold tw-text-base lg:tw-text-xl">
+                                            {{ __('Cuentas Por Pagar') }}
+                                            @show_tooltip(__('tooltip.payment_dues'))
+                                        </h3>
+                                    </div>
+                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
+                                        @if (count($all_locations) > 1)
+                                            {!! Form::select('purchase_payment_dues_location', $all_locations, null, [
+                                                'class' => 'form-control select2 ',
+                                                'placeholder' => __('lang_v1.select_location'),
+                                                'id' => 'purchase_payment_dues_location',
+                                            ]) !!}
+                                        @endif
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="tw-flow-root tw-mt-5  tw-border-gray-200">
+                                <div class="tw--mx-4 tw--my-2 tw-overflow-x-auto sm:tw--mx-5">
+                                    <div class="tw-inline-block tw-min-w-full tw-py-2 tw-align-middle sm:tw-px-5">
+                                        <table class="table table-bordered table-striped" id="purchase_payment_dues_table"
+                                            style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>@lang('purchase.supplier')</th>
+                                                    <th>@lang('purchase.ref_no')</th>
+                                                    <th>@lang('home.due_amount')</th>
+                                                    <th>@lang('messages.action')</th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endcan
+                            
+                        
                     </div>
                 </div>
                 {{-- @if (!empty($widgets['after_sale_purchase_totals']))
@@ -363,120 +389,7 @@
                         {!! $widget !!}
                     @endforeach
                 @endif --}}
-                @if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view'))
-                    <div
-                        class="tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
-                        <div class="tw-p-4 sm:tw-p-5">
-                            <div class="tw-flex tw-items-center tw-gap-2.5">
-                                <div
-                                    class="tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-full tw-w-10 tw-h-10">
-                                    <svg aria-hidden="true" class="tw-text-yellow-500 tw-size-5 tw-shrink-0"
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
-                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M12 9v4"></path>
-                                        <path
-                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                        </path>
-                                        <path d="M12 16h.01"></path>
-                                    </svg>
-                                </div>
-                                <div class="tw-flex tw-items-center tw-flex-1 tw-min-w-0 tw-gap-1">
-                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
-                                        <h3 class="tw-font-bold tw-text-base lg:tw-text-xl">
-                                            {{ __('lang_v1.sales_payment_dues') }}
-                                            @show_tooltip(__('lang_v1.tooltip_sales_payment_dues'))
-                                        </h3>
-                                    </div>
-                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
-                                        {!! Form::select('sales_payment_dues_location', $all_locations, null, [
-                                            'class' => 'form-control select2',
-                                            'placeholder' => __('lang_v1.select_location'),
-                                            'id' => 'sales_payment_dues_location',
-                                        ]) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="tw-flow-root tw-mt-5  tw-border-gray-200">
-                                <div class="tw--mx-4 tw--my-2 tw-overflow-x-auto sm:tw--mx-5">
-                                    <div class="tw-inline-block tw-min-w-full tw-py-2 tw-align-middle sm:tw-px-5">
-                                        <table class="table table-bordered table-striped" id="sales_payment_dues_table"
-                                            style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th>@lang('contact.customer')</th>
-                                                    <th>@lang('sale.invoice_no')</th>
-                                                    <th>@lang('home.due_amount')</th>
-                                                    <th>@lang('messages.action')</th>
-                                                </tr>
-                                            </thead>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-                @can('purchase.view')
-                    <div
-                        class="tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
-                        <div class="tw-p-4 sm:tw-p-5">
-                            <div class="tw-flex tw-items-center tw-gap-2.5">
-                                <div
-                                    class="tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-full tw-w-10 tw-h-10">
-                                    <svg aria-hidden="true" class="tw-text-yellow-500 tw-size-5 tw-shrink-0"
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
-                                        stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M12 9v4"></path>
-                                        <path
-                                            d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z">
-                                        </path>
-                                        <path d="M12 16h.01"></path>
-                                    </svg>
-                                </div>
-                                <div class="tw-flex tw-items-center tw-flex-1 tw-min-w-0 tw-gap-1">
-                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
-                                        <h3 class="tw-font-bold tw-text-base lg:tw-text-xl">
-                                            {{ __('lang_v1.purchase_payment_dues') }}
-                                            @show_tooltip(__('tooltip.payment_dues'))
-                                        </h3>
-                                    </div>
-                                    <div class="tw-w-full sm:tw-w-1/2 md:tw-w-1/2">
-                                        @if (count($all_locations) > 1)
-                                            {!! Form::select('purchase_payment_dues_location', $all_locations, null, [
-                                                'class' => 'form-control select2 ',
-                                                'placeholder' => __('lang_v1.select_location'),
-                                                'id' => 'purchase_payment_dues_location',
-                                            ]) !!}
-                                        @endif
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="tw-flow-root tw-mt-5  tw-border-gray-200">
-                                <div class="tw--mx-4 tw--my-2 tw-overflow-x-auto sm:tw--mx-5">
-                                    <div class="tw-inline-block tw-min-w-full tw-py-2 tw-align-middle sm:tw-px-5">
-                                        <table class="table table-bordered table-striped" id="purchase_payment_dues_table"
-                                            style="width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th>@lang('purchase.supplier')</th>
-                                                    <th>@lang('purchase.ref_no')</th>
-                                                    <th>@lang('home.due_amount')</th>
-                                                    <th>@lang('messages.action')</th>
-                                                </tr>
-                                            </thead>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endcan
+               
                 @can('stock_report.view')
                     <div
                         class="tw-transition-all lg:tw-col-span-2 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
