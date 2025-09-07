@@ -421,6 +421,7 @@ return [
     'duplicate_sell_created_successfully' => 'Venta Duplicada',
     'preparation_time_in_minutes' => 'Preparacion (en minutos)',
     'modules' => 'Módulos',
+    'modules_restobar' => 'Restaurantes',
     'theme' => 'Tema',
     'account' => 'Cuenta',
     'expense_payment' => 'Pago de Gastos',
