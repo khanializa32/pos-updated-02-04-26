@@ -113,7 +113,7 @@
                 @include('business.partials.settings_reward_point')
                 <!-- tab 11 end -->
                 <!-- tab 12 start -->
-                @include('business.partials.settings_modules')
+                <!--@include('business.partials.settings_modules')-->
                 <!-- tab 12 end -->
                 @include('business.partials.settings_custom_labels')
                 <!-- tab 13 end -->
