@@ -26,7 +26,7 @@
 
     <div class="modal-body">
         <div class="row">            
-            <div class="col-md-3 contact_type_div">
+            <div class="col-md-2 contact_type_div">
                 <div class="form-group">
                     {!! Form::label('type', __('contact.contact_type') . ':*' ) !!}
                     <div class="input-group">
