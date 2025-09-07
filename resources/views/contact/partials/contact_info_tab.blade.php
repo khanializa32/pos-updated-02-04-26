@@ -37,7 +37,7 @@
             <div class="col-sm-12">
                 @if ($contact->total_purchase - $contact->purchase_paid > 0)
                     <a href="{{ action([\App\Http\Controllers\TransactionPaymentController::class, 'getPayContactDue'], [$contact->id]) }}?type=purchase"
-                        class="pay_purchase_due tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm pull-right"><i
+                        class="pay_purchase_due tw-dw-btn tw-dw-btn-warning tw-text-black tw-dw-btn-sm pull-right"><i
                             class="fas fa-money-bill-alt" aria-hidden="true"></i> @lang('contact.pay_due_amount')</a>
                 @endif
             </div>
@@ -56,7 +56,7 @@
                     </li>
                 </ul>
             </div>
-            <a href="{{ route('postPayContactDue'). '/' . $contact->id }}?type=sell" class="pay_sale_due tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm pull-right tw-m-2"><i class="" aria-hidden="true"></i>@lang('lang_v1.purchase_payment')</a>
-        </div>
+             <a href="{{ route('postPayContactDue'). '/' . $contact->id }}?type=sell" class="pay_sale_due tw-dw-btn tw-dw-btn-success tw-text-white tw-dw-btn-sm pull-right tw-m-2"><i class="fas fa-money-bill-alt" aria-hidden="true"></i>@lang('Recibir Pagos o Abonos del Cliente')</a>
+          </div>
     </div>
 </div>
