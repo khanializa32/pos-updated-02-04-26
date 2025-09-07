@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="form-group">
                     {!! Form::label('contact_id', __('NIT') . ':*') !!}
                     <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
@@ -67,8 +67,8 @@
                         <span class="input-group-addon" >
                             <b id="dv">0</b>
                         </span>
-                        <span class="input-group-addon" style="cursor: pointer; background-color: #007bff; color: white;" id="search_contact_id">
-                            <i class="fa fa-search"></i>
+                        <span class="input-group-addon" style="cursor: pointer; background-color: #590c94; color: white;" id="search_contact_id">
+                            <button class="" type="button">Consultar</button>
                         </span>
                     </div>
                 </div>
