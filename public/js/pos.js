@@ -1919,9 +1919,35 @@ $(document).ready(function() {
         console.log('Final unit selling price:', unit_sp);
 
         var sp_element = tr.find('input.pos_unit_price');
-        __write_number(sp_element, unit_sp);
+        var price_inc_tax_input = tr.find('input.pos_unit_price_inc_tax');
 
-        sp_element.change();
+        // If sub-unit defines its own price, treat it as tax-inclusive and use directly
+        if (!isNaN(parsed_opt) && parsed_opt > 0) {
+            // Write tax-inclusive price directly to the Precio field
+            __write_number(price_inc_tax_input, unit_sp, false);
+            // Sync any duplicate inputs in the row
+            tr.find('input.pos_unit_price_inc_tax').val(price_inc_tax_input.val());
+
+            // Back-calculate base price from tax-inclusive using current tax rate
+            var tax_rate = tr.find('select.tax_id').find(':selected').data('rate');
+            var discounted_unit_price = __get_principle(unit_sp, tax_rate);
+            var unit_price = get_unit_price_from_discounted_unit_price(tr, discounted_unit_price);
+            __write_number(sp_element, unit_price);
+
+            // Update line total and text
+            var quantity = __read_number(tr.find('input.pos_quantity'));
+            var line_total = quantity * unit_sp;
+            __write_number(tr.find('input.pos_line_total'), line_total, false);
+            tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
+
+			// Recalculate row taxes/discounts and grand totals
+			pos_each_row(tr);
+			pos_total_row();
+        } else {
+            // Fallback to existing behavior (base price path)
+            __write_number(sp_element, unit_sp);
+            sp_element.change();
+        }
 
         // Check if sub-unit has a specific cost price
         var sub_unit_cost_price = selected_option.data('cost-price');
