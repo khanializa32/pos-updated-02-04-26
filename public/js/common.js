@@ -156,6 +156,96 @@ $(document).ready(function () {
             className: 'tw-dw-btn-xs  tw-dw-btn tw-dw-btn-warning tw-my-2',
             exportOptions: {
                 columns: ':visible',
+                stripHtml: true,
+                format: {
+                    body: function (data, row, column, node) {
+                        // Clean the data before export
+                        if (typeof data === 'string') {
+                            // First, extract numeric values from HTML spans with data-orig-value
+                            var origValueMatch = data.match(/data-orig-value="([^"]+)"/);
+                            if (origValueMatch) {
+                                data = origValueMatch[1];
+                            }
+                            
+                            // Remove all HTML tags
+                            data = data.replace(/<[^>]*>/g, '');
+                            
+                            // Remove currency symbols and clean up - more aggressive
+                            data = data
+                                .replace(/^\$+\s*/, '')  // Remove $ from beginning
+                                .replace(/\s*\$+$/, '')  // Remove $ from end
+                                .replace(/\$\s*/g, '')   // Remove $ anywhere in the string
+                                .replace(/\s*\$+\s*/g, '') // Remove $ with spaces around it
+                                .replace(/--+/g, '')     // Remove double or more dashes
+                                .replace(/^-+/, '')      // Remove leading dashes
+                                .replace(/-+$/, '')      // Remove trailing dashes
+                                .replace(/^\s+|\s+$/g, '') // Trim spaces
+                                .replace(/,/g, '')       // Remove thousand separators
+                                .replace(/[^\d.-]/g, ''); // Remove any non-numeric characters except decimal point and minus
+                            
+                            // Ultra-aggressive cleanup for any remaining $ symbols
+                            if (data.includes('$')) {
+                                data = data.replace(/\$/g, '');
+                            }
+                            
+                            // Handle specific zero patterns with currency symbols
+                            if (data.includes('$ 0.00') || data === '$ 0.00') {
+                                return '0';
+                            }
+                            if (data.includes('$0.00') || data === '$0.00') {
+                                return '0';
+                            }
+                            if (data.includes('$ 0') || data === '$ 0') {
+                                return '0';
+                            }
+                            if (data.includes('$0') || data === '$0') {
+                                return '0';
+                            }
+                            
+                            // Handle zero values specifically
+                            if (data === '0.00' || data === '0.0' || data === '0') {
+                                return '0';
+                            }
+                            
+                            // Handle empty or invalid values
+                            if (data === '' || data === '-' || data === '.') {
+                                return '0';
+                            }
+                            
+                            return data;
+                        }
+                        return data;
+                    },
+                    footer: function (data, row, column, node) {
+                        // Special handling for footer/totals row
+                        if (typeof data === 'string') {
+                            // Remove all currency symbols from footer
+                            data = data.replace(/\$\s*/g, '');
+                            data = data.replace(/\s*\$/g, '');
+                            
+                            // Remove double dashes and other non-numeric characters
+                            data = data.replace(/--+/g, ''); // Remove double or more dashes
+                            data = data.replace(/^-+/, ''); // Remove leading dashes
+                            data = data.replace(/-+$/, ''); // Remove trailing dashes
+                            
+                            // Handle zero values in footer
+                            if (data === '0.00' || data === '0.0' || data === '0' || data === '$ 0.00' || data === '$0.00' || data === '--' || data === '') {
+                                return '0';
+                            }
+                            
+                            // Clean up any remaining non-numeric characters except decimal point and minus
+                            data = data.replace(/[^\d.-]/g, '');
+                            
+                            // Handle empty result after cleaning
+                            if (data === '' || data === '--' || data === '-') {
+                                return '0';
+                            }
+                            
+                            return data;
+                        }
+                        return data;
+                    }
+                }
             },
             footer: true,
         },
@@ -165,8 +255,158 @@ $(document).ready(function () {
             className: 'tw-dw-btn-xs  tw-dw-btn tw-dw-btn-success tw-my-2',
             exportOptions: {
                 columns: ':visible',
+                stripHtml: true,
+                format: {
+                    body: function (data, row, column, node) {
+                        // Clean the data before export
+                        if (typeof data === 'string') {
+                            // First, extract numeric values from HTML spans with data-orig-value
+                            var origValueMatch = data.match(/data-orig-value="([^"]+)"/);
+                            if (origValueMatch) {
+                                data = origValueMatch[1];
+                            }
+                            
+                            // Remove all HTML tags
+                            data = data.replace(/<[^>]*>/g, '');
+                            
+                            // Remove currency symbols and clean up - more aggressive
+                            data = data
+                                .replace(/^\$+\s*/, '')  // Remove $ from beginning
+                                .replace(/\s*\$+$/, '')  // Remove $ from end
+                                .replace(/\$\s*/g, '')   // Remove $ anywhere in the string
+                                .replace(/\s*\$+\s*/g, '') // Remove $ with spaces around it
+                                .replace(/--+/g, '')     // Remove double or more dashes
+                                .replace(/^-+/, '')      // Remove leading dashes
+                                .replace(/-+$/, '')      // Remove trailing dashes
+                                .replace(/^\s+|\s+$/g, '') // Trim spaces
+                                .replace(/,/g, '')       // Remove thousand separators
+                                .replace(/[^\d.-]/g, ''); // Remove any non-numeric characters except decimal point and minus
+                            
+                            // Ultra-aggressive cleanup for any remaining $ symbols
+                            if (data.includes('$')) {
+                                data = data.replace(/\$/g, '');
+                            }
+                            
+                            // Handle specific zero patterns with currency symbols
+                            if (data.includes('$ 0.00') || data === '$ 0.00') {
+                                return '0';
+                            }
+                            if (data.includes('$0.00') || data === '$0.00') {
+                                return '0';
+                            }
+                            if (data.includes('$ 0') || data === '$ 0') {
+                                return '0';
+                            }
+                            if (data.includes('$0') || data === '$0') {
+                                return '0';
+                            }
+                            
+                            // Handle zero values specifically
+                            if (data === '0.00' || data === '0.0' || data === '0') {
+                                return '0';
+                            }
+                            
+                            // Handle empty or invalid values
+                            if (data === '' || data === '-' || data === '.') {
+                                return '0';
+                            }
+                            
+                            return data;
+                        }
+                        return data;
+                    },
+                    footer: function (data, row, column, node) {
+                        // Special handling for footer/totals row
+                        if (typeof data === 'string') {
+                            // Remove all currency symbols from footer
+                            data = data.replace(/\$\s*/g, '');
+                            data = data.replace(/\s*\$/g, '');
+                            
+                            // Remove double dashes and other non-numeric characters
+                            data = data.replace(/--+/g, ''); // Remove double or more dashes
+                            data = data.replace(/^-+/, ''); // Remove leading dashes
+                            data = data.replace(/-+$/, ''); // Remove trailing dashes
+                            
+                            // Handle zero values in footer
+                            if (data === '0.00' || data === '0.0' || data === '0' || data === '$ 0.00' || data === '$0.00' || data === '--' || data === '') {
+                                return '0';
+                            }
+                            
+                            // Clean up any remaining non-numeric characters except decimal point and minus
+                            data = data.replace(/[^\d.-]/g, '');
+                            
+                            // Handle empty result after cleaning
+                            if (data === '' || data === '--' || data === '-') {
+                                return '0';
+                            }
+                            
+                            return data;
+                        }
+                        return data;
+                    }
+                }
             },
             footer: true,
+            customize: function (xlsx) {
+                // Clean all cells in the Excel file including footer/totals
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                $('c', sheet).each(function() {
+                    var cellValue = $(this).find('v').text();
+                    if (cellValue && typeof cellValue === 'string') {
+                        // Extract numeric values from data-orig-value attributes
+                        var origValueMatch = cellValue.match(/data-orig-value="([^"]+)"/);
+                        if (origValueMatch) {
+                            cellValue = origValueMatch[1];
+                        }
+                        
+                        // Remove all HTML tags
+                        cellValue = cellValue.replace(/<[^>]*>/g, '');
+                        
+                        // Ultra-aggressive currency symbol removal
+                        var cleanedValue = cellValue
+                            .replace(/\$\s*/g, '')           // Remove $ and any following spaces
+                            .replace(/\s*\$/g, '')           // Remove $ and any preceding spaces
+                            .replace(/\$\s*\$+/g, '')        // Remove multiple $ symbols
+                            .replace(/\$\s*0\.00/g, '0')     // Remove $ 0.00 pattern specifically
+                            .replace(/\$\s*0\.0/g, '0')      // Remove $ 0.0 pattern
+                            .replace(/\$\s*0/g, '0')         // Remove $ 0 pattern
+                            .replace(/\$\s*/g, '')           // Remove any remaining $ and spaces
+                            .replace(/--+/g, '')             // Remove double or more dashes
+                            .replace(/^-+/, '')              // Remove leading dashes
+                            .replace(/-+$/, '')              // Remove trailing dashes
+                            .replace(/^\s+|\s+$/g, '')       // Trim spaces
+                            .replace(/,/g, '')               // Remove thousand separators
+                            .replace(/[^\d.-]/g, '');        // Remove any non-numeric characters except decimal point and minus
+                        
+                        // Handle specific zero patterns more comprehensively
+                        if (cleanedValue === '' || cleanedValue === '-' || cleanedValue === '.') {
+                            cleanedValue = '0';
+                        } else if (cleanedValue === '0.00' || cleanedValue === '0.0' || cleanedValue === '0') {
+                            cleanedValue = '0';
+                        }
+                        
+                        // Final aggressive cleanup - remove ALL non-numeric characters except decimal and minus
+                        cleanedValue = cleanedValue.replace(/[^\d.-]/g, '');
+                        
+                        // Ensure we have a valid number
+                        if (cleanedValue === '' || cleanedValue === '-' || cleanedValue === '.') {
+                            cleanedValue = '0';
+                        }
+                        
+                        // Set the cell value and force it to be treated as a number
+                        $(this).find('v').text(cleanedValue);
+                        
+                        // Remove any cell formatting that might add currency symbols
+                        $(this).removeAttr('s'); // Remove style attribute
+                        $(this).find('v').removeAttr('t'); // Remove type attribute
+                        
+                        // Force the cell to be treated as a number by setting the type
+                        if (cleanedValue !== '' && !isNaN(cleanedValue)) {
+                            $(this).find('v').attr('t', 'n'); // Set as number type
+                        }
+                    }
+                });
+            }
         },
         {
             extend: 'print',

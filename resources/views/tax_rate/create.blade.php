@@ -29,6 +29,14 @@
               {!! Form::text('amount', null, ['class' => 'form-control input_number', 'required']); !!}
           </div>
         </div>
+        
+        <div class="col-md-6">
+          <div class="form-group">
+            {!! Form::label('base', __( 'tax_rate.base' ) . ':') !!}
+              {!! Form::text('base', null, ['class' => 'form-control', 'placeholder' => __( 'tax_rate.base' )]); !!}
+          </div>
+        </div>
+        
       </div>
       
 

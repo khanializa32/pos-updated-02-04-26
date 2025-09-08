@@ -5,7 +5,8 @@
 </div>
 <div class="row tw-mb-1">
      @if (!empty($categories))
-        <div class="col-md-6 !tw-px-2 tw-block lg:!tw-hidden" id="product_category_div">
+         {{-- <div class="col-md-6 !tw-px-2 tw-hidden md:tw-block lg:tw-hidden" id="product_category_div"> --}}
+                            <div class="col-md-6 !tw-px-2 tw-block sm:tw-block md:tw-block lg:tw-hidden" id="product_category_div"> 
             <div class="tw-dw-drawer tw-dw-drawer-end">
                 <input id="my-drawer-4" type="checkbox" class="tw-dw-drawer-toggle">
                 <div class="tw-dw-drawer-content">
@@ -173,7 +174,7 @@
             id="show_featured_products">MIS FAVORITOS</button>
     </div>
 </div>
-<style>#product_list_body{max-height: calc(100vh - 280px); overflow-y: auto; overflow-x: hidden;}</style>
+<style>#product_list_body{max-height: 750px;overflow-y: scroll;overflow-x: hidden;}</style>
 <div class="row">   
     <input type="hidden" id="suggestion_page" value="1">
     <div class="col-md-12">

@@ -28,6 +28,14 @@
               {!! Form::select('code', $taxes, $tax_rate->code, ['class' => 'form-control', 'required', 'placeholder' => __( 'Seleccione el tipo de impuesto' )]); !!}
           </div>
         </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            {!! Form::label('base', __( 'tax_rate.base' ) . ':') !!}
+              {!! Form::text('base', null, ['class' => 'form-control', 'placeholder' => __( 'tax_rate.base' )]); !!}
+          </div>
+        </div>
+        
       </div>
 
       <div class="form-group">

@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row mini_print">
   <div class="col-sm-12">
     <table class="table table-condensed">
       <tr>

@@ -45,36 +45,7 @@
             </div>
             
             
-            <!-- INICIO CODIGO PARA CREAR RETEFUENTE PARA COMPRAS , FALTA GUARDADO EN BASE DE DATOS -->
             
-</div>    <div class="box box-primary" >
-                    <div class="box-header">
-            
-            <h3 class="box-title">Retencion en la Fuente</h3>
-            <div class="box-tools">
-                    <button type="button" class="btn btn-block btn-primary btn-modal" 
-                            data-href="https://app.siscontri.com/retefuente-taxes/create" 
-                            data-container=".tax_rate_modal">
-                            <i class="fa fa-plus"></i> Crear</button>
-                </div>
-        </div>
-            
-    <div class="box-body">
-        <div class="table-responsive">
-                <table class="table table-bordered table-striped" id="retefuente_table">
-                    <thead>
-                        <tr>
-                            <th>Año</th>
-                            <th>Base Retencion</th>
-                            <th>% Declarante</th>
-                            <th>% No Declarante</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-    </div>
-    <!-- FIN CODIGO PARA CREAR RETEFUENTE PARA COMPRAS , FALTA GUARDADO EN BASE DE DATOS -->
             
         @endcan
     @endcomponent

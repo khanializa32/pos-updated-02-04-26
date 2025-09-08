@@ -54,7 +54,7 @@
 	{!! Form::open(['url' => action([\App\Http\Controllers\PurchaseController::class, 'store']), 'method' => 'post', 'id' => 'add_purchase_form', 'files' => true ]) !!}
 	@component('components.widget', ['class' => 'box-info'])
 		<div class="row">
-			<div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
+			<div class="@if(!empty($default_purchase_status)) col-sm-3 @else col-sm-3 @endif">
 				<div class="form-group">
 					{!! Form::label('supplier_id', __('purchase.supplier') . ':*') !!}
 					<div class="input-group">
@@ -72,14 +72,14 @@
 				</strong>
 				<div id="supplier_address_div"></div>
 			</div>
-			<div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
+			<div class="@if(!empty($default_purchase_status)) col-sm-2 @else col-sm-3 @endif">
 				<div class="form-group">
 					{!! Form::label('ref_no', __('purchase.ref_no').':') !!}
 					@show_tooltip(__('lang_v1.leave_empty_to_autogenerate'))
 					{!! Form::text('ref_no', null, ['class' => 'form-control']); !!}
 				</div>
 			</div>
-			<div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
+			<div class="@if(!empty($default_purchase_status)) col-sm-2 @else col-sm-3 @endif">
 				<div class="form-group">
 					{!! Form::label('transaction_date', __('purchase.purchase_date') . ':*') !!}
 					<div class="input-group">
@@ -106,7 +106,7 @@
 				$search_disable = true;
 				@endphp
 			@endif
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<div class="form-group">
 					{!! Form::label('location_id', __('purchase.business_location').':*') !!}
 					@show_tooltip(__('tooltip.purchase_location'))
@@ -131,7 +131,7 @@
 				</div>
 			</div>
 
-			<div class="col-md-3">
+			<div class="col-md-2">
 		          <div class="form-group">
 		            <div class="multi-input">
 		              {!! Form::label('pay_term_number', __('contact.pay_term') . ':') !!} @show_tooltip(__('tooltip.pay_term'))
@@ -157,7 +157,7 @@
                     </p>
                 </div>
             </div>
-			<div class="col-sm-3">
+			<div class="col-sm-4">
 				<div class="form-group">
 					{!! Form::label('cufe', __('Cufe').':') !!}
 					@show_tooltip(__('Cufe de la factura de compra'))
@@ -246,7 +246,7 @@
 		</div>
 		@if(!empty($common_settings['enable_purchase_order']))
 		<div class="row">
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<div class="form-group">
 					{!! Form::label('purchase_order_ids', __('lang_v1.purchase_order').':') !!}
 					{!! Form::select('purchase_order_ids[]', [], null, ['class' => 'form-control select2', 'multiple', 'id' => 'purchase_order_ids']); !!}

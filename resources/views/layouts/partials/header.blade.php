@@ -169,6 +169,17 @@
                 <!--@if (Module::has('Repair'))
                     @includeIf('repair::layouts.partials.header')
                 @endif -->
+                
+                
+                @can('register-report.view')
+                        <a href="{{ action([\App\Http\Controllers\ReportController::class, 'getRegisterReport']) }}"
+                            class="sm:tw-inline-flex tw-transition-all tw-duration-200 tw-gap-2 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-ring-1 tw-ring-white/10 hover:tw-text-white tw-text-white">
+                            <i class='fas fa-tv' style='font-size:20px;color:white'></i>
+                            @lang('CAJAS')
+                        </a>
+                    @endcan
+                
+                
                 @can('profit_loss_report.view')
                     <button type="button" type="button" id="view_todays_profit" title="{{ __('home.todays_profit') }}"
                         data-toggle="tooltip" data-placement="bottom"

@@ -60,13 +60,13 @@
     <div class="row">
         <div class="col-sm-4">
             <div class="form-group">
-                {!! Form::label('name', __('product.product_name') . ':*') !!}
+                {!! Form::label('name', __('Nombre del Producto') . ':*') !!}
                 {!! Form::text('name', !empty($duplicate_product->name) ? $duplicate_product->name : null, ['class' => 'form-control', 'required',
                 'placeholder' => __('product.product_name')]); !!}
             </div>
         </div>
         
-        <div class="col-sm-4">
+        <div class="col-sm-2">
             <div class="form-group">
                 {!! Form::label('type', __('product.product_type') . ':*') !!} @show_tooltip(__('tooltip.product_type'))
                 {!! Form::select('type', $product_types, !empty($duplicate_product->type) ? $duplicate_product->type : null, ['class' => 'form-control select2',
@@ -77,7 +77,7 @@
         
         
 
-        <div class="col-sm-4">
+        <div class="col-sm-2">
             <div class="form-group">
                 {!! Form::label('sku', __('product.sku') . ':') !!} @show_tooltip(__('tooltip.sku'))
                 {!! Form::text('sku', null, ['class' => 'form-control',
@@ -92,15 +92,15 @@
             </div>
         </div> -->
 
-        <div class="clearfix"></div>
-        <div class="col-sm-4">
+       
+        <div class="col-sm-2">
             <div class="form-group">
                 {!! Form::label('unit_id', __('product.unit') . ':*') !!}
                 <div class="input-group">
                     {!! Form::select('unit_id', $units, !empty($duplicate_product->unit_id) ? $duplicate_product->unit_id : session('business.default_unit'), ['class' => 'form-control select2', 'required']); !!}
-                    <span class="input-group-btn">
+                   <!-- <span class="input-group-btn">
                         <button type="button" @if(!auth()->user()->can('unit.create')) disabled @endif class="btn btn-default bg-white btn-flat btn-modal" data-href="{{action([\App\Http\Controllers\UnitController::class, 'create'], ['quick_add' => true])}}" title="@lang('unit.add_unit')" data-container=".view_modal"><i class="fa fa-plus-circle text-primary fa-lg"></i></button>
-                    </span>
+                   </span>  -->
                 </div>
             </div>
         </div>
@@ -132,7 +132,7 @@
         </div>
         @endif
 
-        <div class="col-sm-4 @if(!session('business.enable_brand')) hide @endif">
+        <div class="col-sm-2 @if(!session('business.enable_brand')) hide @endif">
             <div class="form-group">
                 {!! Form::label('brand_id', __('product.brand') . ':') !!}
                 <div class="input-group">
@@ -143,14 +143,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-4 @if(!session('business.enable_category')) hide @endif">
+        <div class="col-sm-3 @if(!session('business.enable_category')) hide @endif">
             <div class="form-group">
                 {!! Form::label('category_id', __('product.category') . ':') !!}
                 {!! Form::select('category_id', $categories, !empty($duplicate_product->category_id) ? $duplicate_product->category_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
             </div>
         </div>
 
-        <div class="col-sm-4 @if(!(session('business.enable_category') && session('business.enable_sub_category'))) hide @endif">
+        <div class="col-sm-3 @if(!(session('business.enable_category') && session('business.enable_sub_category'))) hide @endif">
             <div class="form-group">
                 {!! Form::label('sub_category_id', __('product.sub_category') . ':') !!}
                 {!! Form::select('sub_category_id', $sub_categories, !empty($duplicate_product->sub_category_id) ? $duplicate_product->sub_category_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
@@ -163,7 +163,7 @@
         $default_location = array_key_first($business_locations->toArray());
         }
         @endphp
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <div class="form-group">
                 {!! Form::label('product_locations', __('business.business_locations') . ':') !!} @show_tooltip(__('lang_v1.product_location_help'))
                 {!! Form::select('product_locations[]', $business_locations, $default_location, ['class' => 'form-control select2', 'multiple', 'id' => 'product_locations']); !!}
@@ -181,7 +181,7 @@
                 </label>@show_tooltip(__('tooltip.enable_stock')) <p class="help-block"><i>@lang('product.enable_stock_help')</i></p>
             </div>
         </div>
-        <div class="col-sm-4 @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) hide @endif" id="alert_quantity_div">
+        <div class="col-sm-2 @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) hide @endif" id="alert_quantity_div">
             <div class="form-group">
                 {!! Form::label('alert_quantity', __('product.alert_quantity') . ':') !!} @show_tooltip(__('tooltip.alert_quantity'))
                 {!! Form::text('alert_quantity', !empty($duplicate_product->alert_quantity) ? @format_quantity($duplicate_product->alert_quantity) : null , ['class' => 'form-control input_number',
@@ -198,7 +198,16 @@
                 </label> @show_tooltip(__('lang_v1.tooltip_not_for_selling'))
             </div>
         </div>
-        
+        <div class="col-sm-2">
+            <div class="form-group">
+                {!! Form::label('image', __('lang_v1.product_image') . ':') !!}
+                {!! Form::file('image', ['id' => 'upload_image', 'accept' => 'image/*',
+                'required' => $is_image_required, 'class' => 'upload-element']); !!}
+                <small>
+                    <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1')  @includeIf('components.document_help_text')</p>
+                </small>
+            </div>
+        </div>
         
         @if(!empty($common_settings['enable_product_warranty']))
         <div class="col-sm-4">
@@ -256,16 +265,7 @@
         
         
         
-        <div class="col-sm-4">
-            <div class="form-group">
-                {!! Form::label('image', __('lang_v1.product_image') . ':') !!}
-                {!! Form::file('image', ['id' => 'upload_image', 'accept' => 'image/*',
-                'required' => $is_image_required, 'class' => 'upload-element']); !!}
-                <small>
-                    <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1')  @includeIf('components.document_help_text')</p>
-                </small>
-            </div>
-        </div>
+        
     </div>
     <!-- <div class="col-sm-4">
         <div class="form-group">
@@ -387,12 +387,12 @@
         @endforeach
         @endif
 
-        <div class="col-sm-4">
+        <!-- <div class="col-sm-4">
             <div class="form-group">
                 {!! Form::label('weight', __('lang_v1.weight') . ':') !!}
                 {!! Form::text('weight', !empty($duplicate_product->weight) ? $duplicate_product->weight : null, ['class' => 'form-control', 'placeholder' => __('lang_v1.weight')]); !!}
             </div>
-        </div>
+        </div -->
         @php
         $custom_labels = json_decode(session('business.custom_labels'), true);
         $product_custom_fields = !empty($custom_labels['product']) ? $custom_labels['product'] : [];
@@ -426,12 +426,12 @@
             @endif
         @endforeach
 
-        <div class="col-sm-3">
+        <!-- <div class="col-sm-3">
             <div class="form-group">
                 {!! Form::label('preparation_time_in_minutes', __('lang_v1.preparation_time_in_minutes') . ':') !!}
                 {!! Form::number('preparation_time_in_minutes', !empty($duplicate_product->preparation_time_in_minutes) ? $duplicate_product->preparation_time_in_minutes : null, ['class' => 'form-control', 'placeholder' => __('lang_v1.preparation_time_in_minutes')]); !!}
             </div>
-        </div>
+        </div -->
         <!--custom fields-->
         <div class="clearfix"></div>
         @include('layouts.partials.module_form_part')

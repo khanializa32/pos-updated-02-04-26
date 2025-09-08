@@ -660,6 +660,8 @@ $(document).ready(function() {
         var priceIncTaxInput = tr.find('input.pos_unit_price_inc_tax');
         if (!priceIncTaxInput.data('editing-price')) {
             __write_number(priceIncTaxInput, unit_price_inc_tax);
+            // Update all inputs with the same name in this row to keep them synchronized
+            tr.find('input.pos_unit_price_inc_tax').val(priceIncTaxInput.val());
         }
         __write_number(tr.find('input.pos_line_total'), line_total);
         tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
@@ -677,6 +679,10 @@ $(document).ready(function() {
     $('table#pos_table tbody').on('change', 'input.pos_unit_price_inc_tax', function() {
         var tr = $(this).parents('tr');
         var unit_price_inc_tax = __read_number($(this));
+        
+        // Update all inputs with the same name in this row to keep them synchronized
+        tr.find('input.pos_unit_price_inc_tax').not(this).val($(this).val());
+        
         var quantity = __read_number(tr.find('input.pos_quantity'));
         var line_total = quantity * unit_price_inc_tax;
 
@@ -712,8 +718,11 @@ $(document).ready(function() {
         // Format the Precio field only (thousand separators/decimals), do not recalculate it
         __write_number($(this), unit_price_inc_tax, false);
 
+        // Update all inputs with the same name in this row to keep them synchronized
         var tr = $(this).parents('tr');
+        tr.find('input.pos_unit_price_inc_tax').not(this).val($(this).val());
 
+        console.log(__read_number($(this)));
         var tax_rate = tr
             .find('select.tax_id')
             .find(':selected')
@@ -818,6 +827,8 @@ $(document).ready(function() {
             var priceIncTaxInput2 = tr.find('input.pos_unit_price_inc_tax');
             if (!priceIncTaxInput2.data('editing-price')) {
                 __write_number(priceIncTaxInput2, unit_price_inc_tax);
+                // Update all inputs with the same name in this row to keep them synchronized
+                tr.find('input.pos_unit_price_inc_tax').val(priceIncTaxInput2.val());
             }
             __write_number(tr.find('input.pos_line_total'), line_total, false);
             tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));

@@ -61,7 +61,7 @@
 
 			<div class="@if(!empty($default_purchase_status)) col-sm-4 @else col-sm-3 @endif">
 				<div class="form-group">
-					{!! Form::label('delivery_date', __('lang_v1.delivery_date') . ':') !!}
+					{!! Form::label('delivery_date', __('Fecha de Entrega') . ':') !!}
 					<div class="input-group">
 						<span class="input-group-addon">
 							<i class="fa fa-calendar"></i>

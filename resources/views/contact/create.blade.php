@@ -26,7 +26,7 @@
 
     <div class="modal-body">
         <div class="row">            
-            <div class="col-md-3 contact_type_div">
+            <div class="col-md-2 contact_type_div">
                 <div class="form-group">
                     {!! Form::label('type', __('contact.contact_type') . ':*' ) !!}
                     <div class="input-group">
@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="form-group">
                     {!! Form::label('contact_id', __('NIT') . ':*') !!}
                     <i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
@@ -67,8 +67,8 @@
                         <span class="input-group-addon" >
                             <b id="dv">0</b>
                         </span>
-                        <span class="input-group-addon" style="cursor: pointer; background-color: #007bff; color: white;" id="search_contact_id">
-                            <i class="fa fa-search"></i>
+                        <span class="input-group-addon" style="cursor: pointer; background-color: #590c94; color: white;" id="search_contact_id">
+                            <button class="" type="button">Consultar</button>
                         </span>
                     </div>
                 </div>
@@ -605,7 +605,7 @@
     </div>
     
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Crear Cliente' )</button>
+      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Crear Tercero' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

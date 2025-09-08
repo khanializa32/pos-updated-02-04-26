@@ -1,7 +1,7 @@
 <div class="pos-tab-content">
 	<div class="row">
 	@if(!empty($modules))
-		<h4>@lang('lang_v1.enable_disable_modules')</h4>
+		<h4>Solo Para Restaurantes</h4>
 		@foreach($modules as $k => $v)
             <div class="col-sm-4">
                 <div class="form-group">

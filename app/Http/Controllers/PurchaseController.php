@@ -717,6 +717,12 @@ class PurchaseController extends Controller
                                         })
                                         ->pluck('ref_no', 'id');
         }
+        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        // $countries = Country::pluck('name','id');
+        $departments = Department::pluck('name','id');
+        $municipalities = Municipality::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name','id');
+        $type_liabilities = TypeLiability::pluck('name','id');
 
         return view('purchase.edit')
             ->with(compact(
@@ -731,7 +737,12 @@ class PurchaseController extends Controller
                 'types',
                 'shortcuts',
                 'purchase_orders',
-                'common_settings'
+                'common_settings',
+                'type_document_identifications',
+                'departments',
+                'municipalities',
+                'type_regimes',
+                'type_liabilities'
             ));
     }
 

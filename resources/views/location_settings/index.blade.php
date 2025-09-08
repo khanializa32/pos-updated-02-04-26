@@ -93,7 +93,7 @@
 
                         <div class="col-sm-4">
                             <div class="form-group">
-                                {!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':*') !!} @show_tooltip(__('tooltip.invoice_scheme'))
+                                {!! Form::label('invoice_scheme_id', __('Factura Prederminada') . ':*') !!}
                                 <div class="input-group">
                                     <span class="input-group-addon">
                                         <i class="fa fa-info"></i>
@@ -108,7 +108,7 @@
 
                         <div class="row">
                             <div class="col-sm-12">
-                                <button class="tw-dw-btn tw-dw-btn-primary tw-text-white pull-right" type="submit">@lang('messages.update')</button>
+                                <button class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right" type="submit">@lang('messages.save')</button>
                             </div>
                         </div>
                         {!! Form::close() !!}
