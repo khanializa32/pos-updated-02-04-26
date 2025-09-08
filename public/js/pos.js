@@ -187,8 +187,9 @@ $(document).ready(function() {
             var variationId = $(this).find('.row_variation_id').val();
             var qty = __read_number($(this).find('.pos_quantity')) || 0;
             var lineLoc = $(this).find('input.line_location_id').val();
+            var subUnitId = $(this).find('select.sub_unit').val() || null;
             if (variationId && qty > 0) {
-                prevCartItems.push({ variationId: variationId, qty: qty, locationId: lineLoc });
+                prevCartItems.push({ variationId: variationId, qty: qty, locationId: lineLoc, subUnitId: subUnitId });
             }
         });
 
@@ -249,7 +250,9 @@ $(document).ready(function() {
                                 var $existingRow = $tbody.find('tr.product_row').filter(function() {
                                     var vId = $(this).find('.row_variation_id').val();
                                     var lineLoc = $(this).find('input.line_location_id').val();
-                                    return String(vId) === String(item.variationId) && String(lineLoc) === String(restoreLocationId);
+                                    var existingSubUnitId = $(this).find('select.sub_unit').val() || null;
+                                    var sameSubUnit = String(existingSubUnitId || '') === String(item.subUnitId || '');
+                                    return String(vId) === String(item.variationId) && String(lineLoc) === String(restoreLocationId) && sameSubUnit;
                                 }).first();
 
                                 if ($existingRow.length) {
@@ -262,13 +265,20 @@ $(document).ready(function() {
                                     $('input#product_row_count').val(parseInt(product_row) + 1);
                                     var this_row = $('table#pos_table tbody').find('tr').last();
                                     this_row.find('input.line_location_id').val(restoreLocationId);
+                                    // Restore previously selected sub-unit, if any
+                                    if (item.subUnitId) {
+                                        var $subSel = this_row.find('select.sub_unit');
+                                        if ($subSel.length) {
+                                            $subSel.val(String(item.subUnitId)).trigger('change');
+                                        }
+                                    } else if(__getUnitMultiplier(this_row) > 1){
+                                        // fallback to existing behavior if multiplier indicates non-base unit
+                                        this_row.find('select.sub_unit').trigger('change');
+                                    }
                                     pos_each_row(this_row);
                                     var line_total = __read_number(this_row.find('input.pos_line_total'));
                                     this_row.find('span.pos_line_total_text').text(line_total);
                                     pos_total_row();
-                                    if(__getUnitMultiplier(this_row) > 1){
-                                        this_row.find('select.sub_unit').trigger('change');
-                                    }
                                     if (preview.enable_sr_no == '1') {
                                         this_row.find('.row_edit_product_price_model').modal('show');
                                     }
