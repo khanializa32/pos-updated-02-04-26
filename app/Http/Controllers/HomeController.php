@@ -233,19 +233,19 @@ class HomeController extends Controller
                 false,
             );
             $permitted_locations = auth()->user()->permitted_locations();
-    
+
+            // get user id parameter (optional filter)
+            $created_by = request()->user_id;
+
             // Use sub-unit aware gross profit to match per-invoice utility
             $gross_profit = $this->transactionUtil->getGrossProfitUsingSubUnits(
                 $business_id,
                 $start,
                 $end,
                 $location_id,
-                1,
+                $created_by,
                 $permitted_locations
             );
-    
-            // get user id parameter
-            $created_by = request()->user_id;
 
             $purchase_details = $this->transactionUtil->getPurchaseTotals($business_id, $start, $end, $location_id, $created_by);
 
