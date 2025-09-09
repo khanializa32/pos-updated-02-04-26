@@ -418,7 +418,7 @@
                             @if($hasMultiLocs)
                                 @php $locCode = $locCodeMap[(int)($line['line_location_id'] ?? 0)] ?? null; @endphp
                                 @if($locCode)
-                                    ({{ $locCode }})
+                                    <strong>({{ $locCode }})</strong>
                                 @endif
                             @endif
                         	{{$line['name']}} {{$line['product_variation']}} {{$line['variation']}} 
