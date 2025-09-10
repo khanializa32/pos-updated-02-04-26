@@ -29,10 +29,10 @@
             </div>  
         </div>     
     @endif
-    @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.import_export_product_price')])
+    @component('components.widget', ['class' => 'box-primary', 'title' => __('Actualización Masiva de Precios')])
             <div class="row">
                 <div class="col-sm-6">
-                    <a href="{{action([\App\Http\Controllers\SellingPriceGroupController::class, 'export'])}}" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang('lang_v1.export_product_prices')</a>
+                    <a href="{{action([\App\Http\Controllers\SellingPriceGroupController::class, 'export'])}}" class="tw-dw-btn tw-dw-btn-warning tw-text-black">Descargar Lista Excel</a>
                 </div>
                 <div class="col-sm-6">
                     {!! Form::open(['url' => action([\App\Http\Controllers\SellingPriceGroupController::class, 'import']), 'method' => 'post', 'enctype' => 'multipart/form-data' ]) !!}
@@ -41,17 +41,17 @@
                         {!! Form::file('product_group_prices', ['required' => 'required']); !!}
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang('messages.submit')</button>
+                        <button type="submit" class="tw-dw-btn tw-dw-btn-success tw-text-white">Actualizar Precios</button>
                     </div>
                     {!! Form::close() !!}
                 </div>
                 <div class="col-sm-12">
                     <h4>@lang('lang_v1.instructions'):</h4>
                     <ol>
-                        <li>@lang('lang_v1.price_import_instruction_1')</li>
-                        <li>@lang('lang_v1.price_import_instruction_2')</li>
-                        <li>@lang('lang_v1.price_import_instruction_3')</li>
-                        <li>@lang('lang_v1.price_import_instruction_4')</li>
+                        <li>@lang('lang_v1.price_import_instruction_1')  Descarge la plantilla de Excel en el boton amarillo que se indica arriba</li>   
+                        <li>@lang('lang_v1.price_import_instruction_2')  Diligencie sus nuevos precios de venta</li>
+                        <li>@lang('lang_v1.price_import_instruction_3')  Suba o importe el archivo diligenciado </li>
+                        <li>@lang('lang_v1.price_import_instruction_4')  Haga click en el boton verde actualizar precios</li>
                     </ol>
                     
                 </div>
