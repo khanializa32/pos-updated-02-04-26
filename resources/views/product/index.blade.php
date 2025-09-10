@@ -233,7 +233,7 @@
                                     <a class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-red-500 tw-font-bold tw-text-red tw-border-none tw-full pull-right tw-m-2"
                                         href="{{ action([\App\Http\Controllers\ProductController::class, 'downloadExcel']) }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2"
+                                            viewBox="0 0 24 24" fill="none" stroke="purple" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
                                             class="icon icon-tabler icons-tabler-outline icon-tabler-download">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -243,8 +243,18 @@
                                         </svg> @lang('lang_v1.download_excel')
                                     </a>
                                 @endif
-                                @can('product.create')
 
+								 @can('product.create')
+
+                                    <a class="tw-dw-btn tw-bg--to-r tw-from-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-full pull-right tw-m-2"
+                                        href="{{ action([\App\Http\Controllers\SellingPriceGroupController::class, 'updateProductPrice']) }}">
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="green"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-excel"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" /><path d="M10 12l4 5" /><path d="M10 17l4 -5" /></svg> @lang('Actualizar Precios')
+                                    </a>
+                                    
+                                @endcan
+								
+                                @can('product.create')
+									
                                     <a class="tw-dw-btn tw-bg--to-r tw-from-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-full pull-right tw-m-2"
                                         href="{{ action([\App\Http\Controllers\ProductController::class, 'create']) }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
