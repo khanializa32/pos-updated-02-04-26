@@ -134,12 +134,12 @@
             </div>
 
 	    <div class="tw-w-full md:tw-w-fit tw-flex tw-flex-col tw-items-end tw-gap-3 tw-hidden md:tw-block">
-                @if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
+                {{--@if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
                     <button type="button"
                         
                         data-toggle="modal" data-target="#recent_transactions_modal" id="recent-transactions"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
                             class="fas fa-layer-group" style="font-size:24px ;color:teal"></i> </button>
-                @endif
+                @endif --}}
                     </div>
                 </div>
                 </div>
