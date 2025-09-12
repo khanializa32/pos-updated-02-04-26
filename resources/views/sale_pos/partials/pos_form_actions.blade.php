@@ -143,7 +143,12 @@
                     </div>
                 </div>
                 </div>
-             </div> 
+                @if (!Gate::check('disable_quotation') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+                    <button type="button"
+                        class="tw-font-bold tw-text-gray-700 tw-cursor-pointer tw-text-xs md:tw-text-sm tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-1 "
+                        id="pos-quotation" @if (!empty($only_payment)) disabled @endif></i>&nbsp;&nbsp;&nbsp; @lang('lang_v1.quotation')</button>
+                @endif
+                </div>
 
 @if (isset($transaction))
     @include('sale_pos.partials.edit_discount_modal', [
