@@ -5501,7 +5501,7 @@ class TransactionUtil extends Util
             
             $product = $line->product;
             $sub_unit_id = $line->sub_unit_id;
-
+            $sub_unit = $line->sub_unit; // Eager loaded in query
             // Check if product has sub-unit purchase price defined
             $has_subunit_price = false;
             if ($sub_unit_id && $product && is_array($product->sub_unit_prices)) {
@@ -5513,6 +5513,15 @@ class TransactionUtil extends Util
             if ($has_subunit_price) {
                 // Use sub-unit purchase price
                 $purchase_price_per_unit = (float) $product->sub_unit_prices[$sub_unit_id];
+                
+                // If selling in a sub-unit and the unit has a base_unit_multiplier > 1,
+                // convert the base unit purchase price to sub-unit price by dividing
+                if (! empty($sub_unit) && ! is_null($sub_unit->base_unit_multiplier)) {
+                    $multiplier = (float) $sub_unit->base_unit_multiplier;
+                    if ($multiplier > 1) {
+                        $purchase_price_per_unit = $purchase_price_per_unit / $multiplier;
+                    }
+                }
             } else {
                 // Use default purchase price from variation (dpp_inc_tax)
                 $purchase_price_per_unit = (float) optional($line->variations)->dpp_inc_tax;

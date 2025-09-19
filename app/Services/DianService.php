@@ -1117,8 +1117,8 @@ class DianService
                     break;
                 case 422:
                     $respuesta = json_decode($response);
-                    $message = $respuesta->message;
-                    $errors = $respuesta->errors;
+                    $message = (is_object($respuesta) && isset($respuesta->message)) ? $respuesta->message : 'Error 422 from DIAN service';
+                    $errors = (is_object($respuesta) && isset($respuesta->errors)) ? $respuesta->errors : $respuesta;
                     //respuesta almacenada
                     $transaction = Transaction::find($transaction->id);
                     $transaction->is_valid = false;
@@ -1139,7 +1139,7 @@ class DianService
                     break;
                 case 404:
                     $respuesta = json_decode($response);
-                    $message = $respuesta->message;
+                    $message = (is_object($respuesta) && isset($respuesta->message)) ? $respuesta->message : 'error 404 Url incorrecta';
                     //respuesta almacenada
                     $transaction = Transaction::find($transaction->id);
                     $transaction->is_valid = false;
@@ -1160,7 +1160,7 @@ class DianService
                     break;
                 default:
                     $respuesta = json_decode($response);
-                    $message = $respuesta->message;
+                    $message = (is_object($respuesta) && isset($respuesta->message)) ? $respuesta->message : 'Unknown error from DIAN service';
                     //respuesta almacenada
                     $transaction = Transaction::find($transaction->id);
                     $transaction->is_valid = false;
@@ -1168,7 +1168,7 @@ class DianService
                     //fin de respuesta
                     $output = [
                         'success' =>0, 
-                        'msg' => "error 404 Url incorrecta", 
+                        'msg' => $message, 
                         'input_curl'=> $data, 
                         'input_factura'=> $input, 
                         'response' => ($respuesta) ? $respuesta : '',  
