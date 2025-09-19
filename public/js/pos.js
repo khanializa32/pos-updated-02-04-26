@@ -297,12 +297,35 @@ $(document).ready(function() {
         }
 
         var default_price_group = $(this).find(':selected').data('default_price_group')
+        
         if (default_price_group) {
             if($("#price_group option[value='" + default_price_group + "']").length > 0) {
                 $("#price_group").val(default_price_group);
-                $("#price_group").change();
+            }
+        } else {
+            // If no default for this branch, fallback to 0 (default price) when available
+            if($("#price_group option[value='0']").length > 0) {
+                $("#price_group").val('0');
             }
         }
+        // Always trigger change so UI and product grid refresh with the active value
+        $("#price_group").change();
+        
+        // Refresh product suggestions for new branch (location & price group sensitive)
+        // This will be handled by the price group change event, but we need to ensure
+        // the product grid is refreshed after the price group change
+        setTimeout(function() {
+            if ($('div#product_list_body').length > 0) {
+                // Clear the product grid first
+                $('div#product_list_body').html('');
+                $('input#suggestion_page').val(1);
+                get_product_suggestion_list(
+                    global_p_category_id,
+                    global_brand_id,
+                    $('input#location_id').val()
+                );
+            }
+        }, 500);
 
         //Set default invoice scheme for location
         if ($('#invoice_scheme_id').length) {
@@ -324,8 +347,7 @@ $(document).ready(function() {
         
         //Set default price group
         if ($('#default_price_group').length) {
-            var dpg = default_price_group ?
-            default_price_group : 0;
+            var dpg = default_price_group ? default_price_group : 0;
             $('#default_price_group').val(dpg);
         }
 
@@ -1825,6 +1847,18 @@ $(document).ready(function() {
 
     $('select#price_group').change(function() {
         $('input#hidden_price_group').val($(this).val());
+        
+        // Refresh product grid with new price group
+        if ($('div#product_list_body').length > 0) {
+            // Clear the product grid first
+            $('div#product_list_body').html('');
+            $('input#suggestion_page').val(1);
+            get_product_suggestion_list(
+                global_p_category_id,
+                global_brand_id,
+                $('input#location_id').val()
+            );
+        }
     });
 
     //Quick add product
@@ -2188,17 +2222,29 @@ function get_product_suggestion_list(category_id, brand_id, location_id, url = n
         $('#suggestion_page_loader').fadeOut(700);
         return false;
     }
+    var price_group = '';
+    if ($('#price_group').length > 0) {
+        price_group = $('#price_group').val();
+    }
+    
+    // Don't send price_group if it's 0 or empty
+    var ajax_data = {
+        category_id: category_id,
+        brand_id: brand_id,
+        location_id: location_id,
+        page: page,
+        is_enabled_stock: is_enabled_stock,
+        repair_model_id: repair_model_id
+    };
+    
+    if (price_group && price_group !== '0' && price_group !== '') {
+        ajax_data.price_group = price_group;
+    }
+
     $.ajax({
         method: 'GET',
         url: url,
-        data: {
-            category_id: category_id,
-            brand_id: brand_id,
-            location_id: location_id,
-            page: page,
-            is_enabled_stock: is_enabled_stock,
-            repair_model_id: repair_model_id
-        },
+        data: ajax_data,
         dataType: 'html',
         success: function(result) {
             $('div#product_list_body').append(result);
@@ -2232,11 +2278,16 @@ function get_recent_transactions(status, element_obj) {
 function pos_product_row(variation_id = null, purchase_line_id = null, weighing_scale_barcode = null, quantity = 1) {
 
     //Get item addition method
-    var item_addtn_method = 0;
+    var item_addtn_method = 1; // Default to 1 (increment existing) instead of 0 (always add new)
     var add_via_ajax = true;
 
     if (variation_id != null && $('#item_addition_method').length) {
         item_addtn_method = $('#item_addition_method').val();
+    }
+
+    // Force increment mode for product clicks (ignore database setting)
+    if (variation_id != null) {
+        item_addtn_method = 1;
     }
 
     if (item_addtn_method == 0) {
@@ -2274,8 +2325,25 @@ function pos_product_row(variation_id = null, purchase_line_id = null, weighing_
                     //Increment product quantity
                     qty_element = $(this).find('.pos_quantity');
                     var qty = __read_number(qty_element);
-                    __write_number(qty_element, qty + 1);
+                    var new_qty = qty + 1;
+                    __write_number(qty_element, new_qty);
+                    
+                    // Manually trigger the line total calculation
+                    var tr = $(this);
+                    var unit_price_inc_tax = __read_number(tr.find('input.pos_unit_price_inc_tax'));
+                    var line_total = new_qty * unit_price_inc_tax;
+                    
+                    console.log('Debug - Qty:', new_qty, 'Unit Price:', unit_price_inc_tax, 'Line Total:', line_total);
+                    
+                    // Update line total without triggering keyup event
+                    tr.find('input.pos_line_total').val(line_total);
+                    tr.find('span.pos_line_total_text').text(__currency_trans_from_en(line_total, true));
+                    
+                    
                     qty_element.change();
+
+                    // Recalculate totals after quantity change
+                    pos_total_row();
 
                             round_row_to_iraqi_dinnar($(this));
 
@@ -2551,6 +2619,7 @@ function pos_total_row() {
     $('table#pos_table tbody tr').each(function() {
         total_quantity = total_quantity + __read_number($(this).find('input.pos_quantity'));
     });
+    
 
     //updating shipping charges
     $('span#shipping_charges_amount').text(
@@ -2585,7 +2654,8 @@ function get_subtotal() {
     var price_total = 0;
 
     $('table#pos_table tbody tr').each(function() {
-        price_total = price_total + __read_number($(this).find('input.pos_line_total'));
+        var line_total = __read_number($(this).find('input.pos_line_total'));
+        price_total = price_total + line_total;
     });
 
     //Go through the modifier prices.

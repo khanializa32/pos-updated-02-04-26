@@ -2215,6 +2215,12 @@ class SellPosController extends Controller
             $brand_id = $request->get('brand_id');
             $location_id = $request->get('location_id');
             $term = $request->get('term');
+            $price_group_id = $request->get('price_group');
+            
+            // Treat 0 or empty as no price group
+            if ($price_group_id == '0' || $price_group_id == 0 || empty($price_group_id)) {
+                $price_group_id = null;
+            }
 
             $check_qty = false;
             $business_id = $request->session()->get('user.business_id');
@@ -2286,7 +2292,18 @@ class SellPosController extends Controller
                 $products->where('p.repair_model_id', $request->get('repair_model_id'));
             }
 
-            $products = $products->select(
+            // Add price group join if price group is selected
+            if (!empty($price_group_id)) {
+                $products->leftjoin(
+                    'variation_group_prices AS VGP',
+                    function ($join) use ($price_group_id) {
+                        $join->on('variations.id', '=', 'VGP.variation_id')
+                            ->where('VGP.price_group_id', '=', $price_group_id);
+                    }
+                );
+            }
+
+            $select_fields = [
                 'p.id as product_id',
                 'p.name',
                 'p.type',
@@ -2299,7 +2316,14 @@ class SellPosController extends Controller
                 'variations.default_purchase_price as purchase_price',
                 'variations.sub_sku',
                 'u.short_name as unit'
-            )
+            ];
+
+            // Add price group price if price group is selected
+            if (!empty($price_group_id)) {
+                $select_fields[] = DB::raw('IF (VGP.price_type = "fixed", VGP.price_inc_tax, VGP.price_inc_tax * variations.sell_price_inc_tax / 100) as group_price');
+            }
+
+            $products = $products->select($select_fields)
                 ->with(['media', 'group_prices'])
                 ->orderBy('p.name', 'asc')
                 ->paginate(80);
@@ -2316,7 +2340,7 @@ class SellPosController extends Controller
             $show_prices = !empty($pos_settings['show_pricing_on_product_sugesstion']);
 
             return view('sale_pos.partials.product_list')
-                ->with(compact('products', 'allowed_group_prices', 'show_prices'));
+                ->with(compact('products', 'allowed_group_prices', 'show_prices', 'price_group_id'));
         }
     }
 

@@ -50,7 +50,11 @@
 			</small>
 			
 			<small class="text-muted" style="font-size: 110%; float: left; ">
-				{{number_format($product->selling_price,0)}}
+				@if(!empty($price_group_id) && !empty($product->group_price))
+					{{number_format($product->group_price,0)}}
+				@else
+					{{number_format($product->selling_price,0)}}
+				@endif
 			</small><br>
 			
 		</div>

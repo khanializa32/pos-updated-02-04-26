@@ -128,12 +128,30 @@
 					<span class="input-group-addon">
 						<i class="fas fa-tags" style="font-size:19px ;color:teal"></i>
 					</span>
-					@php
-						reset($price_groups);
-						$selected_price_group = !empty($default_price_group_id) && array_key_exists($default_price_group_id, $price_groups) ? $default_price_group_id : null;
-					@endphp
-					{!! Form::hidden('hidden_price_group', key($price_groups), ['id' => 'hidden_price_group']) !!}
-					{!! Form::select('price_group', $price_groups, $selected_price_group, ['class' => 'form-control select2', 'id' => 'price_group', 'style' => 'max-width: 100%; min-width: 0;']) !!}
+                    @php
+                        // Determine default selection priority:
+                        // 1) Branch default price group (if any and permitted)
+                        // 2) If role has exactly one allowed SPG, preselect that SPG
+                        //    (exclude key 0 which represents default selling price)
+                        // 3) Otherwise, no preselection
+                        $selected_price_group = null;
+
+                        if (!empty($default_price_group_id) && array_key_exists($default_price_group_id, $price_groups)) {
+                            $selected_price_group = $default_price_group_id;
+                        } else {
+                            $allowed_spg_ids = array_filter(array_keys($price_groups), function ($k) {
+                                return (string) $k !== '0';
+                            });
+                            if (count($allowed_spg_ids) === 1) {
+                                $selected_price_group = reset($allowed_spg_ids);
+                            }
+                        }
+
+                        // Hidden fallback to the first option to keep JS flows working
+                        $first_key = key($price_groups);
+                    @endphp
+                    {!! Form::hidden('hidden_price_group', $first_key, ['id' => 'hidden_price_group']) !!}
+                    {!! Form::select('price_group', $price_groups, $selected_price_group, ['class' => 'form-control select2', 'id' => 'price_group', 'style' => 'max-width: 100%; min-width: 0;']) !!}
 					 
 				</div>
 			</div>
