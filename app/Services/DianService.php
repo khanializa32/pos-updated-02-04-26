@@ -2309,8 +2309,6 @@ class DianService
         //validamos si se va a enviar factua electronica o no
         if($i_echeme == '4' && $input['status'] == "final" && $input['type'] == "sell")//final
         {
-
-            
             $actual_date = Carbon::now('America/Bogota')->format('Y-m-d');
             $actual_hous = Carbon::now('America/Bogota')->format('H:m:s');
 
@@ -2325,19 +2323,15 @@ class DianService
             // $taxes = [];//impuesto por linea de producto
             $payable_amount = 0;
             
-
             $invoiceLines = array();
-
             $tax_totals_map = [];//array para agregar y sumar los impuestos a nivel de factura
-
             $tax_total_invoice = [];
 
             if(isset($input['sell_lines']))
             {
                 foreach ($input['sell_lines'] as $product){
+                    if($product['quantity_returned'] == 0){continue;}//si el producto no tiene cantidad, se salta
                     $tax_totals = [];//impuestos totales de la factura
-                    // $total_product = 0;
-                    // $tax_total_product = 0;
 
                     $product_db = Product::findOrFail($product['product_id']);
 
@@ -2354,7 +2348,6 @@ class DianService
                         // $tax_total_product = $tax_amount_product + $line_extension_amount_product;
 
                         $tax_totals[] = [
-                            // "tax_id" =>intval($product['tax_id']),//ERROR AQUI
                             "tax_id" =>$tax->code,
                             "tax_amount" => self::round_number($tax_amount_product),
                             "taxable_amount" => self::round_number($line_extension_amount_product),//valor del producto sin impuesto
@@ -2376,15 +2369,11 @@ class DianService
                             ];
                         }
 
-
                         //sumamos el total de las bases productos con impuestos
                         $tax_exclusive_amount +=  $line_extension_amount_product;
 
                         //sumamos el excedente del impuesto al total de la linea
-                        $line_extension_amount_product += $tax_amount_product;
-
-
-                        
+                        $line_extension_amount_product += $tax_amount_product; 
                     }
                     $total_line = floatval($product['quantity_returned']) * $unit_price;
                     
@@ -2395,14 +2384,12 @@ class DianService
                             "line_extension_amount" => self::round_number($total_line),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
                             // "line_extension_amount" => $this->round_number($line_extension_amount_product),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
                             "free_of_charge_indicator" => false,
-                            
                             "description" => $product_db->name,
                             "code" => $product_db->sku,
                             "type_item_identification_id" => 4,
                             "price_amount" => self::round_number($line_extension_amount_product),//Valor de la linea de la factura
                             "base_quantity" =>floatval($product['quantity_returned']),
                             "tax_totals" => $tax_totals
-
                         ];
                         unset($tax_totals);
                     }else{
@@ -2411,20 +2398,16 @@ class DianService
                             "invoiced_quantity" => floatval($product['quantity_returned']),
                             "line_extension_amount" => self::round_number($total_line),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
                             "free_of_charge_indicator" => false,
-                            
                             "description" => $product_db->name,
                             "code" => $product_db->sku,
                             "type_item_identification_id" => 4,
                             "price_amount" => self::round_number($line_extension_amount_product),//Valor de la linea de la factura
                             "base_quantity" =>floatval($product['quantity_returned']),
-
                         ];
                     }
 
-
                     $tax_inclusive_amount += $line_extension_amount_product;
                 }
-
             }
 
             // Convertir el mapa de impuestos a un array de totales de impuestos
@@ -2446,7 +2429,6 @@ class DianService
                     $payable_amount = $payable_amount + $invoice_product['price_amount'];
                 }
             }
-
 
             // Parámetros dinámicos para notas credito
             $datetime = Carbon::parse($input->transaction_date);
@@ -2507,8 +2489,6 @@ class DianService
 
             
             $transaction_payment = TransactionPayment::where('business_id', $business_id)->where('transaction_id',$input->id)->first();
-            // dd($transaction_payment);
-            //leer los metodos y formas de pago
             $payment_form = 0;
             $duration_measure = 0;
             $payment_method = 0;
@@ -2522,6 +2502,12 @@ class DianService
             }else if($transaction_payment->method == 'other')
             {
                 $payment_method = 1;
+            }else if($transaction_payment->method == 'custom_pay_1' || $transaction_payment->method == 'custom_pay_2' || $transaction_payment->method == 'custom_pay_3'  || $transaction_payment->method == 'custom_pay_4')
+            {
+                $payment_method = 1;
+            }else if($transaction_payment->method == 'bank_transfer')
+            {
+                $payment_method = 47;
             
             }else{
                 $payment_method = $transaction_payment->method;
@@ -2559,9 +2545,6 @@ class DianService
                 "allowance_total_amount" => "0.00"
             );
 
-        
-
-
             // Construcción del JSON dinámicamente
             $data = array(
                 "number" => $invoiceNumber,
@@ -2589,117 +2572,134 @@ class DianService
                 $data["tax_totals"] = $tax_total_invoice;
             }
 
-            // return $data;
+            try {
 
-            $jsonData = json_encode($data);
-            // return $jsonData;
-            $curl = curl_init();
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . $business_data->dian_token
+                ])->post(env('APP_API_FE') . '/api/ubl2.1/credit-note', $data);
 
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => env('APP_API_FE').'/api/ubl2.1/credit-note',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $jsonData,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Bearer '.$business_data->dian_token
-            ),
-            ));
+                if ($response->successful()) {
+                    $respuesta = (object) $response->json();
 
-            $response = curl_exec($curl);
+                        $StatusCode = '';
+                        $MgsResponse = '';
 
-            curl_close($curl);
-
-            $respuesta = json_decode($response);
-            // dd($respuesta);
-            $ErrorRules = '';
-            $StatusCode = '';
-            $MgsResponse = '';
-
-            if(!isset($respuesta->success) || $respuesta->success){
-                if(isset($respuesta->ResponseDian))
-                {
-                    
-
-                    $response_dian =  $respuesta->ResponseDian;
-                    $IsValid = $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->IsValid;
-                    $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
-                    $cufe = $respuesta->cude;
-                    $QRStr = $respuesta->QRStr;
-                    $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
-                    
-
-                    if($IsValid == "true")
-                    {
-                        //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
-                        $transaction = Transaction::find($sell_return->id);
-                        $transaction->cufe = $cufe;
-                        $transaction->is_valid = true;
-                        $transaction->qrstr = $QRStr;
-                        $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
-                        $transaction->status_code = $StatusCode;
-                        $transaction->save();
-
-                        $MgsResponse = 'Nota Crédito aceptada por la DIAN';                   
-                    }else{
-                        $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
-                        $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
-                        if($StatusCode == '99')
+                        if(isset($respuesta->ResponseDian))
                         {
-                            $transaction = Transaction::find($sell_return->id);
-                            $transaction->cufe = $cufe;
-                            $transaction->is_valid = false;
-                            $transaction->qrstr = $QRStr;
-                            $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
-                            $transaction->status_code = $StatusCode;
-                            $transaction->save();
-                            $MgsResponse = 'Nota Crédito procesada anteriormente';  
+                            $response_dian = $respuesta->ResponseDian;
+                            $IsValid = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['IsValid'] ?? '';
+                            $ErrorRules = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['ErrorMessage'] ?? [];
+                            $cufe = $respuesta->cude;
+                            $QRStr = $respuesta->QRStr;
+                            $StatusCode = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['StatusCode'] ?? '';
+                            
+                            if($IsValid == "true")
+                            {
+                                //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
+                                $transaction = Transaction::find($sell_return->id);
+                                $transaction->cufe = $cufe;
+                                $transaction->is_valid = true;
+                                $transaction->qrstr = $QRStr;
+                                $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                                $transaction->status_code = $StatusCode;
+                                $transaction->save();
+
+                                $MgsResponse = 'Nota Crédito aceptada por la DIAN';                   
+                            }else{
+                               
+                                if($StatusCode == '99')
+                                {
+                                    $transaction = Transaction::find($sell_return->id);
+                                    $transaction->cufe = $cufe;
+                                    $transaction->is_valid = false;
+                                    $transaction->qrstr = $QRStr;
+                                    $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                                    $transaction->status_code = $StatusCode;
+                                    $transaction->save();
+                                    $MgsResponse = 'Nota Crédito procesada anteriormente';  
+                                }
+                            }
+
+                            $output = [
+                                'success' => 1, 
+                                'msg' => $MgsResponse, 
+                                'input_curl'=> $data, 
+                                'input_factura'=> $input, 
+                                'response' => ($respuesta) ? $respuesta : '',  
+                                'cufe' => ($cufe) ? $cufe : '',
+                                'IsValid' => ($IsValid) ? $IsValid : '',
+                                'QRStr' => ($QRStr) ? $QRStr : '',
+                                'ErrorMessage' => $ErrorRules
+                            ];
+                            return $output;
+                        }else{
+
+                            $output = [
+                                'success' => 0, 
+                                'msg' => "No hubo respuesta de la DIAN", 
+                                'input_curl'=> $data, 
+                            ];
+                            return $output;
                         }
+
+                }else if($response->failed()){
+                    //codigo para manejar los errores de estado
+                    //codigo 404
+                    if($response->status() == 404){
+                        $output = [
+                            'success' => 0,
+                            'msg' => "Error 404: Recurso no encontrado",
+                            'input_curl' => $data,
+                        ];
+                        return $output;
                     }
+                    // codigo para recorrer los errores de validación
+                    if($response->status() == 422){
 
-                    $output = [
-                        'success' => 1, 
-                        'msg' => $MgsResponse, 
-                        'input_curl'=> $data, 
-                        'input_factura'=> $input, 
-                        'response' => ($respuesta) ? $respuesta : '',  
-                        'cufe' => ($cufe) ? $cufe : '',
-                        'IsValid' => ($IsValid) ? $IsValid : '',
-                        'QRStr' => ($QRStr) ? $QRStr : '',
-                        'ErrorMessage' => $ErrorRules
-                    ];
-                    return $output;
-                }else{
-
+                        $error = $response->json();
+                        $errors = $error['errors'] ?? [];
+            
+                        $errorDetails = "";
+                        foreach ($errors as $field => $messages) {
+                            $errorDetails .= "" . implode(', ', $messages);
+                        }
+                        $output = [
+                            'success' => 0,
+                            'msg' => "Error de validación:" . $errorDetails,
+                            'error_details' => $errorDetails,
+                            'input_curl' => $data,
+                        ];
+                        return $output;
+                    }
+                } else {
+                    // Manejar error HTTP
+                    $statusCode = $response->status();
+                    $errorBody = $response->body();
                     
                     $output = [
-                        'success' => 0, 
-                        'msg' => $respuesta->error[0], 
-                        'input_curl'=> $data, 
+                        'success' => 0,
+                        'msg' => "Error en la API: Código $statusCode",
+                        'error_details' => $errorBody,
+                        'input_curl' => $data,
                     ];
                     return $output;
                 }
-            }else{
+            } catch (\Exception $e) {
                 $output = [
-                    'success' => 1, 
-                    'msg' => $respuesta->message, 
+                    'success' => 0,
+                    'msg' => 'Error de conexión: ' . $e->getMessage(),
+                    'input_curl' => $data,
                 ];
                 return $output;
             }
 
         }else{
 
-
             $output = [
-                'success' => 1, 
-                'msg' => 'No es una factura electrónica', 
-                // 'receipt' => $receipt
+                'success' => 0, 
+                'msg' => 'No es una factura electrónica'
             ];
             return $output;
         }
@@ -2745,6 +2745,7 @@ class DianService
             if(isset($input['sell_lines']))
             {
                 foreach ($input['sell_lines'] as $product){
+                    if($product['quantity_returned'] == 0){continue;}//si el producto no tiene cantidad, se salta
                     $tax_totals = [];//impuestos totales de la factura
                     // $total_product = 0;
                     // $tax_total_product = 0;
@@ -2885,6 +2886,7 @@ class DianService
             {
                 $customer = array(
                     "identification_number" => "222222222222",
+                    "dv" => "7",
                     "name" => "Consumidor Final",
                     "merchant_registration" => "0000000-00",
                 );
@@ -2918,7 +2920,6 @@ class DianService
 
             
             $transaction_payment = TransactionPayment::where('business_id', $business_id)->where('transaction_id',$input->id)->first();
-            // dd($transaction_payment);
             //leer los metodos y formas de pago
             $payment_form = 0;
             $duration_measure = 0;
@@ -3002,106 +3003,125 @@ class DianService
                 $data["tax_totals"] = $tax_total_invoice;
             }
 
-            // return $data;
+            try {
 
-            $jsonData = json_encode($data);
-            // dd($jsonData);
-            $curl = curl_init();
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . $business_data->dian_token
+                ])->post(env('APP_API_FE') . '/api/ubl2.1/credit-note', $data);
 
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => env('APP_API_FE').'/api/ubl2.1/credit-note',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $jsonData,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Bearer '.$business_data->dian_token
-            ),
-            ));
+                if ($response->successful()) {
+                    $respuesta = (object) $response->json();
 
-            $response = curl_exec($curl);
+                        $StatusCode = '';
+                        $MgsResponse = '';
 
-            curl_close($curl);
-
-            dd($response);
-            $respuesta = json_decode($response);
-            $ErrorRules = '';
-            $StatusCode = '';
-            $MgsResponse = '';
-
-            if(!isset($respuesta->success) || $respuesta->success){
-                if(isset($respuesta->ResponseDian))
-                {
-                    
-
-                    $response_dian =  $respuesta->ResponseDian;
-                    $IsValid = $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->IsValid;
-                    $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
-                    $cufe = $respuesta->cude;
-                    $QRStr = $respuesta->QRStr;
-                    $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
-                    
-
-                    if($IsValid == "true")
-                    {
-                        //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
-                        $transaction = Transaction::find($sell_return->id);
-                        $transaction->cufe = $cufe;
-                        $transaction->is_valid = true;
-                        $transaction->qrstr = $QRStr;
-                        $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
-                        $transaction->status_code = $StatusCode;
-                        $transaction->save();
-
-                        $MgsResponse = 'Nota Crédito aceptada por la DIAN';                   
-                    }else{
-                        $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
-                        $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
-                        if($StatusCode == '99')
+                        if(isset($respuesta->ResponseDian))
                         {
-                            $transaction = Transaction::find($sell_return->id);
-                            $transaction->cufe = $cufe;
-                            $transaction->is_valid = false;
-                            $transaction->qrstr = $QRStr;
-                            $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
-                            $transaction->status_code = $StatusCode;
-                            $transaction->save();
-                            $MgsResponse = 'Nota Crédito procesada anteriormente';  
+                            $response_dian = $respuesta->ResponseDian;
+                            $IsValid = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['IsValid'] ?? '';
+                            $ErrorRules = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['ErrorMessage'] ?? [];
+                            $cufe = $respuesta->cude;
+                            $QRStr = $respuesta->QRStr;
+                            $StatusCode = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['StatusCode'] ?? '';
+                            
+                            if($IsValid == "true")
+                            {
+                                //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
+                                $transaction = Transaction::find($sell_return->id);
+                                $transaction->cufe = $cufe;
+                                $transaction->is_valid = true;
+                                $transaction->qrstr = $QRStr;
+                                $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                                $transaction->status_code = $StatusCode;
+                                $transaction->save();
+
+                                $MgsResponse = 'Nota Crédito aceptada por la DIAN';                   
+                            }else{
+                               
+                                if($StatusCode == '99')
+                                {
+                                    $transaction = Transaction::find($sell_return->id);
+                                    $transaction->cufe = $cufe;
+                                    $transaction->is_valid = false;
+                                    $transaction->qrstr = $QRStr;
+                                    $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                                    $transaction->status_code = $StatusCode;
+                                    $transaction->save();
+                                    $MgsResponse = 'Nota Crédito procesada anteriormente';  
+                                }
+                            }
+
+                            $output = [
+                                'success' => 1, 
+                                'msg' => $MgsResponse, 
+                                'input_curl'=> $data, 
+                                'input_factura'=> $input, 
+                                'response' => ($respuesta) ? $respuesta : '',  
+                                'cufe' => ($cufe) ? $cufe : '',
+                                'IsValid' => ($IsValid) ? $IsValid : '',
+                                'QRStr' => ($QRStr) ? $QRStr : '',
+                                'ErrorMessage' => $ErrorRules
+                            ];
+                            return $output;
+                        }else{
+
+                            $output = [
+                                'success' => 0, 
+                                'msg' => "No hubo respuesta de la DIAN", 
+                                'input_curl'=> $data, 
+                            ];
+                            return $output;
                         }
+
+                }else if($response->failed()){
+                    //codigo para manejar los errores de estado
+                    //codigo 404
+                    if($response->status() == 404){
+                        $output = [
+                            'success' => 0,
+                            'msg' => "Error 404: Recurso no encontrado",
+                            'input_curl' => $data,
+                        ];
+                        return $output;
                     }
+                    // codigo para recorrer los errores de validación
+                    if($response->status() == 422){
 
-                    $output = [
-                        'success' => 1, 
-                        'msg' => $MgsResponse, 
-                        'input_curl'=> $data, 
-                        'input_factura'=> $input, 
-                        'response' => ($respuesta) ? $respuesta : '',  
-                        'cufe' => ($cufe) ? $cufe : '',
-                        'IsValid' => ($IsValid) ? $IsValid : '',
-                        'QRStr' => ($QRStr) ? $QRStr : '',
-                        'ErrorMessage' => $ErrorRules
-                    ];
-                    return $output;
-                }else{
-
+                        $error = $response->json();
+                        $errors = $error['errors'] ?? [];
+            
+                        $errorDetails = "";
+                        foreach ($errors as $field => $messages) {
+                            $errorDetails .= "" . implode(', ', $messages);
+                        }
+                        $output = [
+                            'success' => 0,
+                            'msg' => "Error de validación:" . $errorDetails,
+                            'error_details' => $errorDetails,
+                            'input_curl' => $data,
+                        ];
+                        return $output;
+                    }
+                } else {
+                    // Manejar error HTTP
+                    $statusCode = $response->status();
+                    $errorBody = $response->body();
                     
                     $output = [
-                        'success' => 0, 
-                        'msg' => $respuesta->error[0], 
-                        'input_curl'=> $data, 
+                        'success' => 0,
+                        'msg' => "Error en la API: Código $statusCode",
+                        'error_details' => $errorBody,
+                        'input_curl' => $data,
                     ];
                     return $output;
                 }
-            }else{
+            } catch (\Exception $e) {
                 $output = [
-                    'success' => 1, 
-                    'msg' => $respuesta->message, 
+                    'success' => 0,
+                    'msg' => 'Error de conexión: ' . $e->getMessage(),
+                    'input_curl' => $data,
                 ];
                 return $output;
             }
@@ -3110,198 +3130,592 @@ class DianService
 
 
             $output = [
-                'success' => 1, 
+                'success' => 0, 
                 'msg' => 'No es una factura electrónica', 
-                // 'receipt' => $receipt
             ];
             return $output;
         }
 
     }
 
-    // public static function send_radian($business_id, $cufe, $event_id)
-    // {
-    //     $output = [];
-    //     $isValid = false;
+    public static function resend_support_document($transaction_before, $business_id, $contact_id, $input,$prefix, $number, $resolution)
+    {
+        $customer_data = Contact::findOrFail($contact_id);
+        $business_data = Business::find($business_id);
 
-    //     $business_data = Business::find($business_id);
-    //     //validamos cuantos eventos se han enviado
-    //     $response = Http::withHeaders([
-    //         'Content-Type: application/json',
-    //         'Accept: application/json',
-    //         'Authorization: Bearer '.$business_data->dian_token
-        
-    //     ])->post(env('APP_API_FE').'/api/ubl2.1/status/events-document/'.$cufe, [
-    //         // 'event_id' => $event_id,
-    //         // 'billing_reference' => array(
-    //         //     'cufe' => $cufe
-    //         // )
-    //     ]);
-
-    //     $responseData = $response->json();
-    //     $isValid = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['IsValid'];
-    //     $isValidBool = ($isValid === "true"); 
-
-    //     $isValid = false;
-
-    //     if (isset($responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['IsValid'])) {
-    //         $isValid = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['IsValid'] === "true";
-    //     }
-
-    //     if ($isValid) {
-    //         // La factura tiene eventos válidos
-    //         // Procesar los eventos...
-    //     } else {
-    //         // No hay eventos válidos o hubo un error
-    //         $statusCode = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['StatusCode'];
-    //         $statusDesc = $responseData['ResponseDian']['Envelope']['Body']['GetStatusEventResponse']['GetStatusEventResult']['StatusDescription'];
-    //         $output = [
-    //             'success' => 0, 
-    //             'msg' => $statusDesc, 
-    //         ];
-    //         return $output;
-    //         // Log::warning("Factura sin eventos válidos. Código: $statusCode, Descripción: $statusDesc");
-    //     }
-
-
-
-
-
-    //     $i_echeme = '';
-
-    //     $invoice_scheme = InvoiceScheme::where('business_id',$business_id)->where('type_document_id',4)->first();
-    //     $i_echeme = $invoice_scheme->type_document_id;
-
-        
-
-    //     //validamos si se va a enviar factua electronica o no
-    //     if($i_echeme == '4' && $input['status'] == "final" && $input['type'] == "sell")//final
-    //     {
+        //validamos si se va a enviar factua electronica o no
+        if($transaction_before->is_valid != 1 && $transaction_before->e_invoice == 'si' && $transaction_before->is_suspend == "0")//final
+        // if($transaction_before->is_valid == 1  && $transaction_before->status == "final" && $transaction_before->is_suspend == "0")//final
+        {
 
             
+            $actual_date = Carbon::now('America/Bogota')->format('Y-m-d');
+            $actual_hous = Carbon::now('America/Bogota')->format('H:m:s');
 
-    //             $data = array(
-    //                 "event_id" => $event_id,
-    //                 "billing_reference" => array(
-    //                     "cufe" => $cufe
-    //                 ),
-                    
-    //             );
+
+            $total_tax_products = 0;
+            $total_not_tax_products = 0;
+            $line_extension_amount = 0;
+            $tax_inclusive_amount = 0;
+            $tax_exclusive_amount = 0;
+            $payable_amount = 0;
+            $payable_amount_inc_discount = 0;
             
-    //         // return $data;
+            $invoiceLines = array();
 
-    //         $jsonData = json_encode($data);
-    //         // return $jsonData;
-    //         $curl = curl_init();
+            $tax_totals_map = [];//array para agregar y sumar los impuestos a nivel de factura
 
-    //         curl_setopt_array($curl, array(
-    //         CURLOPT_URL => env('APP_API_FE').'/api/ubl2.1/send-event-data',
-    //         CURLOPT_RETURNTRANSFER => true,
-    //         CURLOPT_ENCODING => '',
-    //         CURLOPT_MAXREDIRS => 10,
-    //         CURLOPT_TIMEOUT => 0,
-    //         CURLOPT_FOLLOWLOCATION => true,
-    //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    //         CURLOPT_CUSTOMREQUEST => 'POST',
-    //         CURLOPT_POSTFIELDS => $jsonData,
-    //         CURLOPT_HTTPHEADER => array(
-    //             'Content-Type: application/json',
-    //             'Accept: application/json',
-    //             'Authorization: Bearer '.$business_data->dian_token
-    //         ),
-    //         ));
+            $tax_total_invoice = [];
 
-    //         $response = curl_exec($curl);
+            if(isset($input))
+            {
+                foreach ($input as $product){
+                    $tax_totals = [];//impuestos totales de la factura
 
-    //         curl_close($curl);
+                    $product_db = Product::findOrFail($product['product_id']);
 
-    //         $respuesta = json_decode($response);
-    //         // dd($respuesta);
-    //         $ErrorRules = '';
-    //         $StatusCode = '';
-    //         $MgsResponse = '';
+                    // dd($product['unit_price']);
+                    $unit_price = self::convert_numeric($product['purchase_price']);
+                    //calculo de los campos de cada linea convert_numeric($number)
+                    $line_extension_amount_product = (floatval($product['quantity']) * floatval($unit_price));
 
-    //         if(!isset($respuesta->success) || $respuesta->success){
-    //             if(isset($respuesta->ResponseDian))
-    //             {
+                    //CONSTRUCCIÓN DEL JSON DE IMPUESTOS
+                    if(isset($product['tax_id'])){
+                        $tax = TaxRate::find($product['tax_id']);
+
+                        $tax_amount_product = self::tax($line_extension_amount_product,floatval($tax['amount']));
+                        // $tax_total_product = $tax_amount_product + $line_extension_amount_product;
+
+                        $tax_totals[] = [
+                            // "tax_id" =>intval($product['tax_id']),//ERROR AQUI
+                            "tax_id" =>$tax->code,
+                            "tax_amount" => self::round_number($tax_amount_product),
+                            "taxable_amount" => self::round_number($line_extension_amount_product),//valor del producto sin impuesto
+                            "percent" => intval($tax['amount'])
+                        ];
+
+                        // Sumar el impuesto al total de impuestos de la factura
+                        $tax_key = intval($tax['code']) . '_' . floatval($tax['amount']);
+                        if (isset($tax_totals_map[$tax_key])) {
+                            // $tax_totals_map[$tax_key]['tax_id'] = intval($tax['tax_id']);
+                            $tax_totals_map[$tax_key]['tax_amount'] += self::round_number($tax_amount_product);
+                            $tax_totals_map[$tax_key]['taxable_amount'] += self::round_number($line_extension_amount_product);
+                        } else {
+                            $tax_totals_map[$tax_key] = [
+                                "tax_id" => $tax->code,
+                                "tax_amount" => self::round_number($tax_amount_product),
+                                "taxable_amount" => self::round_number($line_extension_amount_product),
+                                "percent" => floatval($tax['amount'])
+                            ];
+                        }
+
+
+                        //sumamos el total de las bases productos con impuestos
+                        $tax_exclusive_amount +=  $line_extension_amount_product;
+
+                        //sumamos el excedente del impuesto al total de la linea
+                        $line_extension_amount_product += $tax_amount_product;
+
+
+                        
+                    }
+                    // dd(floatval($product['quantity']));
+                    $total_line = floatval($product['quantity']) * $unit_price;
                     
+                    if(isset($product['tax_id'])){
+                        $invoiceLines[] = [
+                            "unit_measure_id" => 70,
+                            "invoiced_quantity" => floatval($product['quantity']),
+                            "line_extension_amount" => self::round_number($total_line),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
+                            // "line_extension_amount" => $this->round_number($line_extension_amount_product),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
+                            "free_of_charge_indicator" => false,
+                            "type_generation_transmition_id" => 1,
+                            "start_date" => $actual_date,
+                            "description" => $product_db->name,
+                            "code" => $product_db->sku,
+                            "type_item_identification_id" => 4,
+                            "price_amount" => self::round_number($line_extension_amount_product),//Valor de la linea de la factura
+                            "base_quantity" =>floatval($product['quantity']),
+                            "tax_totals" => $tax_totals
 
-    //                 $response_dian =  $respuesta->ResponseDian;
-    //                 $IsValid = $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->IsValid;
-    //                 $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
-    //                 $cufe = $respuesta->cude;
-    //                 $QRStr = $respuesta->QRStr;
-    //                 $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
+                        ];
+                        unset($tax_totals);
+                    }else{
+                        $invoiceLines[] = [
+                            "unit_measure_id" => 70,
+                            "invoiced_quantity" => floatval($product['quantity']),
+                            "line_extension_amount" => self::round_number($total_line),//Valor total de la línea. Cantidad x Precio Unidad menos descuentos más recargos que apliquen para la línea.
+                            "free_of_charge_indicator" => false,
+                            
+                            "description" => $product_db->name,
+                            "code" => $product_db->sku,
+                            "type_item_identification_id" => 4,
+                            "type_generation_transmition_id" => 1,
+                            "start_date" => $actual_date,
+                            "price_amount" => self::round_number($line_extension_amount_product),//Valor de la linea de la factura
+                            "base_quantity" =>floatval($product['quantity']),
+
+                        ];
+                    }
+
+
+                    $tax_inclusive_amount += $line_extension_amount_product;
+                }
+
+            }
+
+            // Convertir el mapa de impuestos a un array de totales de impuestos
+            $tax_total_invoice = array_values($tax_totals_map);
+
+            //calcular los invoice line
+            if(isset($invoiceLines)){
+                foreach($invoiceLines as $invoice_product)
+                {
+                    if(isset($invoice_product['tax_id']))
+                    {
+                        $total_tax_products += floatval($invoice_product['line_extension_amount']);
+                    }else{
+                        $total_not_tax_products +=  floatval($invoice_product['line_extension_amount']);
+                    }
+                    $line_extension_amount += floatval($invoice_product['line_extension_amount']);
+
+                    //calculñar el total de la factura
+                    $payable_amount = $payable_amount + $invoice_product['price_amount'];
+                }
+            }
+
+
+            $date = $actual_date;
+            $time = $actual_hous;
+            $sendmail = true;
+            
+            if($customer_data->contact_id == 222222222222)
+            {
+                $customer = array(
+                    "identification_number" => "222222222222",
+                    "name" => "Consumidor Final",
+                    "merchant_registration" => "0000000-00",
+                );
+            }else{
+                $contact_type = 0;
+                $name = '';
+                if($customer_data->contact_type == 'individual')
+                {
+                    $contact_type = 2;
+                    $name = $customer_data->name;
+                }else{
+                    $contact_type = 1;
+                    $name = $customer_data->supplier_business_name;
+                }
+                $customer = array(
+                    "identification_number" => $customer_data->contact_id,
+                    "dv" => $customer_data->dv,
+                    "name" => $name,
+                    "type_organization_id" => $contact_type,
+                    "phone" => $customer_data->mobile,
+                    "merchant_registration" => ($customer_data->merchant_registration)?$customer_data->merchant_registration : "0000000",
+                    "type_document_identification_id" => ($customer_data->type_document_identification_id)?$customer_data->type_document_identification_id : "",
+                    "type_regime_id" => ($customer_data->type_regime_id)?$customer_data->type_regime_id : "",
+                    "municipality_id" => ($customer_data->municipality_id)?$customer_data->municipality_id : "",
+                    "email" => $customer_data->email,
+                    "address" => ($customer_data->address_line_1)? $customer_data->address_line_1: 'no',
+                    "postal_zone_code" => "000000"
+                );
+                $sendmail = true;
+            }
+            // dd($transaction_before);
+            $transaction_payment = TransactionPayment::where('business_id', $business_id)->where('transaction_id',$transaction_before->id)->first();
+            // dd($transaction_payment);
+            //leer los metodos y formas de pago
+            $payment_form = 0;
+            $duration_measure = 0;
+            $payment_method = 0;
+
+            if(!empty($transaction_payment->method))
+            {
+                if($transaction_payment->method == 'cash')
+                {
+                    $payment_method = 10;
+                }else if($transaction_payment->method == 'cheque')
+                {
+                    $payment_method = 20;
+                }else if($transaction_payment->method == 'custom_pay_1' || $transaction_payment->method == 'custom_pay_2' || $transaction_payment->method == 'custom_pay_3'  || $transaction_payment->method == 'custom_pay_4')
+                {
+                    $payment_method = 1;
+                }else if($transaction_payment->method == 'bank_transfer')
+                {
+                    $payment_method = 47;
+                }else if($transaction_payment->method == 'other')
+                {
+                    $payment_method = 1;
+                
+                }else{
+                    $payment_method = $transaction_payment->method;
+                }
+            }else{
+                if($transaction_before->payment_method == 'cash')
+                {
+                    $payment_method = 10;
+                }else if($transaction_before->payment_method == 'cheque')
+                {
+                    $payment_method = 20;
+                }else if($transaction_before->payment_method == 'custom_pay_1' || $transaction_before->payment_method == 'custom_pay_2' || $transaction_before->payment_method == 'custom_pay_3'  || $transaction_before->payment_method == 'custom_pay_4')
+                {
+                    $payment_method = 1;
+                }else if($transaction_before->payment_method == 'bank_transfer')
+                {
+                    $payment_method = 47;
+                }else if($transaction_before->payment_method == 'other')
+                {
+                    $payment_method = 1;
+                
+                }else{
+                    $payment_method = $transaction_before->payment_method;
+                }
+                
+            }
+            if($transaction_before->payment_status == 'due' || $transaction_before->payment_status == 'partial')
+            {
+                if($transaction_before->pay_term_number == '' || $transaction_before->pay_term_number == 0)
+                {
+                    $duration_measure = 30;
+                }else{
+                    $duration_measure = $transaction_before->pay_term_number;
+                }
+
+                $payment_form = 2;//credito
+                
+                
+            }elseif($transaction_before->payment_status == 'paid'){
+                $payment_form = 1;//debido
+            }
+            //si is_credit_sale	= 1 es venta a credito
+            $paymentForm = array(
+                "duration_measure" => $duration_measure,//dias de plazo para pago
+                "payment_form_id" => $payment_form,//1 contado 2 credito
+                "payment_method_id" => $payment_method,
+                "payment_due_date" => $actual_date
+            );
+
+            $discount = 0;
+            
+            if($transaction_before->discount_amount > 0)
+            {
+                if($transaction_before->discount_type == "percentage")
+                {
+                    $discount = ($transaction_before->discount_amount / 100) * $payable_amount;
+                    $payable_amount_inc_discount = $tax_inclusive_amount - $discount;
+
+                }else{
+
+                    $discount = $transaction_before->discount_amount;
+                    $payable_amount_inc_discount = $tax_inclusive_amount - $discount;
+                }
+                // dd()
+            }else{
+                $payable_amount_inc_discount = $tax_inclusive_amount;
+            }
+
+            $legalMonetaryTotals = array(
+                "line_extension_amount" => self::round_number($line_extension_amount),
+                "tax_exclusive_amount" => self::round_number($tax_exclusive_amount),//
+                "tax_inclusive_amount" => self::round_number($tax_inclusive_amount),
+                "charge_total_amount" => "0.00",
+                "allowance_total_amount" => self::round_number($discount),
+                "payable_amount" => self::round_number($payable_amount_inc_discount),
+            );
+
+            $data = array(
+                "number" => $number,
+                "prefix" => $prefix,
+                "type_document_id" => 11,
+                "date" => $date,
+                "time" => $time,
+                "notes" => $transaction_before->additional_notes,
+                "foot_note" => $transaction_before->staff_note,
+                "sendmail" => $sendmail,
+                "resolution_number" => $resolution,
+                "seller" => $customer,
+                "payment_form" => $paymentForm,
+                // "previous_balance" => $previousBalance,
+                "legal_monetary_totals" => $legalMonetaryTotals,
+                // "allowance_charges" => $allowanceCharges,
+            );
+
+            if (!empty($invoiceLines)) {
+                $data["invoice_lines"] = $invoiceLines;
+            }
+
+            if (!empty($tax_total_invoice)) {
+                $data["tax_totals"] = $tax_total_invoice;
+            }
+
+            if ($transaction_before->discount_amount > 0) {
+                $data["allowance_charges"] = [[
+                    "discount_id" => 1,
+                    "charge_indicator" => false,
+                    "allowance_charge_reason" =>"DESCUENTO GENERAL",
+                    "amount" => $discount,
+                    "base_amount" => self::round_number($line_extension_amount)
+                ]];
+            }
+
+             //dd($data);
+
+            try {
+
+                $response = Http::withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . $business_data->dian_token
+                ])->post(env('APP_API_FE') . '/api/ubl2.1/support-document', $data);
+
+                // dd($response->json());
+
+                if ($response->successful()) {
+                    $respuesta = (object) $response->json();
+                    // dd($respuesta);
+                        $StatusCode = '';
+                        $MgsResponse = '';
+
+                        if(isset($respuesta->ResponseDian))
+                        {
+                            $response_dian = $respuesta->ResponseDian;
+                            $IsValid = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['IsValid'] ?? '';
+                            $ErrorRules = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['ErrorMessage'] ?? [];
+                            $cufe = $respuesta->cuds;
+                            $QRStr = $respuesta->QRStr;
+                            $StatusCode = $response_dian['Envelope']['Body']['SendBillSyncResponse']['SendBillSyncResult']['StatusCode'] ?? '';
+                            
+
+                            if($IsValid == "true")
+                            {
+                                //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
+                                $transaction = Transaction::find($transaction_before->id);
+                                $transaction->cufe = $cufe;
+                                $transaction->is_valid = 1;
+                                $transaction->qrstr = $QRStr;
+                                $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                                $transaction->status_code = $StatusCode;
+                                $transaction->save();
+
+                                $MgsResponse = 'Factura aceptada por la DIAN';                   
+                            }else{
+                                
+                                if($StatusCode == '99')
+                                {
+                                    $transaction = Transaction::find($transaction_before->id);
+                                    $transaction->cufe = $cufe;
+                                    $transaction->is_valid = 0;
+                                    $transaction->qrstr = $QRStr;
+                                    $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
+                                    $transaction->status_code = $StatusCode;
+                                    $transaction->save();
+                                    $MgsResponse = 'Documento Soporte procesado anteriormente';  
+                                }
+                            }
+
+                            $output = [
+                                'success' => 1, 
+                                'msg' => $MgsResponse, 
+                                'input_curl'=> $data, 
+                                'input_factura'=> $input, 
+                                'response' => ($respuesta) ? $respuesta : '',  
+                                'cufe' => ($cufe) ? $cufe : '',
+                                'IsValid' => ($IsValid) ? $IsValid : '',
+                                'QRStr' => ($QRStr) ? $QRStr : '',
+                                'ErrorMessage' => $ErrorRules
+                            ];
+                            return $output;
+                        }else{
+
+                            
+                            $output = [
+                                'success' => 0, 
+                                'msg' => "No hubo respuesta de la DIAN", 
+                                'input_curl'=> $data, 
+                            ];
+                            return $output;
+                        }
+
+                }else if($response->failed()){
+                    //codigo para manejar los errores de estado
+                    //codigo 404
+                    if($response->status() == 404){
+                        $output = [
+                            'success' => 0,
+                            'msg' => "Error 404: Recurso no encontrado",
+                            'input_curl' => $data,
+                        ];
+                        return $output;
+                    }
+                    // codigo para recorrer los errores de validación
+                    if($response->status() == 422){
+                        //
+                        // dd($response->status());
+                        $error = $response->json();
+                        $errors = $error['errors'] ?? [];
+            
+                        $errorDetails = "";
+                        foreach ($errors as $field => $messages) {
+                            $errorDetails .= "" . implode(', ', $messages);
+                        }
+                        $output = [
+                            'success' => 0,
+                            'msg' => "Error de validación:" . $errorDetails,
+                            'error_details' => $errorDetails,
+                            'input_curl' => $data,
+                        ];
+                        return $output;
+                    }
+                } else {
+                    // Manejar error HTTP
+                    $statusCode = $response->status();
+                    $errorBody = $response->body();
                     
+                    $output = [
+                        'success' => 0,
+                        'msg' => "Error en la API: Código $statusCode",
+                        'error_details' => $errorBody,
+                        'input_curl' => $data,
+                    ];
+                    return $output;
+                }
+            } catch (\Exception $e) {
+                $output = [
+                    'success' => 0,
+                    'msg' => 'Error de conexión: ' . $e->getMessage(),
+                    'input_curl' => $data,
+                ];
+                return $output;
+            }
 
-    //                 if($IsValid == "true")
-    //                 {
-    //                     //guardamos el cufe de la factura y cambiamos estado de la facturA en el sistema
-    //                     $transaction = Transaction::find($sell_return->id);
-    //                     $transaction->cufe = $cufe;
-    //                     $transaction->is_valid = true;
-    //                     $transaction->qrstr = $QRStr;
-    //                     $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
-    //                     $transaction->status_code = $StatusCode;
-    //                     $transaction->save();
+            
+        }else{
+            $output = [
+                'success' => 1, 
+                'msg' => 'No es una factura electrónica o ya fue enviada anteriormente', 
+            ];
+            return $output;
+        }
+    }
+    
+    public static function send_radian($business_id, $cufe, $event_id,$transaction_id)
+    {
+        $output = [];
+        $isValid = false;
 
-    //                     $MgsResponse = 'Nota Crédito aceptada por la DIAN';                   
-    //                 }else{
-    //                     $ErrorRules = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->ErrorMessage->string : '';
-    //                     $StatusCode = isset($response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode)? $response_dian->Envelope->Body->SendBillSyncResponse->SendBillSyncResult->StatusCode : '';
-    //                     if($StatusCode == '99')
-    //                     {
-    //                         $transaction = Transaction::find($sell_return->id);
-    //                         $transaction->cufe = $cufe;
-    //                         $transaction->is_valid = false;
-    //                         $transaction->qrstr = $QRStr;
-    //                         $transaction->rules = (is_array($ErrorRules)) ? json_encode($ErrorRules, true) : $ErrorRules;
-    //                         $transaction->status_code = $StatusCode;
-    //                         $transaction->save();
-    //                         $MgsResponse = 'Nota Crédito procesada anteriormente';  
-    //                     }
-    //                 }
+        try {
+            $business_data = Business::find($business_id);
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer '.$business_data->dian_token
+        
+        ])->post(env('APP_API_FE').'/api/ubl2.1/send-event-data', [
+            'event_id' => $event_id,
+            'document_reference' => array(
+                'cufe' => $cufe
+            )
+        ]);
 
-    //                 $output = [
-    //                     'success' => 1, 
-    //                     'msg' => $MgsResponse, 
-    //                     'input_curl'=> $data, 
-    //                     'input_factura'=> $input, 
-    //                     'response' => ($respuesta) ? $respuesta : '',  
-    //                     'cufe' => ($cufe) ? $cufe : '',
-    //                     'IsValid' => ($IsValid) ? $IsValid : '',
-    //                     'QRStr' => ($QRStr) ? $QRStr : '',
-    //                     'ErrorMessage' => $ErrorRules
-    //                 ];
-    //                 return $output;
-    //             }else{
+        if($response->successful())
+        {
+            
+            $respuesta = (object) $response->json();
+            if($respuesta->success == true)
+            {
+                $respuesta = $respuesta->ResponseDian;
 
-                    
-    //                 $output = [
-    //                     'success' => 0, 
-    //                     'msg' => $respuesta->error[0], 
-    //                     'input_curl'=> $data, 
-    //                 ];
-    //                 return $output;
-    //             }
-    //         }else{
-    //             $output = [
-    //                 'success' => 1, 
-    //                 'msg' => $respuesta->message, 
-    //             ];
-    //             return $output;
-    //         }
+                $isValid = $respuesta['Envelope']['Body']['SendEventUpdateStatusResponse']['SendEventUpdateStatusResult']['IsValid'];
 
-    //     }else{
+                $isValidBool = ($isValid === "true"); 
+
+                if (isset($responseData['Envelope']['Body']['SendEventUpdateStatusResponse']['SendEventUpdateStatusResult']['IsValid'])) {
+                    $isValid = $responseData['Envelope']['Body']['SendEventUpdateStatusResponse']['SendEventUpdateStatusResult']['IsValid'] === "true";
+                }
+
+                if ($isValid) {
+                    $transaction = Transaction::find($transaction_id);
+                    if ($transaction) {
+                        $transaction->radian_event_id = $event_id;
+                        $transaction->radian_event_status = 'success';
+                        $transaction->save();
+                    }
+                } else {
+                    // No hay eventos válidos o hubo un error
+                    $statusCode = $respuesta['Envelope']['Body']['SendEventUpdateStatusResponse']['SendEventUpdateStatusResult']['StatusCode'];
+                    $statusDesc = $respuesta['Envelope']['Body']['SendEventUpdateStatusResponse']['SendEventUpdateStatusResult']['StatusDescription'];
+                    $output = [
+                        'success' => 0, 
+                        'msg' => $statusDesc, 
+                    ];
+                    return $output;
+                    // Log::warning("Factura sin eventos válidos. Código: $statusCode, Descripción: $statusDesc");
+                }
 
 
-    //         $output = [
-    //             'success' => 1, 
-    //             'msg' => 'No es una factura electrónica', 
-    //             // 'receipt' => $receipt
-    //         ];
-    //         return $output;
-    //     }
 
-    // }
+
+                if($isValidBool)
+                {
+                    $output = [
+                        'success' => 1, 
+                        'msg' => 'Evento radian enviado correctamente', 
+                    ];
+                    return $output;
+                }
+                
+            }else{
+                $output = [
+                    'success' => 0,
+                    'msg' => $respuesta->message,
+                ];
+                return $output;
+            }
+            
+        }else if($response->failed()){
+
+            if($response->status() == 404){
+                $output = [
+                    'success' => 0,
+                    'msg' => "Error 404: Recurso no encontrado",
+                    // 'input_curl' => $data,
+                ];
+                return $output;
+            }
+            // codigo para recorrer los errores de validación
+            if($response->status() == 422){
+
+                $error = $response->json();
+                $errors = $error['errors'] ?? [];
+    
+                $errorDetails = "";
+                foreach ($errors as $field => $messages) {
+                    $errorDetails .= "" . implode(', ', $messages);
+                }
+                $output = [
+                    'success' => 0,
+                    'msg' => "Error de validación:" . $errorDetails,
+                    'error_details' => $errorDetails,
+                    // 'input_curl' => $data,
+                ];
+                return $output;
+            }
+
+        }
+        } catch (\Throwable $th) {
+            //throw $th;
+            $output = [
+                'success' => 0,
+                'msg' => 'Error al enviar el evento radian: ' . $th->getMessage(),
+                'response' => $response->json(),
+            ];
+            return $output;
+        }
+
+        
+
+
+    }
 }

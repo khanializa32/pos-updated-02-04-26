@@ -73,7 +73,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-black" id="posEditDiscountModalUpdate">@lang('Aplicar')</button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white" id="posEditDiscountModalUpdate">@lang('Aplicar')</button>
 			    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.cancel')</button>
 			</div>
 		</div><!-- /.modal-content -->

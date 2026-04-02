@@ -7,32 +7,7 @@
 <section class="content-header">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">{{ __('report.stock_report')}}
     
-      &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
-					
-
-	    </h4>
-       
-       
-    <div data-width="500" tabindex="-1" class="modal fade" id="stack" style="display: none;">
-     <div class="modal-dialog">
-        <div class="modal-content" style="padding-bottom: 40px">
-               <div class="modal-header">
-                  <button type="button" id='close-modal' class="close" data-dismiss="modal" rel=0;aria-hidden="true"></button>
-                <div id="title-tutorial">
-                Modulo Reportes
-                </div>
-        </div>
-            <div class="modal-body">
-                <div id="video-tutorial">
-                    
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/HBV8Mn4lCyk?si=kYkTV6AbRGAX_cZd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                
-                </div>
-                <p id="description-tutorial">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
-
-                
-            </div>
-        </div>
-      </div>
+     
 
     
     </h1>
@@ -48,6 +23,13 @@
                     <div class="form-group">
                         {!! Form::label('location_id',  __('purchase.business_location') . ':') !!}
                         {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'style' => 'width:100%']); !!}
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('stock_date', 'Fecha corte:') !!}
+                        {!! Form::text('stock_date', null, ['class' => 'form-control', 'id' => 'stock_date', 'readonly', 'placeholder' => __('Seleccione una fecha')]); !!}
                     </div>
                 </div>
                 <div class="col-md-3">

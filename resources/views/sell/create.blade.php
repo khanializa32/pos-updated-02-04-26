@@ -184,7 +184,7 @@
 							{!! Form::select('contact_id', 
 								[], null, ['class' => 'form-control mousetrap', 'id' => 'customer_id', 'placeholder' => 'Enter Customer name / phone', 'required']); !!}
 							<span class="input-group-btn">
-								<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""><i class="fa fa-plus-circle text-warning fa-lg"></i></button>
+								<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""><i class="fa fa-plus-circle text-teal fa-lg"></i></button>
 							</span>
 						</div>
 						<small class="text-danger hide contact_due_text"><strong>@lang('account.customer_due'):</strong> <span></span></small>
@@ -597,8 +597,8 @@
 	<div class="row">
 		{!! Form::hidden('is_save_and_print', 0, ['id' => 'is_save_and_print']); !!}
 		<div class="col-sm-12 text-center tw-mt-4">
-			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">Generar Documento</button>
-			<!-- <button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>-->
+			<button type="button" id="submit-sell" class="tw-dw-btn bg-info tw-text-white">Generar Documento</button>
+			<!-- <button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-secondary tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>-->
 		</div>
 	</div>
 		</br>	
@@ -850,7 +850,7 @@
             </div>
 	        <div class="clearfix"></div>
 	        <div class="col-md-12 text-center">
-				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-sm tw-text-black" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-light tw-dw-btn-sm tw-text-black" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
 			</div>
 			<div class="col-md-8 col-md-offset-4" id="additional_expenses_div" style="display: none;">
 				<table class="table table-condensed">
@@ -937,7 +937,7 @@
 	<div class="row">
 		{!! Form::hidden('is_save_and_print', 0, ['id' => 'is_save_and_print']); !!}
 		<div class="col-sm-12 text-center tw-mt-4">
-			<button type="button" id="submit-sell" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('Generar Documento')</button>
+			<button type="button" id="submit-sell" class="tw-dw-btn bg-info tw-text-white">@lang('Generar Documento')</button>
 			<!-- <button type="button" id="save-and-print" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-white">@lang('lang_v1.save_and_print')</button>-->
 		</div>
 	</div>
@@ -971,7 +971,7 @@
 @stop
 
 @section('javascript')
-	<script src="{{ asset('js/pos.js?v=' . $asset_v) }}"></script>
+	<script src="{{ asset('js/pos.js?v={{ time()' . $asset_v) }}"></script>
 	<script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
 	<script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
 

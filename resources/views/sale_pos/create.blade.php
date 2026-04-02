@@ -62,7 +62,7 @@
                                 </div>
                             {{-- </div> --}}
                             <!-- BOTONES  a VERDE Y AMARILLO COBRAR y A CREDITO-->
-                            <div style="display: flex; ">
+                            <div style="display: flex; " id="buttons-container">
                                 @if (!Gate::check('disable_pay_checkout') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
                                 <button type="button" style="flex: 1; margin-left: 12px;  font-size: 15px" 
                                     class="tw-hidden md:tw-flex md:tw-flex-row md:tw-items-center md:tw-justify-center md:tw-gap-1 tw-font-bold tw-text-white tw-cursor-pointer tw-text-xs md:tw-text-sm tw-bg-[#001F3E] btn btn-success tw-rounded-md tw-p-2 tw-w-[8.5rem] @if (!isMobile())  @endif no-print @if ($pos_settings['disable_pay_checkout'] != 0) hide @endif"
@@ -88,6 +88,10 @@
                                         </button>
                                     @endif
                                 @endif
+                            </div>
+                            
+                            <div  style="display: none;" class="tw-flex tw-flex-row tw-items-center tw-justify-center tw-gap-1" id="loading-gif">
+                                <img src="{{ asset('img/login.gif') }}" alt="Loading" class="tw-w-10 tw-h-10">
                             </div>
                         </div>
 
@@ -128,12 +132,19 @@
 
     <div class="modal fade" id="expense_modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
     </div>
+    
+    <div class="modal fade" id="cash-withdrawal-modal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
+    </div>
 
     @include('sale_pos.partials.configure_search_modal')
 
     @include('sale_pos.partials.recent_transactions_modal')
 
     @include('sale_pos.partials.weighing_scale_modal')
+
+    <!-- Edit Rack Details Modal for POS -->
+    <div class="modal fade" id="edit_rack_details_modal_pos" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
+    </div>
 
 @stop
 @section('css')
@@ -147,10 +158,11 @@
     @endif
 @stop
 @section('javascript')
-    <script src="{{ asset('js/pos.js?v=' . $asset_v) }}"></script>
-    <script src="{{ asset('js/printer.js?v=' . $asset_v) }}"></script>
-    <script src="{{ asset('js/product.js?v=' . $asset_v) }}"></script>
-    <script src="{{ asset('js/opening_stock.js?v=' . $asset_v) }}"></script>
+    <script src="{{ asset('js/pos.js?v=' . time() . $asset_v) }}"></script>
+    <script src="{{ asset('js/printer.js?v=' . time() . $asset_v) }}"></script>
+    <script src="{{ asset('js/product.js?v=' . time() . $asset_v) }}"></script>
+    <script src="{{ asset('js/opening_stock.js?v=' . time() . $asset_v) }}"></script>
+
     @include('sale_pos.partials.keyboard_shortcuts')
 
     <!-- Call restaurant module if defined -->
@@ -167,4 +179,46 @@
             @endif
         @endforeach
     @endif
+    
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            
+            // Initialize rack filter to default (Todos) on page load
+            if (!sessionStorage.getItem('pos_rack_filter')) {
+                sessionStorage.setItem('pos_rack_filter', '');
+            }
+            
+            // Rack filter functionality - Combobox change event
+            var global_rack_filter = null;
+            
+            $('#product_rack_filter').on('change', function(e) {
+                global_rack_filter = $(this).val();
+                if (global_rack_filter === '' || global_rack_filter === 'all') {
+                    global_rack_filter = null;
+                }
+                
+                // Store rack filter in session storage
+                sessionStorage.setItem('pos_rack_filter', global_rack_filter || '');
+                
+                // Reset page to 1 and reload product list
+                $('input#suggestion_page').val(1);
+                
+                var location_id = $('input#location_id').val();
+                var category_id = $('input#product_category').val();
+                var brand_id = $('input#product_brand').val();
+                
+                // Call the function with proper parameters like in product list page
+                if (typeof get_product_suggestion_list === 'function') {
+                    get_product_suggestion_list(
+                        category_id,
+                        brand_id,
+                        location_id
+                    );
+                }
+            });
+            
+
+        });
+    </script>
 @endsection

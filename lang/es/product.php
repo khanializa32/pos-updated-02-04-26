@@ -10,7 +10,7 @@
      'category' => 'Categoría',
      'sub_category' => 'Subcategoría',
      'unit' => 'Unidad',
-     'brand' => 'Marca',
+     'brand' => 'Laboratorio',
      'tax' => 'Impuesto',
      'sku' => 'Código de Barras',
      'alert_quantity' => 'Cantidad para alerta', /* modified */
@@ -34,7 +34,7 @@
      'product_added_success' => 'Producto Creado',
      'product_updated_success' => 'Producto Actualizado',
      'enable_product_expiry' => 'Habilitar vencimiento del producto',
-     'expiry_period' => 'Período de Caducidad',
+     'expiry_period' => 'Fecha de Caducidad',
      'expires_in' => 'Expira en',
      'not_applicable' => 'No aplica',
      'months' => 'Meses',

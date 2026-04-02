@@ -5,7 +5,7 @@
 {!! Form::hidden('language', request()->lang); !!}
 
 <fieldset>
-<legend class="text-red">@lang('business.business_details'):</legend>
+<legend class="text-teal">@lang('business.business_details'):</legend>
 <div class="col-md-5">
     <div class="form-group">
         {!! Form::label('name', __('business.business_name') . ':*' ) !!}
@@ -245,7 +245,7 @@
     <h3>@lang('business.business_settings')</h3>
 
     <fieldset>
-    <legend class="text-red">@lang('business.business_settings'):</legend>
+    <legend class="text-teal">@lang('business.business_settings'):</legend>
     <div class="col-md-6">
         <div class="form-group">
             {!! Form::label('tax_label_1', __('business.tax_1_name') . ':') !!}
@@ -325,7 +325,7 @@
 @endif
 
 <fieldset>
-<legend class="text-red">@lang('business.owner_info')</legend>
+<legend class="text-teal">@lang('business.owner_info')</legend>
 {{-- <div class="col-md-4">
     <div class="form-group">
         {!! Form::label('surname', __('business.prefix') . ':') !!}

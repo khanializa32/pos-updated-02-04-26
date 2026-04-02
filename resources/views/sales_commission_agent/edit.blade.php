@@ -55,11 +55,20 @@
         </div>
       </div>
       
+       <div class="col-md-6">
+        <div class="form-group">
+          </div>
+        <div class="form-group" style="margin-top:2rem">
+          {!! Form::checkbox('is_default', 1, $user->is_default, ['class' => 'input-icheck', 'id' => 'is-default', 'style' => 'margin-right:9px !important; ']) !!}
+          {!! Form::label('is-default', __( 'lang_v1.set_default' )) !!}
+        </div>
+      </div>
+      
       </div>
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang( 'messages.save' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'messages.update' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

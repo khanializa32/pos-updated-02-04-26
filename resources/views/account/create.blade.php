@@ -5,7 +5,7 @@
 
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h4 class="modal-title">@lang( 'account.add_account' )</h4>
+      <h4 class="modal-title">@lang( 'account.add_account_payment' )</h4>
     </div>
 
     <div class="modal-body">
@@ -33,42 +33,39 @@
                     @endforeach
                 </select>
             </div>
+            
+            
+        <!--HERE THE ACCOUNT TYPE FIELD WAS DUPLICATED AS AN EXAMPLE, IT MUST BE CHANGED BY THE CALL TO AUTOMATICALLY MAP AN ACCOUNTING ACCOUNT WHEN USING THIS PAYMENT ACCOUNT -->
+            
+            <div class="form-group">
+                {!! Form::label('account_type_id', __( 'account.account' ) .":") !!}
+                <select name="account_type_id" class="form-control select2">\
+                    <option>@lang('messages.please_select')</option>
+                    @foreach($account_types as $account_type)
+                       
+                    @endforeach
+                </select>
+            </div>
+            
+        <!--END OF FIELD TO ADD ACCOUNTING ACCOUNT -->
+            
+            
 
             <div class="form-group">
                 {!! Form::label('opening_balance', __( 'account.opening_balance' ) .":") !!}
                 {!! Form::text('opening_balance', 0, ['class' => 'form-control input_number','placeholder' => __( 'account.opening_balance' ) ]); !!}
             </div>
 
-            <label>@lang('lang_v1.account_details'):</label>
-            <table class="table table-striped">
-                <tr>
-                    <th>
-                        @lang('lang_v1.label')
-                    </th>
-                    <th>
-                        @lang('product.value')
-                    </th>
-                </tr>
-                @for ($i = 0; $i < 6; $i++)
-                    <tr>
-                        <td>
-                            {!! Form::text('account_details['.$i.'][label]', null, ['class' => 'form-control']); !!}
-                        </td>
-                        <td>
-                            {!! Form::text('account_details['.$i.'][value]', null, ['class' => 'form-control']); !!}      
-                        </td>
-                    </tr>
-                @endfor
-            </table>
+            
         
             <div class="form-group">
-                {!! Form::label('note', __( 'brand.note' )) !!}
-                {!! Form::textarea('note', null, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
+                {!! Form::label('note', __( 'account.description' )) !!}
+                {!! Form::textarea('note', null, ['class' => 'form-control', 'placeholder' => __( 'account.description' ), 'rows' => 2]); !!}
             </div>
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Crear Cuenta' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'account.add_account' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

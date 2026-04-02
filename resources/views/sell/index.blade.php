@@ -6,37 +6,329 @@
     <!-- Content Header (Page header) -->
     <section class="content-header no-print">
         <h1  class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.sells')
-        
-         &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
-					
+       
+         &nbsp;
+  
+  <style>
+     {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f2f2f2;
+    }
 
-	    </h4>
+    /* Botón */
+    .btn-youtube {
+      background-color: #DB2323;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-youtube:hover {
+      background-color: #2BB3B0;
+    }
+
+
+    /* Contenido del modal */
+    .modal-content {
+      position: relative;
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 0;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 720px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Botón cerrar */
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    /* Video */
+    iframe {
+      width: 120%;
+      height: 605px;
+      border: none;
+      border-radius: 0 0 8px 8px;
+    }
+    .btn-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(255, 75, 43, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(255, 75, 43, 0.45);
+}
+
+.btn-modern:active {
+    transform: scale(0.97);
+}
+
+  </style>
+
+<body>
+
+
+  <button id="openModalBtn" class="btn-modern">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M10.804 8 5.5 11.25V4.75L10.804 8z"/>
+        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4z"/>
+    </svg>
+    Ver Video
+</button>
+
+
+
+  <!-- Modal -->
+  <div id="youtubeModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <iframe id="youtubeVideo" src="" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById("youtubeModal");
+    const openBtn = document.getElementById("openModalBtn");
+    const closeBtn = document.getElementById("closeModalBtn");
+    const video = document.getElementById("youtubeVideo");
+
+    // URL del video
+    const youtubeURL = "https://www.youtube.com/embed/QcdcO87tV3U?si=vUSdDDmR9GGFJAJY"; // reemplaza con tu video
+
+    openBtn.onclick = () => {
+      modal.style.display = "block";
+      video.src = youtubeURL + "?autoplay=1";
+    }
+
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+      video.src = ""; // Detener el video al cerrar
+    }
+
+    // Cerrar al hacer clic fuera del modal
+    window.onclick = (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+        video.src = "";
+      }
+    }
+  </script>
+
+</body>
+
+
+    
+     <p class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap"> Esto es lo que pasa en tu tienda hoy</p>
+      </h4>
+      
+      
+			
+			
+                        		   @can('view_dashboard_stats')
+<div class="tw-grid tw-grid-cols-1 tw-gap-4 tw-mt-6 sm:tw-grid-cols-2 xl:tw-grid-cols-4 sm:tw-gap-5">
+                                  
+                                                    
+                                <div
+                                     class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm hover:tw-shadow-md tw-rounded-xl hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
+                                    <div class="tw-p-4 sm:tw-p-5">
+                                        <div class="tw-flex tw-items-center tw-gap-4">
+                                            <div
+                                                class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-green-500 tw-bg-green-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 tw-shrink-0">
+                                                <svg aria-hidden="true" class="tw-w-6 tw-h-6" xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path
+                                                        d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2">
+                                                    </path>
+                                                    <path
+                                                        d="M14.8 8a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1">
+                                                    </path>
+                                                    <path d="M12 6v10"></path>
+                                                </svg>
+                                            </div>
+
+                                            <div class="tw-flex-1 tw-min-w-0">
+                                                <p
+                                                    class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
+                                                    {{ __('Ingresos') }}
+                                                </p>
+                                                
+                                                {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                                
+                                                
+                                                <p
+                                                    class="total_sell tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
+
+                            <div
+                                class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
+                                <div class="tw-p-4 sm:tw-p-5">
+                                    <div class="tw-flex tw-items-center tw-gap-4">
+                                        <div
+                                            class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-red-500 tw-bg-red-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 shrink-0">
+                                            <svg aria-hidden="true" class="tw-w-6 tw-h-6"
+                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
+                                                stroke="currentColor" fill="none" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path
+                                                    d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2">
+                                                </path>
+                                                <path
+                                                    d="M14.8 8a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1">
+                                                </path>
+                                                <path d="M12 6v10"></path>
+                                            </svg>
+                                        </div>
+
+                                        <div class="tw-flex-1 tw-min-w-0">
+                                            <p
+                                                class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
+                                                {{ __('lang_v1.expense') }}
+                                            </p>
+                                            
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                            
+                                            <p
+                                                class="total_expense tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+
+                                            </p>
+                                        </div>
+                                        <a href="https://sistema.ziscoplus.com/expenses">Ver Más</a>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            
+                            
+                            
+                            <div
+                                class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm hover:tw-shadow-md tw-rounded-xl hover:tw-translate-y-0.5 tw-ring-1 tw-ring-gray-200">
+                                    <div class="tw-p-4 sm:tw-p-5">
+                                        <div class="tw-flex tw-items-center tw-gap-4">
+                                            <div
+                                                class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-rounded-full sm:tw-w-12 sm:tw-h-12 tw-shrink-0 tw-bg-sky-100 tw-text-sky-500">
+                                                <svg aria-hidden="true" class="tw-w-6 tw-h-6" xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                                    <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                                    <path d="M17 17h-11v-14h-2" />
+                                                    <path d="M6 5l14 1l-1 7h-13" />
+                                                </svg>
+                                            </div>
+
+                                            <div class="tw-flex-1 tw-min-w-0">
+                                                <p>
+                                            <p
+                                                class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
+                                                {{ __('lang_v1.potential_profit') }}
+                                                
+                                            </p>
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                            <p
+                                                class="gross_profit tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+
+                                            </p>
+                                        </div>
+                                        <a href="https://sistema.ziscoplus.com/reports/profit-loss">Ver Más</a>
+                                    </div>
+                                </div>
+                            </div>  
+                            
+                            
+                            
+                            
+                            
+                          <div
+                                 class="tw-transition-all tw-duration-200 tw-bg-white tw-shadow-sm hover:tw-shadow-md tw-rounded-xl hover:tw--translate-y-0.5 tw-ring-1 tw-ring-gray-200">
+                                    <div class="tw-p-4 sm:tw-p-5">
+                                        <div class="tw-flex tw-items-center tw-gap-4">
+                                            <div
+                                                class="tw-inline-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-text-yellow-500 tw-bg-yellow-100 tw-rounded-full sm:tw-w-12 sm:tw-h-12 shrink-0">
+                                                <svg aria-hidden="true" class="tw-w-6 tw-h-6" xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                    stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                                    <path
+                                                        d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                                    <path d="M9 7l1 0" />
+                                                    <path d="M9 13l6 0" />
+                                                    <path d="M13 17l2 0" />
+                                                </svg>
+                                            </div>
+
+                                            <div class="tw-flex-1 tw-min-w-0">
+                                            <p
+                                                class="tw-text-sm tw-font-medium tw-text-gray-500 tw-truncate tw-whitespace-nowrap">
+                                                {{ __('lang_v1.my_inventary') }}
+                                                
+                                            </p>
+                                            {{-- <span class="display_currency" data-currency_symbol="true">{{$data['net_profit']}}</span> --}}
+                                            <p id="closing_stock_by_pp"
+                                                class="closing_stock_by_pp tw-mt-0.5 tw-text-gray-900 tw-text-xl tw-truncate tw-font-semibold tw-tracking-tight tw-font-mono">
+
+                                            </p>
+                                        </div>
+                                        <a href="https://sistema.ziscoplus.com/reports/stock-report">Ver Más</a>
+                                    </div>
+                                </div>
+                            </div>  
+                           @endcan
+                            	
+			
+    
+    </h1>
+</section>		
+
+	 
        
        
-    <div data-width="500" tabindex="-1" class="modal fade" id="stack" style="display: none;">
-     <div class="modal-dialog">
-        <div class="modal-content" style="padding-bottom: 40px">
-               <div class="modal-header">
-                  <button type="button" id='close-modal' class="close" data-dismiss="modal" rel=0;aria-hidden="true"></button>
-                <div id="title-tutorial">
-                Modulo Crear factura Electrònica          
-                </div>
-        </div>
-            <div class="modal-body">
-                <div id="video-tutorial">
-                    
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/HBV8Mn4lCyk?si=kYkTV6AbRGAX_cZd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                
-                </div>
-                <p id="description-tutorial">Realice y administre sus facturas electronicas</p>
-
-                
-            </div>
-        </div>
-      </div>
-        
-        
-        </h1>
-    </section>
+    
 
     <!-- Main content -->
     <section class="content no-print">
@@ -69,20 +361,41 @@
                 </div>
             @endif
         @endcomponent
-        @component('components.widget', ['class' => 'box-primary', 'title' => __('lang_v1.all_sales')])
+        @component('components.widget', ['class' => 'box-primary', 'title' => __('')])
             @can('direct_sell.access')
                 @slot('tool')
                     <div class="box-tools">
-                        <a class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-rounded-full pull-right"
+                        <a class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-teal-500 tw-font-bold tw-text-black tw-border-none tw-rounded-full pull-right"
                             href="{{ action([\App\Http\Controllers\SellController::class, 'create']) }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-                                        viewBox="0 0 20 20" fill="none" stroke="red" stroke-width="2" stroke-linecap="round"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" 
+                                        viewBox="0 0 20 20" fill="none" stroke="teal" stroke-width="3" stroke-linecap="round"
                                             stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M12 5l0 14" />
                                             <path d="M5 12l14 0" />
                                         </svg> @lang('Crear Factura Electronica')
                         </a>
+                        
+                        
+                                    <a class="tw-dw-btn tw-bg--to-r tw-from-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-full pull-right tw-m-2"
+                                        href="{{ action([\App\Http\Controllers\ReportController::class, 'getproductSellReport']) }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
+                                      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z"/>
+                                    </svg> @lang('Ver Salidas ')
+                                    </a>
+                                    
+                                    
+                                    <a class="tw-dw-btn tw-bg--to-r tw-from-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-full pull-right tw-m-2"
+                                        href="{{ action([\App\Http\Controllers\ProductController::class, 'index']) }}">
+                                        
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-box-seam-fill" viewBox="0 0 16 16">
+                                          <path fill-rule="evenodd" d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.01-.003.268-.108a.75.75 0 0 1 .558 0l.269.108.01.003zM10.404 2 4.25 4.461 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339L8 5.961 5.596 5l6.154-2.461z"/>
+                                        </svg> @lang('Ver Productos')
+                                    </a>
+                        
+                        
+                        
+                        
                     </div>
                 @endslot
             @endcan
@@ -106,7 +419,9 @@
                             <th>@lang('Pago en')</th>
                             <th>@lang('Total')</th>
                             <th>@lang('Pagado')</th>
+                            @can('admin')
                             <th>@lang('Utilidad')</th>
+                            @endcan
                             <th>@lang('lang_v1.sell_due')</th>
                             <th>@lang('Devolución')</th>
                             <th>@lang('Envío')</th>
@@ -114,10 +429,10 @@
                             <th>@lang('lang_v1.types_of_service')</th>
                             <th>{{ $custom_labels['types_of_service']['custom_field_1'] ?? __('lang_v1.service_custom_field_1') }}
                             </th>
-                            <th>{{ $custom_labels['sell']['custom_field_1'] ?? '' }}</th>
+                            <!--<th>{{ $custom_labels['sell']['custom_field_1'] ?? '' }}</th>
                             <th>{{ $custom_labels['sell']['custom_field_2'] ?? '' }}</th>
                             <th>{{ $custom_labels['sell']['custom_field_3'] ?? '' }}</th>
-                            <th>{{ $custom_labels['sell']['custom_field_4'] ?? '' }}</th>
+                            <th>{{ $custom_labels['sell']['custom_field_4'] ?? '' }}</th> -->
                             <th>@lang('lang_v1.added_by')</th>
                             <th>@lang('sale.sell_note')</th>
                             <th>@lang('sale.staff_note')</th>
@@ -131,10 +446,16 @@
                         <tr class="bg-gray font-17 footer-total text-center">
                             <td colspan="6"><strong>@lang('sale.total'):</strong></td>
                             <td class="footer_payment_status_count"></td>
+                            <td></td>
                             <td class="payment_method_count"></td>
                             <td class="footer_sale_total"></td>
                             <td class="footer_total_paid"></td>
-                            <td class="footer_total_remaining"></td>
+                        @if(auth()->user()->hasRole('Admin'))
+                            <td class="footer_total_paid"></td>
+                            <td class="footer_total_utility"></td>
+                        @else
+                            <td class="footer_total_paid"></td>
+                        @endif
                             <td class="footer_total_sell_return_due"></td>
                             <td colspan="2"></td>
                             <td class="service_type_count"></td>
@@ -272,12 +593,11 @@
                         name: 'total_paid',
                         "searchable": false
                     },
-                    {
-                        data: 'utility',
-                        name: 'utility',
-                        orderable: false,
-                        searchable: false
-                    },
+                    { data: 'id', name: 'id' },
+                    // Solo renderizar la columna si el usuario es Admin
+                @if(auth()->user()->hasRole('Admin'))
+                    { data: 'utility', name: 'utility' },
+                @endif
                     {
                         data: 'total_remaining',
                         name: 'total_remaining'
@@ -444,6 +764,10 @@
                 });
             });
         });
+        
     </script>
-    <script src="{{ asset('js/payment.js?v=' . $asset_v) }}"></script>
+    
+  @section('javascript')
+@include('sale_pos.partials.sale_table_javascript')
+<script src="{{ asset('js/payment.js?v=' . $asset_v . time()) }}"></script>
 @endsection

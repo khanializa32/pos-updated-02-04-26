@@ -161,57 +161,95 @@ $(document).ready(function () {
                     body: function (data, row, column, node) {
                         // Clean the data before export
                         if (typeof data === 'string') {
+                            // Check if this is an action column (contains buttons/dropdowns)
+                            if (data.indexOf('btn-group') !== -1 ||
+                                data.indexOf('dropdown') !== -1 ||
+                                data.indexOf('class="tw-dw-btn') !== -1 ||
+                                data.indexOf('Actions') !== -1) {
+                                return '';
+                            }
+
+                            // Check for multiple data-orig-value attributes (for ranges like min-max prices)
+                            var allOrigValues = data.match(/data-orig-value="([^"]+)"/g);
+                            if (allOrigValues && allOrigValues.length > 1) {
+                                // Extract all values and format as range
+                                var values = allOrigValues.map(function(match) {
+                                    var value = match.match(/data-orig-value="([^"]+)"/)[1];
+                                    var num = parseFloat(value);
+                                    return !isNaN(num) ? num.toString() : value;
+                                });
+                                return values.join(' - ');
+                            }
+
                             // First, extract numeric values from HTML spans with data-orig-value
                             var origValueMatch = data.match(/data-orig-value="([^"]+)"/);
                             if (origValueMatch) {
-                                data = origValueMatch[1];
+                                var origValue = origValueMatch[1];
+
+                                // Check if it's a date (format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)
+                                if (/^\d{4}-\d{2}-\d{2}/.test(origValue)) {
+                                    // Return date in Excel-friendly format (DD/MM/YYYY HH:MM:SS or DD/MM/YYYY)
+                                    var dateObj = new Date(origValue);
+                                    if (!isNaN(dateObj.getTime())) {
+                                        var day = ('0' + dateObj.getDate()).slice(-2);
+                                        var month = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+                                        var year = dateObj.getFullYear();
+                                        var hours = ('0' + dateObj.getHours()).slice(-2);
+                                        var minutes = ('0' + dateObj.getMinutes()).slice(-2);
+                                        var seconds = ('0' + dateObj.getSeconds()).slice(-2);
+
+                                        if (hours !== '00' || minutes !== '00' || seconds !== '00') {
+                                            return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+                                        } else {
+                                            return day + '/' + month + '/' + year;
+                                        }
+                                    }
+                                }
+
+                                // For numeric values, parse and format with decimals
+                                var numericValue = parseFloat(origValue);
+                                if (!isNaN(numericValue)) {
+                                    // Return as string to preserve decimals in CSV
+                                    return numericValue.toString();
+                                }
+
+                                return origValue;
                             }
-                            
+
                             // Remove all HTML tags
                             data = data.replace(/<[^>]*>/g, '');
-                            
-                            // Remove currency symbols and clean up - more aggressive
-                            data = data
-                                .replace(/^\$+\s*/, '')  // Remove $ from beginning
-                                .replace(/\s*\$+$/, '')  // Remove $ from end
-                                .replace(/\$\s*/g, '')   // Remove $ anywhere in the string
-                                .replace(/\s*\$+\s*/g, '') // Remove $ with spaces around it
-                                .replace(/--+/g, '')     // Remove double or more dashes
-                                .replace(/^-+/, '')      // Remove leading dashes
-                                .replace(/-+$/, '')      // Remove trailing dashes
-                                .replace(/^\s+|\s+$/g, '') // Trim spaces
-                                .replace(/,/g, '')       // Remove thousand separators
-                                .replace(/[^\d.-]/g, ''); // Remove any non-numeric characters except decimal point and minus
-                            
-                            // Ultra-aggressive cleanup for any remaining $ symbols
-                            if (data.includes('$')) {
-                                data = data.replace(/\$/g, '');
+
+                            // Trim spaces
+                            data = data.replace(/^\s+|\s+$/g, '');
+
+                            // Check if this looks like a currency/numeric field
+                            var hasCurrencySymbol = /\$/.test(data);
+                            var hasCommas = /,/.test(data);
+                            var startsWithNumber = /^\d/.test(data);
+
+                            // Only apply numeric cleaning if it looks like a number
+                            if (hasCurrencySymbol || hasCommas || (startsWithNumber && !/ /.test(data.substring(0, 10)))) {
+                                // Remove currency symbols and clean up
+                                data = data
+                                    .replace(/^\$+\s*/, '')  // Remove $ from beginning
+                                    .replace(/\s*\$+$/, '')  // Remove $ from end
+                                    .replace(/\$\s*/g, '')   // Remove $ anywhere in the string
+                                    .replace(/\s*\$+\s*/g, '') // Remove $ with spaces around it
+                                    .replace(/,/g, '');      // Remove thousand separators
+
+                                // Try to parse as number to preserve decimals
+                                var cleanedNumber = parseFloat(data);
+                                if (!isNaN(cleanedNumber)) {
+                                    return cleanedNumber.toString();
+                                }
                             }
-                            
-                            // Handle specific zero patterns with currency symbols
-                            if (data.includes('$ 0.00') || data === '$ 0.00') {
-                                return '0';
-                            }
-                            if (data.includes('$0.00') || data === '$0.00') {
-                                return '0';
-                            }
-                            if (data.includes('$ 0') || data === '$ 0') {
-                                return '0';
-                            }
-                            if (data.includes('$0') || data === '$0') {
-                                return '0';
-                            }
-                            
-                            // Handle zero values specifically
-                            if (data === '0.00' || data === '0.0' || data === '0') {
-                                return '0';
-                            }
-                            
+
                             // Handle empty or invalid values
-                            if (data === '' || data === '-' || data === '.') {
-                                return '0';
+                            if (data === '' || data === '--') {
+                                return '';
                             }
-                            
+
+                            // Return text as-is (for product names, categories, etc.)
                             return data;
                         }
                         return data;
@@ -219,28 +257,34 @@ $(document).ready(function () {
                     footer: function (data, row, column, node) {
                         // Special handling for footer/totals row
                         if (typeof data === 'string') {
-                            // Remove all currency symbols from footer
+                            // Remove all HTML tags first
+                            data = data.replace(/<[^>]*>/g, '');
+
+                            // Remove currency symbols
                             data = data.replace(/\$\s*/g, '');
                             data = data.replace(/\s*\$/g, '');
-                            
-                            // Remove double dashes and other non-numeric characters
-                            data = data.replace(/--+/g, ''); // Remove double or more dashes
-                            data = data.replace(/^-+/, ''); // Remove leading dashes
-                            data = data.replace(/-+$/, ''); // Remove trailing dashes
-                            
-                            // Handle zero values in footer
-                            if (data === '0.00' || data === '0.0' || data === '0' || data === '$ 0.00' || data === '$0.00' || data === '--' || data === '') {
-                                return '0';
+
+                            // Remove thousand separators and extra spaces
+                            data = data.replace(/,/g, '');
+                            data = data.replace(/^\s+|\s+$/g, '');
+
+                            // Try to parse as number to preserve decimals
+                            var footerNumber = parseFloat(data);
+                            if (!isNaN(footerNumber)) {
+                                return footerNumber.toString();
                             }
-                            
-                            // Clean up any remaining non-numeric characters except decimal point and minus
+
+                            // Handle empty or invalid values
+                            if (data === '' || data === '--' || data === '-' || data === '.') {
+                                return '';
+                            }
+
+                            // Final cleanup
                             data = data.replace(/[^\d.-]/g, '');
-                            
-                            // Handle empty result after cleaning
-                            if (data === '' || data === '--' || data === '-') {
-                                return '0';
+                            if (data === '' || data === '-') {
+                                return '';
                             }
-                            
+
                             return data;
                         }
                         return data;
@@ -260,57 +304,95 @@ $(document).ready(function () {
                     body: function (data, row, column, node) {
                         // Clean the data before export
                         if (typeof data === 'string') {
+                            // Check if this is an action column (contains buttons/dropdowns)
+                            if (data.indexOf('btn-group') !== -1 ||
+                                data.indexOf('dropdown') !== -1 ||
+                                data.indexOf('class="tw-dw-btn') !== -1 ||
+                                data.indexOf('Actions') !== -1) {
+                                return '';
+                            }
+
+                            // Check for multiple data-orig-value attributes (for ranges like min-max prices)
+                            var allOrigValues = data.match(/data-orig-value="([^"]+)"/g);
+                            if (allOrigValues && allOrigValues.length > 1) {
+                                // Extract all values and format as range
+                                var values = allOrigValues.map(function(match) {
+                                    var value = match.match(/data-orig-value="([^"]+)"/)[1];
+                                    var num = parseFloat(value);
+                                    return !isNaN(num) ? num.toString() : value;
+                                });
+                                return values.join(' - ');
+                            }
+
                             // First, extract numeric values from HTML spans with data-orig-value
                             var origValueMatch = data.match(/data-orig-value="([^"]+)"/);
                             if (origValueMatch) {
-                                data = origValueMatch[1];
+                                var origValue = origValueMatch[1];
+
+                                // Check if it's a date (format: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS)
+                                if (/^\d{4}-\d{2}-\d{2}/.test(origValue)) {
+                                    // Return date in Excel-friendly format (DD/MM/YYYY HH:MM:SS or DD/MM/YYYY)
+                                    var dateObj = new Date(origValue);
+                                    if (!isNaN(dateObj.getTime())) {
+                                        var day = ('0' + dateObj.getDate()).slice(-2);
+                                        var month = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+                                        var year = dateObj.getFullYear();
+                                        var hours = ('0' + dateObj.getHours()).slice(-2);
+                                        var minutes = ('0' + dateObj.getMinutes()).slice(-2);
+                                        var seconds = ('0' + dateObj.getSeconds()).slice(-2);
+
+                                        if (hours !== '00' || minutes !== '00' || seconds !== '00') {
+                                            return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+                                        } else {
+                                            return day + '/' + month + '/' + year;
+                                        }
+                                    }
+                                }
+
+                                // For numeric values, parse and format with decimals
+                                var numericValue = parseFloat(origValue);
+                                if (!isNaN(numericValue)) {
+                                    // Return as string to preserve decimals in Excel
+                                    return numericValue.toString();
+                                }
+
+                                return origValue;
                             }
-                            
+
                             // Remove all HTML tags
                             data = data.replace(/<[^>]*>/g, '');
-                            
-                            // Remove currency symbols and clean up - more aggressive
-                            data = data
-                                .replace(/^\$+\s*/, '')  // Remove $ from beginning
-                                .replace(/\s*\$+$/, '')  // Remove $ from end
-                                .replace(/\$\s*/g, '')   // Remove $ anywhere in the string
-                                .replace(/\s*\$+\s*/g, '') // Remove $ with spaces around it
-                                .replace(/--+/g, '')     // Remove double or more dashes
-                                .replace(/^-+/, '')      // Remove leading dashes
-                                .replace(/-+$/, '')      // Remove trailing dashes
-                                .replace(/^\s+|\s+$/g, '') // Trim spaces
-                                .replace(/,/g, '')       // Remove thousand separators
-                                .replace(/[^\d.-]/g, ''); // Remove any non-numeric characters except decimal point and minus
-                            
-                            // Ultra-aggressive cleanup for any remaining $ symbols
-                            if (data.includes('$')) {
-                                data = data.replace(/\$/g, '');
+
+                            // Trim spaces
+                            data = data.replace(/^\s+|\s+$/g, '');
+
+                            // Check if this looks like a currency/numeric field
+                            var hasCurrencySymbol = /\$/.test(data);
+                            var hasCommas = /,/.test(data);
+                            var startsWithNumber = /^\d/.test(data);
+
+                            // Only apply numeric cleaning if it looks like a number
+                            if (hasCurrencySymbol || hasCommas || (startsWithNumber && !/ /.test(data.substring(0, 10)))) {
+                                // Remove currency symbols and clean up
+                                data = data
+                                    .replace(/^\$+\s*/, '')  // Remove $ from beginning
+                                    .replace(/\s*\$+$/, '')  // Remove $ from end
+                                    .replace(/\$\s*/g, '')   // Remove $ anywhere in the string
+                                    .replace(/\s*\$+\s*/g, '') // Remove $ with spaces around it
+                                    .replace(/,/g, '');      // Remove thousand separators
+
+                                // Try to parse as number to preserve decimals
+                                var cleanedNumber = parseFloat(data);
+                                if (!isNaN(cleanedNumber)) {
+                                    return cleanedNumber.toString();
+                                }
                             }
-                            
-                            // Handle specific zero patterns with currency symbols
-                            if (data.includes('$ 0.00') || data === '$ 0.00') {
-                                return '0';
-                            }
-                            if (data.includes('$0.00') || data === '$0.00') {
-                                return '0';
-                            }
-                            if (data.includes('$ 0') || data === '$ 0') {
-                                return '0';
-                            }
-                            if (data.includes('$0') || data === '$0') {
-                                return '0';
-                            }
-                            
-                            // Handle zero values specifically
-                            if (data === '0.00' || data === '0.0' || data === '0') {
-                                return '0';
-                            }
-                            
+
                             // Handle empty or invalid values
-                            if (data === '' || data === '-' || data === '.') {
-                                return '0';
+                            if (data === '' || data === '--') {
+                                return '';
                             }
-                            
+
+                            // Return text as-is (for product names, categories, etc.)
                             return data;
                         }
                         return data;
@@ -318,28 +400,34 @@ $(document).ready(function () {
                     footer: function (data, row, column, node) {
                         // Special handling for footer/totals row
                         if (typeof data === 'string') {
-                            // Remove all currency symbols from footer
+                            // Remove all HTML tags first
+                            data = data.replace(/<[^>]*>/g, '');
+
+                            // Remove currency symbols
                             data = data.replace(/\$\s*/g, '');
                             data = data.replace(/\s*\$/g, '');
-                            
-                            // Remove double dashes and other non-numeric characters
-                            data = data.replace(/--+/g, ''); // Remove double or more dashes
-                            data = data.replace(/^-+/, ''); // Remove leading dashes
-                            data = data.replace(/-+$/, ''); // Remove trailing dashes
-                            
-                            // Handle zero values in footer
-                            if (data === '0.00' || data === '0.0' || data === '0' || data === '$ 0.00' || data === '$0.00' || data === '--' || data === '') {
-                                return '0';
+
+                            // Remove thousand separators and extra spaces
+                            data = data.replace(/,/g, '');
+                            data = data.replace(/^\s+|\s+$/g, '');
+
+                            // Try to parse as number to preserve decimals
+                            var footerNumber = parseFloat(data);
+                            if (!isNaN(footerNumber)) {
+                                return footerNumber.toString();
                             }
-                            
-                            // Clean up any remaining non-numeric characters except decimal point and minus
+
+                            // Handle empty or invalid values
+                            if (data === '' || data === '--' || data === '-' || data === '.') {
+                                return '';
+                            }
+
+                            // Final cleanup
                             data = data.replace(/[^\d.-]/g, '');
-                            
-                            // Handle empty result after cleaning
-                            if (data === '' || data === '--' || data === '-') {
-                                return '0';
+                            if (data === '' || data === '-') {
+                                return '';
                             }
-                            
+
                             return data;
                         }
                         return data;
@@ -351,6 +439,7 @@ $(document).ready(function () {
                 // Clean all cells in the Excel file including footer/totals
                 var sheet = xlsx.xl.worksheets['sheet1.xml'];
                 $('c', sheet).each(function() {
+                    var cellRef = $(this).attr('r'); // Get cell reference (e.g., 'A1', 'B2')
                     var cellValue = $(this).find('v').text();
                     if (cellValue && typeof cellValue === 'string') {
                         // Extract numeric values from data-orig-value attributes
@@ -358,10 +447,10 @@ $(document).ready(function () {
                         if (origValueMatch) {
                             cellValue = origValueMatch[1];
                         }
-                        
+
                         // Remove all HTML tags
                         cellValue = cellValue.replace(/<[^>]*>/g, '');
-                        
+
                         // Ultra-aggressive currency symbol removal
                         var cleanedValue = cellValue
                             .replace(/\$\s*/g, '')           // Remove $ and any following spaces
@@ -377,32 +466,43 @@ $(document).ready(function () {
                             .replace(/^\s+|\s+$/g, '')       // Trim spaces
                             .replace(/,/g, '')               // Remove thousand separators
                             .replace(/[^\d.-]/g, '');        // Remove any non-numeric characters except decimal point and minus
-                        
+
                         // Handle specific zero patterns more comprehensively
                         if (cleanedValue === '' || cleanedValue === '-' || cleanedValue === '.') {
                             cleanedValue = '0';
                         } else if (cleanedValue === '0.00' || cleanedValue === '0.0' || cleanedValue === '0') {
                             cleanedValue = '0';
                         }
-                        
+
                         // Final aggressive cleanup - remove ALL non-numeric characters except decimal and minus
                         cleanedValue = cleanedValue.replace(/[^\d.-]/g, '');
-                        
+
                         // Ensure we have a valid number
                         if (cleanedValue === '' || cleanedValue === '-' || cleanedValue === '.') {
                             cleanedValue = '0';
                         }
-                        
-                        // Set the cell value and force it to be treated as a number
-                        $(this).find('v').text(cleanedValue);
-                        
-                        // Remove any cell formatting that might add currency symbols
-                        $(this).removeAttr('s'); // Remove style attribute
-                        $(this).find('v').removeAttr('t'); // Remove type attribute
-                        
-                        // Force the cell to be treated as a number by setting the type
-                        if (cleanedValue !== '' && !isNaN(cleanedValue)) {
-                            $(this).find('v').attr('t', 'n'); // Set as number type
+
+                        // Check if this is a large number that should be treated as string
+                        // (e.g., contact_id, invoice_no, SKU with many digits)
+                        var isLargeNumber = /^\d{11,}$/.test(cleanedValue); // 11 or more digits
+
+                        // Set the cell value
+                        if (isLargeNumber) {
+                            // Force large numbers to be strings to prevent scientific notation
+                            $(this).attr('t', 'inlineStr');
+                            $(this).find('v').remove();
+                            $(this).append('<is><t>' + cleanedValue + '</t></is>');
+                        } else {
+                            $(this).find('v').text(cleanedValue);
+
+                            // Remove any cell formatting that might add currency symbols
+                            $(this).removeAttr('s'); // Remove style attribute
+                            $(this).find('v').removeAttr('t'); // Remove type attribute
+
+                            // Force the cell to be treated as a number by setting the type
+                            if (cleanedValue !== '' && !isNaN(cleanedValue)) {
+                                $(this).find('v').attr('t', 'n'); // Set as number type
+                            }
                         }
                     }
                 });
@@ -457,7 +557,7 @@ $(document).ready(function () {
     jQuery.extend($.fn.dataTable.defaults, {
         //Uncomment below line to enable save state of datatable.
         //stateSave: true,
-        fixedHeader: true,
+        fixedHeader: true, stateSave: true,
         dom: '<"row margin-bottom-20 text-center"<"col-sm-1"l><"col-sm-8"B><"col-sm-3"f> r>tip',
         buttons: buttons,
         aLengthMenu: [

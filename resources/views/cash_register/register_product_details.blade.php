@@ -194,6 +194,7 @@
         </tr>
         @php
           $total_sales = 0;
+          $totalPackingCharge = 0;
         @endphp
         @foreach($details['types_of_service_details'] as $detail)
           <tr>
@@ -205,10 +206,11 @@
             </td>
             <td>
               <span class="display_currency" data-currency_symbol="true">
-                {{$detail->total_sales}}
+                {{$detail->packing_charge}}
               </span>
               @php
                 $total_sales += $detail->total_sales;
+                $totalPackingCharge += $detail->packing_charge;
               @endphp
             </td>
           </tr>
@@ -223,7 +225,7 @@
           <th>
             @lang('lang_v1.grand_total'):
             <span class="display_currency" data-currency_symbol="true">
-              {{$total_amount}}
+              {{$totalPackingCharge}}
             </span>
           </th>
         </tr>

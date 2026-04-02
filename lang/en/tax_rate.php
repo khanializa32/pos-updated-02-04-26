@@ -28,6 +28,9 @@ return [
     'edit_tax_group' => 'Edit tax group',
     'sub_taxes' => 'Sub taxes',
     'base' => 'Tax Base',
+    'code' => 'code',
+    'add_tax' => 'Add Tax Rate',
+    'add_group' => 'Add Group',
     'can_not_be_deleted' => 'This tax rate belongs to some tax groups',
 
 ];

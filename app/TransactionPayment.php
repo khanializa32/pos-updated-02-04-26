@@ -67,6 +67,47 @@ class TransactionPayment extends Model
         return $document_name;
     }
 
+    protected static function addCashRegisterReversalForDeletedPayment(self $payment): void
+    {
+        if (empty($payment->transaction_id) || empty($payment->method) || empty($payment->amount)) {
+            return;
+        }
+
+        $cash_register_id = CashRegisterTransaction::where('transaction_id', $payment->transaction_id)
+            ->orderBy('id', 'desc')
+            ->value('cash_register_id');
+
+        if (empty($cash_register_id)) {
+            return;
+        }
+
+        $transaction = $payment->relationLoaded('transaction')
+            ? $payment->transaction
+            : Transaction::select('id', 'type')->find($payment->transaction_id);
+
+        if (empty($transaction) || empty($transaction->type)) {
+            return;
+        }
+
+        $amount = (float) $payment->amount;
+        $is_return = (int) ($payment->is_return ?? 0) === 1;
+        $signed_amount = $is_return ? (-1 * $amount) : $amount;
+        $reversal_amount = -1 * $signed_amount;
+
+        if ($reversal_amount == 0.0) {
+            return;
+        }
+
+        CashRegisterTransaction::create([
+            'cash_register_id' => $cash_register_id,
+            'amount' => $reversal_amount,
+            'pay_method' => $payment->method,
+            'type' => $transaction->type === 'expense' ? 'debit' : 'credit',
+            'transaction_type' => $transaction->type,
+            'transaction_id' => $payment->transaction_id,
+        ]);
+    }
+    
     public static function deletePayment($payment)
     {
         //Update parent payment if exists
@@ -75,6 +116,7 @@ class TransactionPayment extends Model
             $parent_payment->amount -= $payment->amount;
 
             if ($parent_payment->amount <= 0) {
+                self::addCashRegisterReversalForDeletedPayment($parent_payment);
                 $parent_payment->delete();
                 event(new TransactionPaymentDeleted($parent_payment));
             } else {
@@ -84,6 +126,7 @@ class TransactionPayment extends Model
             }
         }
 
+        self::addCashRegisterReversalForDeletedPayment($payment);
         $payment->delete();
 
         $transactionUtil = new \App\Utils\TransactionUtil();

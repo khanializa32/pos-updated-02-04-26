@@ -1,8 +1,8 @@
 <?php
 
  return [
-     'home' => 'Estadísticas', /* modified */
-     'welcome_message' => 'Bienvenido a Zisco Plus :name, 👋',
+     'home' => 'Panel', /* modified */
+     'welcome_message' => 'Bienvenido a Zisco :name',
      'total_sell' => 'Total Ventas',
      'total_purchase' => 'Total Compras', /* modified */
      'invoice_due' => 'Cuentas Por Cobrar',
@@ -17,6 +17,6 @@
      'product_stock_alert' => 'Alerta de Bajas Existencias',
      'payment_dues' => 'Pagos Pendientes',
      'due_amount' => 'Deuda',
-     'stock_expiry_alert' => 'Alerta de Caducidad',
+     'stock_expiry_alert' => 'Alerta de Vencimiento',
      'todays_profit' => 'Utilidades de Hoy',
  ];

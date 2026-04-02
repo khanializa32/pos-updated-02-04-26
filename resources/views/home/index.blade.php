@@ -10,14 +10,21 @@
                     {{ __('home.welcome_message', ['name' => Session::get('user.first_name')]) }}
                 </h1>
             </div> --}}
+            
                     <div class="sm:tw-flex sm:tw-items-center sm:tw-justify-between sm:tw-gap-12">
+                        
+                        <img src="{{ asset('img/dashboard.gif')}}" alt="logo" style="width: 5%; height: 5%; margin: auto;padding-left: 20px;">
+                        
                         <div class="tw-mt-2 sm:tw-w-1/2 md:tw-w-1/2">
+                            
                             <h2
-                                class="tw-text-2xl md:tw-text-4xl tw-tracking-tight tw-text-primary-800 tw-font-semibold text-black tw-mb-10 md:tw-mb-0">
+                                class="tw-text-2xl md:tw-text-4xl tw-tracking-tight tw-text-primary-800 tw-font-semibold text-black tw-mb-10 md:tw-mb-0"> 
+                                
                                 {{ __('home.welcome_message', ['name' => Session::get('user.first_name')]) }}
                             </h2>
                             
-                            <p class="tw-text-sm tw-font-medium tw-text-black tw-mb-10 md:tw-mb-0"> Esto es lo que pasa en su tienda hoy</p>
+                            
+                           
                         </div>
     
                         @if (auth()->user()->can('dashboard.data'))
@@ -68,6 +75,391 @@
                             @endif
                         @endif
                     </div>
+                    
+                    
+                    
+                    
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    body {
+        background: #f2f3f5;
+    }
+
+    .module-card {
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 22px 12px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: .2s;
+        text-decoration: none;
+        color: #333;
+        display: block;
+    }
+    .module-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.10);
+        text-decoration: none;
+        color: #000;
+    }
+
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto;
+        font-size: 30px;
+        color: #fff;
+    }
+    
+   
+    
+</style>
+
+
+
+
+</head>
+
+<body>
+
+<div class="container py-4">
+    
+
+    <div class="row row-cols-3 row-cols-md-4 g-4">
+
+        <!-- Ventas -->
+        <div class="col">
+            <a href="sells" class="module-card">
+                <div class="icon-circle" style="background:#2BB3B0;">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <p class="mt-2 mb-0">Ventas</p>
+            </a>
+        </div>
+        
+        
+         <!-- Clientes -->
+        <div class="col">
+            <a href="reports/customer-supplier" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-business-time"></i>
+                </div>
+                <p class="mt-2 mb-0">Cartera</p>
+            </a>
+        </div>
+
+       
+
+        <!-- Inventario / Productos -->
+        <div class="col">
+            <a href="products" class="module-card">
+                <div class="icon-circle" style="background:#FF9800;">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <p class="mt-2 mb-0">Productos</p>
+            </a>
+        </div>
+
+
+         <!-- POS -->
+        <div class="col">
+            <a href="reports/stock-report" class="module-card">
+                <div class="icon-circle" style="background:#EE82EE;">
+                    <i class="fas fa-luggage-cart"></i>
+                </div>
+                <p class="mt-2 mb-0">Inventario</p>
+            </a>
+        </div>
+       
+
+        <!-- Compras -->
+        <div class="col">
+            <a href="purchases" class="module-card">
+                <div class="icon-circle" style="background:#FF6347;">
+                    <i class="fab fa-amazon-pay"></i>
+                </div>
+                <p class="mt-2 mb-0">Compras</p>
+            </a>
+        </div>
+
+        
+        
+        <!-- Gastos -->
+        <div class="col">
+            <a href="expenses" class="module-card">
+                <div class="icon-circle" style="background:#4682B4;">
+                    <i class="fas fa-database"></i>
+                </div>
+                <p class="mt-2 mb-0">Gastos</p>
+            </a>
+        </div>
+        
+        
+ <hr style="border:1px solid #ccc; margin:20px 0;">
+       
+    </div>
+</div>
+
+<div class="container py-4">
+    <p style="font-size:20px;">Ventas</p>
+
+    <div class="row row-cols-3 row-cols-md-4 g-4">
+
+        <!-- Ventas -->
+        <div class="col">
+            <a href="sells" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-money-bill-alt"></i>
+                </div>
+                <p class="mt-2 mb-0">Ventas</p>
+            </a>
+        </div>
+        
+        
+         <!-- Remisiones -->
+        <div class="col">
+            <a href="sales-order" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <p class="mt-2 mb-0">Remisiones</p>
+            </a>
+        </div>
+
+       
+
+        <!-- Cotizacions  -->
+        <div class="col">
+            <a href="sells/quotations" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <p class="mt-2 mb-0">Cotizacions</p>
+            </a>
+        </div>
+
+
+         <!-- NC -->
+        <div class="col">
+            <a href="sell-return" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-undo"></i>
+                </div>
+                <p class="mt-2 mb-0">Notas C</p>
+            </a>
+        </div>
+       
+
+        <!-- Informes -->
+        <div class="col">
+            <a href="reports/product-sell-report" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <p class="mt-2 mb-0">Informes</p>
+            </a>
+        </div>
+ 
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        <div class="container py-4">
+    <p style="font-size:20px;">Compras</p>
+
+    <div class="row row-cols-3 row-cols-md-4 g-4">
+
+       <!-- Crear Compras -->
+        <div class="col">
+            <a href="purchases/create" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <p class="mt-2 mb-0">Crear</p>
+            </a>
+        </div>
+
+        <!-- Ver Compras -->
+        <div class="col">
+            <a href="purchases" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <p class="mt-2 mb-0">Ver</p>
+            </a>
+        </div>
+
+        <!-- Informes -->
+        <div class="col">
+            <a href="product-purchase-report" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <p class="mt-2 mb-0">Informes</p>
+            </a>
+        </div>
+        
+        
+        
+        
+        <hr style="border:1px solid #ccc; margin:20px 0;">
+       
+    </div>
+</div>
+    
+        <div class="container py-4">
+    
+        <p style="font-size:20px;">Gastos</p>
+    <div class="row row-cols-3 row-cols-md-4 g-4">
+
+        <!-- Crear -->
+        <div class="col">
+            <a href="expenses/create" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <p class="mt-2 mb-0">Crear</p>
+            </a>
+        </div>
+        
+        
+         <!-- Ver -->
+        <div class="col">
+            <a href="expenses" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <p class="mt-2 mb-0">Ver</p>
+            </a>
+        </div>
+
+      
+    
+          
+        <hr style="border:1px solid #ccc; margin:20px 0;">
+       
+    </div>
+</div>
+    
+        <div class="container py-4">
+    <p style="font-size:20px;">Informes</p>
+
+    <div class="row row-cols-3 row-cols-md-4 g-4">
+        
+        
+        
+          <!-- Ventas -->
+        <div class="col">
+            <a href="reports/product-sell-report" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <p class="mt-2 mb-0">Ventas</p>
+            </a>
+        </div>
+
+        <!-- Utilidades -->
+        <div class="col">
+            <a href="reports/profit-loss" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <p class="mt-2 mb-0">Utilidades</p>
+            </a>
+        </div>
+        
+        
+         <!-- Cierres -->
+        <div class="col">
+            <a href="reports/register-report" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-cash-register"></i>
+                </div>
+                <p class="mt-2 mb-0">Cierres</p>
+            </a>
+        </div>
+
+       
+
+        <!-- Inventario -->
+        <div class="col">
+            <a href="reports/stock-report" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <p class="mt-2 mb-0">Inventario</p>
+            </a>
+        </div>
+
+
+         <!-- Impuestos -->
+        <div class="col">
+            <a href="reports/tax-report" class="module-card">
+                <div class="icon-circle" style="background:#004C6E;">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <p class="mt-2 mb-0">Impuestos</p>
+            </a>
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+ <hr style="border:1px solid #ccc; margin:20px 0;">
+       
+    </div>
+</div>
+
+
+
+
+
+       
+ 
+
+
+      <style>
+/* Fix for BS3 Javascript trying to show a modal under BS5 CSS on the home page */
+.modal.fade.in {
+    opacity: 1 !important;
+}
+</style>              
+                    
+                    
+                    
+                     <p class="tw-text-sm tw-font-medium tw-text-black tw-mb-10 md:tw-mb-0"> Esto es lo que pasa en su tienda hoy</p>
+                    
+                    
                     @if (auth()->user()->can('dashboard.data'))
                         @if ($is_admin)
                             <div class="tw-grid tw-grid-cols-1 tw-gap-4 tw-mt-6 sm:tw-grid-cols-2 xl:tw-grid-cols-4 sm:tw-gap-5">
@@ -164,12 +556,12 @@
                             </div>
                             
                             
-                            
+                           
                         @endif
                     @endif
               </div>
         </div>
-        @if (auth()->user()->can('dashboard.data'))
+         @if (auth()->user()->can('dashboard.data'))
             @if ($is_admin)
                 <div class="tw-relative">
                    
@@ -180,7 +572,7 @@
                             
                             
                             
-                             @if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view'))
+                         <!--    @if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view'))
                     <div
                         class="tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
                         <div class="tw-p-4 sm:tw-p-5">
@@ -293,7 +685,7 @@
                             </div>
                         </div>
                     </div>
-                @endcan
+                @endcan -->
                             
                         
                     </div>
@@ -343,7 +735,7 @@
                                 </div>
                             </div>
                         </div>
-                    @endif
+                    @endif  
 
                     {{-- @if (!empty($widgets['after_sales_last_30_days']))
                         @foreach ($widgets['after_sales_last_30_days'] as $widget)
@@ -377,13 +769,13 @@
                                         class="tw-grid tw-w-full tw-h-100 tw-border tw-border-gray-200 tw-border-dashed tw-rounded-xl tw-bg-gray-50 ">
                                         <p class="tw-text-sm tw-italic tw-font-normal tw-text-gray-400">
                                             {!! $sells_chart_2->container() !!}
-                                        </p>
+                                      </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    @endif
-                @endif
+                    @endif 
+                @endif 
                 {{-- @if (!empty($widgets['after_sales_current_fy']))
                     @foreach ($widgets['after_sales_current_fy'] as $widget)
                         {!! $widget !!}
@@ -432,6 +824,8 @@
                                             <thead>
                                                 <tr>
                                                     <th>@lang('sale.product')</th>
+                                                    <th>@lang('product.brand')</th>
+                                                    <th>Precio Compra</th> {{-- NUEVA COLUMNA --}}
                                                     <th>@lang('business.location')</th>
                                                     <th>@lang('report.current_stock')</th>
                                                 </tr>
@@ -444,7 +838,7 @@
                     </div>
                     @if (session('business.enable_product_expiry') == 1)
                         <div
-                            class="tw-transition-all lg:tw-col-span-1 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
+                            class="tw-transition-all lg:tw-col-span-2 tw-duration-200 tw-bg-white tw-shadow-sm tw-rounded-xl tw-ring-1 hover:tw-shadow-md hover:tw--translate-y-0.5 tw-ring-gray-200">
                             <div class="tw-p-4 sm:tw-p-5">
                                 <div class="tw-flex tw-items-center tw-gap-2.5">
                                     <div
@@ -478,12 +872,15 @@
                                         <div class="tw-inline-block tw-min-w-full tw-py-2 tw-align-middle sm:tw-px-5">
                                             <input type="hidden" id="stock_expiry_alert_days"
                                                 value="{{ \Carbon::now()->addDays(session('business.stock_expiry_alert_days', 30))->format('Y-m-d') }}">
-                                            <table class="table table-bordered table-striped" id="stock_expiry_alert_table">
+                                            <table class="table table-bordered table-striped tw-w-full" id="stock_expiry_alert_table" style="width: 100%;">
+
                                                 <thead>
                                                     <tr>
                                                         <th>@lang('business.product')</th>
+                                                 
                                                         <th>@lang('business.location')</th>
                                                         <th>@lang('report.stock_left')</th>
+                                                        <th>@lang('lang_v1.lot_number')</th> 
                                                         <th>@lang('product.expires_in')</th>
                                                     </tr>
                                                 </thead>
@@ -727,7 +1124,106 @@
                 @endif --}}
             </div>
         </div>
-    @endif
+    @endif 
+    
+    
+    
+   <!-- INICIO DE LA VENTANA MODAL PUBLICIDAD -->
+    
+    
+    
+<!--   <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Fondo oscuro */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Contenedor del popup */
+        .popup {
+            width: 800px;
+            max-width: 140%;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden; /* importante para la imagen */
+            position: relative;
+        }
+
+        /* Imagen ocupa todo el ancho */
+        .popup img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Botón cerrar */
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body> -->
+
+
+
+<!-- POPUP -->
+
+<!--<div class="popup-overlay" id="popup">
+    <div class="popup">
+        <span class="close-btn" onclick="cerrarPopup()">X</span>
+        
+    <h1><p style="text-align: center;"> ZISCO PLUS TE DESEA</h1>
+</p>
+        <p </p>
+        <img src="{{ asset('images/publicidad2.jpg') }}" width="200">
+    </div>
+</div>
+
+<script>
+    // Mostrar popup después de 2 segundos
+    window.onload = function () {
+        setTimeout(function () {
+            document.getElementById('popup').style.display = 'flex';
+        }, 1000);
+    };
+
+    function cerrarPopup() {
+        document.getElementById('popup').style.display = 'none';
+    }
+</script>  -->
+
+
+
+<!-- FIN DE LA VENTANA MODAL PUBLICIDAD -->
+
+
+
+
+
+
+
 
 @endsection
 
@@ -745,6 +1241,9 @@
         }
     </style>
 @endsection
+
+
+
 
 @section('javascript')
     <script src="{{ asset('js/home.js?v=' . $asset_v) }}"></script>
@@ -1149,5 +1648,7 @@
             });
         });
     </script>
+    
+    
     
 @endsection

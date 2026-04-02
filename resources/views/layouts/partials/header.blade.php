@@ -20,22 +20,33 @@
                         <path d="M4 18l16 0" />
                     </svg>
                 </button>
- <details class="tw-dw-dropdown tw-relative tw-inline-block tw-text-left">
+                
+                
+                 <button type="button"
+                    class="side-bar-collapse tw-hidden lg:tw-inline-flex tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-text-white tw-transition-all tw-duration-200 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-p-1.5 tw-rounded-lg tw-ring-1 hover:tw-text-white tw-ring-white/10">
+                    <span class="tw-sr-only">
+                        Contraer
+                    </span>
+                    <i class='fas fa-angle-double-left' style='font-size:36px;color:LightSeaGreen'></i>
+                </button>
+                
+                
+                <details class="tw-dw-dropdown tw-relative tw-inline-block tw-text-left">
                     <summary
                         class="tw-inline-flex tw-transition-all tw-ring-1 tw-ring-white/10 hover:tw-text-white tw-cursor-pointer tw-duration-200 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-text-white tw-gap-1">
-                        <i class='fas fa-plus' style='font-size:16px;color:white'> </i> Crear
+                        <i class='fas fa-plus' style='font-size:30px;color:white'> </i> Accesos Rápidos
                     </summary>
                     <ul class="tw-dw-menu tw-dw-dropdown-content tw-dw-z-[1] tw-dw-bg-base-100 tw-dw-rounded-box tw-w-48 tw-absolute tw-left-0 tw-z-10 tw-mt-2 tw-origin-top-right tw-bg-white tw-rounded-lg tw-shadow-lg tw-ring-1 tw-ring-gray-200 focus:tw-outline-none"
                         role="menu" tabindex="-1">
                         <div class="tw-p-2" role="none">
-                            <a href="https://sistema.ziscoplus.com/sells/create"
+                            <a href="https://sistema.ziscoplus.com/sells/create" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-file-pdf' style='font-size:20px;color:magenta'></i>
-                                &nbsp;&nbsp;@lang('Nueva F.E.')
+                                <i class='fa fa-print' style='font-size:20px;color:red'></i>
+                                &nbsp;@lang('Crear Venta')
                             </a>
                            
-                                 <a href="https://sistema.ziscoplus.com/purchases/create"
+                                 <a href="https://sistema.ziscoplus.com/purchases/create" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                     role="menuitem" tabindex="-1">
                                 <i class='	fas fa-cart-plus' style='font-size:20px;color:mediumseagreen'></i>
@@ -44,7 +55,7 @@
                             
                             
                               
-                             <a href="https://sistema.ziscoplus.com/expenses/create"
+                             <a href="https://sistema.ziscoplus.com/expenses/create" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-money-bill-wave' style='font-size:20px;color:dodgerblue'></i>
@@ -53,16 +64,16 @@
                             
                             
                             
-                             <a href="https://sistema.ziscoplus.com/products"
+                             <a href="https://sistema.ziscoplus.com/products" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-cube' style='font-size:20px;color:orange'></i>
-                                @lang('lang_v1.list_products')
+                                &nbsp;@lang('lang_v1.list_products')
                             </a>
                             
                           
                             
-                             <a href="https://sistema.ziscoplus.com/contacts?type=customer"
+                             <a href="https://sistema.ziscoplus.com/contacts?type=customer" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-user-check' style='font-size:20px;color:green'></i>
@@ -70,25 +81,46 @@
                             </a>
                             
                             
-                             <a href="https://sistema.ziscoplus.com/contacts?type=supplier"
+                             <a href="https://sistema.ziscoplus.com/contacts?type=supplier" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
                                 <i class='fas fa-handshake' style='font-size:20px;color:brown'></i>
                                 Ver Proveedor
                                 </a>
 
-                            <a href="https://sistema.ziscoplus.com/users"
+                            <a href="https://sistema.ziscoplus.com/users" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-chalkboard-teacher' style='font-size:20px;color:red'></i>
+                                <i class='fas fa-chalkboard-teacher' style='font-size:20px;color:violet'></i>
                                 &nbsp;Ver Usuarios
                             </a>
-
-                            <a href="https://sistema.ziscoplus.com/sells/create?sale_type=sales_order"
+                            
+                             <a href="https://sistema.ziscoplus.com/stock-adjustments/create" target=»_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-file-excel' style='font-size:20px;color:purple'></i>
+                                <i class='fa fa-qrcode' style='font-size:20px;color:teal'></i>
+                                &nbsp;&nbsp;Crear Ajuste
+                            </a>
+
+                            <a href="https://sistema.ziscoplus.com/sells/create?sale_type=sales_order" target=»_blank
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fa fa-registered' style='font-size:20px;color:purple'></i>
                                 &nbsp;&nbsp;Crear Remisión
+                            </a>
+                            
+                            <a href="https://apizisco.com/login" target=»_blank
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-address-card' style='font-size:20px;color:green'></i>
+                                &nbsp;&nbsp;Nómina
+                            </a>
+                            
+                            <a href="https://catalogo-vpfe.dian.gov.co/User/Login" target=»_blank
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-rss' style='font-size:20px;color:green'></i>
+                                &nbsp;&nbsp;DIAN
                             </a>
                          
                            
@@ -111,16 +143,21 @@
                     </ul>
 
                 </details>
-                <button type="button"
-                    class="side-bar-collapse tw-hidden lg:tw-inline-flex tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-text-white tw-transition-all tw-duration-200 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-p-1.5 tw-rounded-lg tw-ring-1 hover:tw-text-white tw-ring-white/10">
-                    <span class="tw-sr-only">
-                        Contraer
-                    </span>
-                    <i class='fas fa-angle-double-left' style='font-size:36px;color:white'></i>
-                </button>
+               </div>
+               
+    <!--  INICIO FECHA Y HORA   -->
+        <div class="tw-hidden md:tw-flex tw-flex-col tw-items-center tw-justify-center tw-flex-1 tw-text-white">
+                <div id="digital-clock" class="tw-text-xl tw-font-bold tw-font-mono tw-tracking-widest">
+                    00:00:00
+                </div>
+                <div id="digital-date" class="tw-text-xs tw-uppercase tw-opacity-80 tw-font-medium">
+                    Cargando fecha...
+                </div>
             </div>
-
-
+            <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-end tw-gap-3">
+        </div>
+<!--  FIN FECHA Y HORA   -->
+            
 
         <!--@if (Module::has('Essentials'))
                     @includeIf('essentials::layouts.partials.header_part')
@@ -158,23 +195,35 @@
                 </button> -->
 
                 @if (in_array('pos_sale', $enabled_modules))
-                    @can('sell.create')
-                        <a href="{{ action([\App\Http\Controllers\SellPosController::class, 'create']) }}"
-                            class="sm:tw-inline-flex tw-transition-all tw-duration-200 tw-gap-2 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-ring-1 tw-ring-white/10 hover:tw-text-white tw-text-white">
-                            <i class='fas fa-cash-register' style='font-size:20px;color:white'></i>
-                            @lang('sale.pos_sale')
+                    @can('product.view')
+                        <a href="#"
+                           onclick="window.open('{{ route('product.lookup') }}', '_blank', 'noopener,noreferrer'); return false;"
+                           class="sm:tw-inline-flex tw-transition-all tw-duration-200 tw-gap-2
+                                  tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800
+                                  hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700
+                                  tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center
+                                  tw-text-sm tw-font-medium tw-ring-1 tw-ring-white/10
+                                  hover:tw-text-white tw-text-white">
+                            <i class='glyphicon glyphicon-qrcode' style='font-size:30px;color:LightSeaGreen'></i>
+                            Visor
                         </a>
                     @endcan
                 @endif
                 <!--@if (Module::has('Repair'))
                     @includeIf('repair::layouts.partials.header')
                 @endif -->
-                
+                 @can('sell.create')
+                        <a href="{{ action([\App\Http\Controllers\SellPosController::class, 'create']) }}"
+                            class="sm:tw-inline-flex tw-transition-all tw-duration-200 tw-gap-2 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-ring-1 tw-ring-white/10 hover:tw-text-white tw-text-white">
+                            <i class='fas fa-cash-register' style='font-size:30px;color:LightSeaGreen'></i>
+                            @lang('sale.pos_sale')
+                        </a>
+                    @endcan
                 
                 @can('register-report.view')
                         <a href="{{ action([\App\Http\Controllers\ReportController::class, 'getRegisterReport']) }}"
                             class="sm:tw-inline-flex tw-transition-all tw-duration-200 tw-gap-2 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-ring-1 tw-ring-white/10 hover:tw-text-white tw-text-white">
-                            <i class='fas fa-tv' style='font-size:20px;color:white'></i>
+                            <i class='fas fa-tv' style='font-size:20px;color:LightSeaGreen'></i>
                             @lang('CAJAS')
                         </a>
                     @endcan
@@ -187,7 +236,7 @@
                         <span class="tw-sr-only">
                             Utilidades de Hoy
                         </span>
-                        <i class='fas fa-dollar-sign' style='font-size:20px;color:white'></i>
+                        <i class='fas fa-dollar-sign' style='font-size:20px;color:LightSeaGreen'></i>
                     </button>
                 @endcan
 
@@ -196,7 +245,7 @@
                     {{ @format_date('now') }}
                 </button>   -->
 
-                @include('layouts.partials.header-notifications')
+                {{--@include('layouts.partials.header-notifications')   --}}
 
 
 
@@ -205,9 +254,37 @@
                         class="tw-dw-m-1 tw-inline-flex tw-transition-all tw-ring-1 tw-ring-white/10 tw-cursor-pointer tw-duration-200 tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-800 hover:tw-bg-@if(!empty(session('business.theme_color'))){{session('business.theme_color')}}@else{{'primary'}}@endif-700 tw-py-1.5 tw-px-3 tw-rounded-lg tw-items-center tw-justify-center tw-text-sm tw-font-medium tw-text-white hover:tw-text-white tw-gap-1">
                         <span class="tw-hidden md:tw-block">{{ Auth::User()->first_name }} {{ Auth::User()->last_name }}</span>
 
-                        <svg  xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="tw-size-5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" /></svg>
+                       <!-- <svg  xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="tw-size-5"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" /></svg>   --
 
+                         <!--BOTON SVG NAVIDAD --> 
+
+                    
+                    <!--<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                    
+                            <!-- Fondo verde -->
+                            
                         
+                            <!-- Círculo avatar -->
+                            <circle cx="30" cy="32" r="16" fill="#FFFFFF"/>
+                        
+                            <!-- Cabeza -->
+                            <circle cx="30" cy="26" r="6" fill="#1E1E1E"/>
+                        
+                            <!-- Cuerpo -->
+                            <path d="M22 40 C22 34, 38 34, 38 40 Z" fill="#1E1E1E"/>
+                        
+                            <!-- 🎅 Gorro -->
+                            <!-- Parte roja -->
+                            <path d="M18 20 C18 8, 42 8, 40 20 Z" fill="#C62828"/>
+                        
+                            <!-- Borde blanco -->
+                            <rect x="18" y="20" width="24" height="5" rx="3" fill="#FFFFFF"/>
+                        
+                            <!-- Pompon -->
+                            <circle cx="42" cy="10" r="4" fill="#FFFFFF"/>
+                        </svg> 
+                 
+
                         
                     </summary>
 
@@ -243,11 +320,11 @@
                         </li>   
                             
                             <li>
-                           <a href="https://help.ziscoplus.com/" target=_blank
+                           <a href="https://sistema.ziscoplus.com/product-catalogue/catalogue-qr" target=_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-question-circle' style='font-size:20px;color:orange'></i>
-                                Soporte
+                                <i class='fas fa-store' style='font-size:20px;color:dodgerblue'></i>
+                                Tienda Online
                             </a>
                         </li>
 
@@ -255,8 +332,17 @@
                            <a href="https://wa.link/qcd1e2" target=_blank
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-comment-dots' style='font-size:20px;color:navy'></i>
+                                <i class='fas fa-comment-dots' style='font-size:20px;color:LightSeaGreen'></i>
                                 Chat
+                            </a>
+                        </li>
+                        
+                        <li>
+                           <a href="https://sistema.ziscoplus.com/docs/manual.pdf" target=_blank
+                                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
+                                role="menuitem" tabindex="-1">
+                                <i class='fas fa-book' style='font-size:20px;color:orange'></i>
+                                Manual
                             </a>
                         </li>
                             
@@ -264,7 +350,7 @@
                             <a href="{{ action([\App\Http\Controllers\Auth\LoginController::class, 'logout']) }}"
                                 class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-2 tw-text-sm tw-font-medium tw-text-gray-600 tw-transition-all tw-duration-200 tw-rounded-lg hover:tw-text-gray-900 hover:tw-bg-gray-100"
                                 role="menuitem" tabindex="-1">
-                                <i class='fas fa-power-off' style='font-size:20px;color:red'></i>
+                                <i class='fas fa-sign-out-alt' style='font-size:20px;color:red'></i>
                                 @lang('lang_v1.sign_out')
                             </a>
                         </li>
@@ -276,3 +362,27 @@
 </div>
 
 
+<!--  INICIO SCRIPT FECHA Y HORA   -->
+<script>
+    function updateClock() {
+        const now = new Date();
+        
+        // Formatear Hora
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timeString = `${hours}:${minutes}:${seconds}`;
+        
+        // Formatear Fecha (Ejemplo: Martes, 17 Feb 2026)
+        const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+        const dateString = now.toLocaleDateString('es-ES', options);
+
+        document.getElementById('digital-clock').textContent = timeString;
+        document.getElementById('digital-date').textContent = dateString;
+    }
+
+    // Ejecutar cada segundo
+    setInterval(updateClock, 1000);
+    updateClock(); // Llamada inicial
+</script>
+<!--  FIN SCRIPT FECHA Y HORA   -->

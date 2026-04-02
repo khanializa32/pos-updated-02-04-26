@@ -104,6 +104,21 @@
         </div>
     @endif 
 
+    @if (!empty($racks) && $rack_enabled)
+        <div class="col-md-2 !tw-px-2" id="product_rack_div">
+            <div class="form-group">
+                <select class="form-control" id="product_rack_filter" style="height: 48px; font-size: 16px; font-weight: 600;">
+                    <option value="" selected>Estantes (Todos)</option>
+                    @foreach ($racks as $rack)
+                        @if(!empty($rack) && $rack !== null && trim($rack) !== '')
+                            <option value="{{ $rack }}">{{ $rack }}</option>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    @endif
+
     {{-- @if (!empty($brands))
         <div class="col-sm-6 !tw-px-2" id="product_brand_div">
             <div class="tw-dw-drawer tw-dw-drawer-end">

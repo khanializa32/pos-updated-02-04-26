@@ -94,6 +94,34 @@
             {!! Form::text('final_total', @num_format($expense->final_total), ['class' => 'form-control input_number', 'placeholder' => __('sale.total_amount'), 'required']); !!}
           </div>
         </div>
+        
+        
+        
+        		
+	 <!-- DELIO NOTE: IT'S JUST THE VIEW; IT INDICATES THAT THE CHART OF ACCOUNTS MUST BE CALLED FROM THE DB -->
+        
+        <div class="col-md-4">
+                {!! Form::label('account_type_id', __( 'account.account' ) .":") !!}
+                <select name="account_type_id" class="form-control select2">\
+                    <option>@lang('messages.please_select')</option>
+                    
+                </select>
+        </div>
+        <!-- FIN DELIO NOTE:  -->
+        
+          <div class="col-md-4">
+          <div class="form-group">
+            {!! Form::label('payment_account', __('account.retention') . ':' ) !!}
+              {!! Form::text('base', null, ['class' => 'form-control', 'placeholder' => __( 'account.retention' )]); !!}
+          </div>
+        </div>
+        
+        
+        
+        
+        
+        
+        
         <div class="clearfix"></div>
         <div class="col-sm-4">
           <div class="form-group">
@@ -106,7 +134,7 @@
   </div> <!--box end-->
   @include('expense.recur_expense_form_part')
   <div class="col-sm-12 text-center">
-    <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black tw-dw-btn-lg">@lang('messages.update')</button>
+    <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang('messages.update')</button>
   </div>
 
 {!! Form::close() !!}

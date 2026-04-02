@@ -73,31 +73,47 @@
       <!-- INICIO CAMPOS AGREGADO SOLO EN LA VISTA NO TIENE RELACION EN LA BASE DE DATOS -->
       
         <div class="form-group col-md-3">
-				<label for="fec_ingreso">FECHA INGRESO:</label>
+				<label for="fec_ingreso">Inicio del Contrato:</label>
 				<input class="form-control" placeholder="Fecha de nacimiento"  id="fec_ingreso" name="fec_ingreso" type="date">
 		</div>
       <!-- FIN CAMPOS  SOLO EN LA VISTA NO TIENE RELACION EN LA BASE DE DATOS -->
       
       
       <div class="col-md-3">
-		<div class="form-group">
-			<label for="payroll_type_contract">Tipo Contrato:</label>
-			<div class="form-group">
-				<select class="form-control select2" style="width: 100%;"  id="payroll_type_contract" name="payroll_type_contract"><option selected="selected" value="">Seleccione</option><option value="7">A Termino Fijo</option><option value="6">Termino Indefinido</option><option value="5">Obra o Labor</option><option value="4">Aprendizaje</option><option value="2">Practicas o Pasantias</option></select>
-			</div>
-		</div>
-	</div>
+        {!! Form::label('', 'Tipo Contrato:*') !!}
+        {!! Form::select("payrolls[$employee][contract_type]", [
+            '1' => 'Término fijo',
+            '2' => 'Término indefinido',
+            '3' => 'Obra o labor'
+        ], null, ['class' => 'form-control select2', 'required']) !!}
+    </div>
+</div>
+    <div class="col-md-3">
+        {!! Form::label('', 'Salario Integral') !!}
+        {!! Form::select("payrolls[$employee][integral_salary]", [
+            'false' => 'No',
+            'true' => 'Sí'
+        ], null, ['class' => 'form-control select2']) !!}
+    </div>
 	
 	<!-- INICIO CAMPOS AGREGADO SOLO EN LA VISTA NO TIENE RELACION EN LA BASE DE DATOS -->
 	
 	<div class="col-md-3">
-		<div class="form-group">
-			<label for="type_worker_id">Tipo Empleado:</label>
-			<div class="form-group">
-				<select class="form-control select2" style="width: 100%;"  id="type_worker_id" name="type_worker_id"><option value="">Seleccione</option><option value="1" selected="selected">Dependiente</option><option value="2">Servicio domestico</option><option value="3">Madre comunitaria</option><option value="4">Aprendices del Sena en etapa lectiva</option><option value="5">Funcionarios públicos sin tope máximo de ibc</option><option value="6">Aprendices del SENA en etapa productiva</option><option value="7">Estudiantes de postgrado en salud</option><option value="8">Profesor de establecimiento particular</option><option value="9">Estudiantes aportes solo riesgos laborales</option><option value="10">Dependiente entidades o universidades públicas con régimen especial en salud</option><option value="11">Cooperados o pre cooperativas de trabajo asociado</option><option value="12">Trabajador dependiente de entidad beneficiaria del sistema general de participaciones - aportes patronales</option><option value="13">Trabajador de tiempo parcial</option><option value="14">Pre pensionado de entidad en liquidación.</option><option value="15">Pre pensionado con aporte voluntario a salud</option><option value="16">Estudiantes de prácticas laborales en el sector público</option></select>
-			</div>
-		</div>
-	</div>
+        {!! Form::label('', 'Tipo Trabajador:*') !!}
+        {!! Form::select("payrolls[$employee][worker_type]", [
+            '01' => 'Dependiente',
+            '02' => 'Servicio doméstico',
+            '04' => 'Aprendiz'
+        ], null, ['class' => 'form-control select2', 'required']) !!}
+    </div>
+    
+    <div class="col-md-3">
+        {!! Form::label('', 'Subtipo Trabajador:*') !!}
+        {!! Form::select("payrolls[$employee][worker_subtype]", [
+            '00' => 'No pensionado',
+            '01' => 'Pensionado'
+        ], null, ['class' => 'form-control select2', 'required']) !!}
+    </div>
 	
 	<div class="col-md-3">
 		<div class="form-group">
@@ -264,7 +280,7 @@
       <div class="col-md-3">
         <div class="form-group">
           {!! Form::label('email', __( 'business.email' ) . ':*') !!}
-            {!! Form::text('email', null, ['class' => 'form-control', 'required', 'placeholder' => __( 'business.email' ) ]); !!}
+            {!! Form::text('email', null, ['class' => 'form-control',  'placeholder' => __( 'business.email' ) ]); !!}
         </div>
       </div>
 
@@ -427,7 +443,7 @@
     @endif
   <div class="row">
     <div class="col-md-12 text-center">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black" id="submit_user_button">@lang( 'messages.save' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white" id="submit_user_button">@lang( 'Crear Usuario' )</button>
     </div>
   </div>
 {!! Form::close() !!}

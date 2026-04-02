@@ -8,6 +8,7 @@ use App\TaxRate;
 use App\Utils\TaxUtil;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Modules\Accounting\Entities\AccountingAccount;
 
 class TaxRateController extends Controller
 {
@@ -74,15 +75,20 @@ class TaxRateController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
-        if (! auth()->user()->can('tax_rate.create')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $taxes = Tax::pluck('name', 'code');
-
-        return view('tax_rate.create', compact('taxes'));
+{
+    if (! auth()->user()->can('tax_rate.create')) {
+        abort(403, 'Unauthorized action.');
     }
+
+    $taxes = Tax::pluck('name', 'code');
+
+$accounts = AccountingAccount::where('gl_code', 'like', '24%')
+        ->selectRaw("id, CONCAT(gl_code,' - ',name) as account_name")
+        ->orderBy('gl_code')
+        ->pluck('account_name', 'id');
+
+return view('tax_rate.create', compact('taxes','accounts'));
+}
 
     /**
      * Store a newly created resource in storage.
@@ -97,7 +103,12 @@ class TaxRateController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'amount']);
+            $input = $request->only([
+'name',
+'amount',
+'sales_account_id',
+'purchase_account_id'
+]);
             $input['business_id'] = $request->session()->get('user.business_id');
             $input['created_by'] = $request->session()->get('user.id');
             $input['amount'] = $this->taxUtil->num_uf($input['amount']);
@@ -118,6 +129,7 @@ class TaxRateController extends Controller
         }
 
         return $output;
+        
     }
 
     /**
@@ -138,22 +150,28 @@ class TaxRateController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    {
-        if (! auth()->user()->can('tax_rate.update')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        if (request()->ajax()) {
-            $business_id = request()->session()->get('user.business_id');
-            $tax_rate = TaxRate::where('business_id', $business_id)->find($id);
-
-            $taxes = Tax::pluck('name', 'code');
-
-            return view('tax_rate.edit')
-                ->with(compact('tax_rate', 'taxes'));
-        }
+{
+    if (! auth()->user()->can('tax_rate.update')) {
+        abort(403, 'Unauthorized action.');
     }
 
+    if (request()->ajax()) {
+
+        $business_id = request()->session()->get('user.business_id');
+
+        $tax_rate = TaxRate::where('business_id', $business_id)->find($id);
+
+        $taxes = Tax::pluck('name', 'code');
+
+        // traer plan de cuentas contable
+        $accounts = AccountingAccount::where('gl_code','like','24%')
+            ->orderBy('gl_code')
+            ->get();
+
+        return view('tax_rate.edit')
+            ->with(compact('tax_rate','taxes','accounts'));
+    }
+}
     /**
      * Update the specified resource in storage.
      *
@@ -169,7 +187,12 @@ class TaxRateController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'amount']);
+                $input = $request->only([
+    'name',
+    'amount',
+    'sales_account_id',
+    'purchase_account_id'
+]);
                 $business_id = $request->session()->get('user.business_id');
 
                 $tax_rate = TaxRate::where('business_id', $business_id)->findOrFail($id);
@@ -177,6 +200,8 @@ class TaxRateController extends Controller
                 $tax_rate->amount = $this->taxUtil->num_uf($input['amount']);
                 $tax_rate->code = $request->code;
                 $tax_rate->for_tax_group = ! empty($request->for_tax_group) ? 1 : 0;
+                $tax_rate->sales_account_id = $request->input('sales_account_id');
+                $tax_rate->purchase_account_id = $request->input('purchase_account_id');
                 $tax_rate->save();
 
                 //update group tax amount

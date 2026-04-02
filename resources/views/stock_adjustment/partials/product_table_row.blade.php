@@ -44,6 +44,14 @@
         @endif
     @endif
     </td>
+    
+    <td>
+        <select name="products[{{$row_index}}][operation]" class="form-control">
+            <option value="add">+</option>
+            <option value="subtract">-</option>
+        </select>
+    </td>
+
     <td>
         {{-- If edit then transaction sell lines will be present --}}
         @if(!empty($product->transaction_sell_lines_id))

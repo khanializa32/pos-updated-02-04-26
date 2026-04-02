@@ -185,7 +185,7 @@
 			</div>
 		</div>
 	@endif
-	@if(!empty($transaction->selling_price_group_id))
+	<!--@if(!empty($transaction->selling_price_group_id))-->
 		<div class="col-md-4 col-sm-6">
 			<div class="form-group">
 				<div class="input-group">
@@ -193,14 +193,14 @@
 						<i class="fas fa-money-bill-alt"></i>
 					</span>
 					{!! Form::hidden('price_group', $transaction->selling_price_group_id, ['id' => 'price_group']) !!}
-					{!! Form::text('price_group_text', $transaction->price_group->name, ['class' => 'form-control', 'readonly']); !!}
+					<!--{!! Form::text('price_group_text', $transaction->price_group->name, ['class' => 'form-control', 'readonly']); !!}-->
 					<span class="input-group-addon">
 					@show_tooltip(__('lang_v1.price_group_help_text'))
 				</span> 
 				</div>
 			</div>
 		</div>
-	@endif
+	<!--@endif-->
 
 	@if(in_array('types_of_service', $enabled_modules) && !empty($transaction->types_of_service))
 		<div class="col-md-4 col-sm-6">
@@ -311,7 +311,8 @@
 					'row_count' => $loop->index, 
 					'tax_dropdown' => $taxes, 
 					'sub_units' => !empty($sell_line->unit_details) ? $sell_line->unit_details : [],
-					'action' => 'edit'
+					'action' => 'edit',
+					'transactionLocation' => isset($sell_line->location) && !empty($sell_line->location)?$sell_line->location : null
 				])
 			@endforeach
 			</tbody>

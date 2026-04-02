@@ -51,7 +51,7 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Transferir' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'Transferir' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

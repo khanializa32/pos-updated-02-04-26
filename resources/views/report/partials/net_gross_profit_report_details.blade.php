@@ -1,9 +1,22 @@
 <h3 class="text-muted mb-0">
+    @lang('lang_v1.cogs2') 
+    <span class="display_currency" data-currency_symbol="true"> 
+        {{ ($data['total_sell'] - $data['gross_profit']) }}
+    </span>
+</h3>
+<small class="help-block">
+       Costo de Ventas
+    </small>
+
+
+<h3 class="text-muted mb-0">
     @lang('lang_v1.cogs') <span class="display_currency" data-currency_symbol="true"> {{ ($data['total_sell'] ) }}</span>
 </h3>
     <small class="help-block">
        Valor de Ventas
     </small>
+    
+    
     
 <h3 class="text-muted mb-0">
     {{ __('lang_v1.gross_profit') }}: 

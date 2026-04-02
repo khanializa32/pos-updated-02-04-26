@@ -11,10 +11,6 @@
       </div>
       </div>
         
-        <!-- INICIO DE CODIGO SOLO PARA LA VISTA DE TIPO DE IDENTIFICACIO, NUMERO DE IDENTIFCACION, DIGITO DE VERIFIFCACION TIPO DE PERSONA, DEPARTAMENTO, CIUDAD, TIPO DE ORGANIZACION, REGIMEN, AGENTE RETENEDOR, CONTABLE, ES FACTURADOR ELECTRONICO-->
-        
-        
-        
         <div class="clearfix"></div>
         <div class="col-sm-3">
             <div class="form-group">

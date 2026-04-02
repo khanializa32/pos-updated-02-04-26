@@ -10,22 +10,39 @@
         @endif
     </small>
 </h3><br>
-<strong><i class="fa fa-map-marker margin-r-5"></i> @lang('business.address')</strong>
+
+
+
+<!--/////hhhh-->
+
+
+
+
+
+<!--  <strong><i class="fa fa-map-marker margin-r-5"></i> @lang('business.address')</strong>
 <p class="text-muted">
     {!! $contact->contact_address !!}
-</p>
-@if($contact->supplier_business_name)
+</p> -->
+
+
+
+
+<!-- @if($contact->supplier_business_name)
     <strong><i class="fa fa-briefcase margin-r-5"></i> 
     @lang('business.business_name')</strong>
     <p class="text-muted">
         {{ $contact->supplier_business_name }}
     </p>
-@endif
+@endif -->
 
-<strong><i class="fa fa-mobile margin-r-5"></i> @lang('contact.mobile')</strong>
+<!-- <strong><i class="fa fa-mobile margin-r-5"></i> @lang('contact.mobile')</strong>
 <p class="text-muted">
     {{ $contact->mobile }}
-</p>
+</p> -->
+
+
+
+
 @if($contact->landline)
     <strong><i class="fa fa-phone margin-r-5"></i> @lang('contact.landline')</strong>
     <p class="text-muted">
@@ -44,3 +61,15 @@
         {{ @format_date($contact->dob) }}
     </p>
 @endif
+
+<script>
+	$(document).ready(function() {
+
+		// Toggle visibility on button click
+		$('.summary_hidden').hide();
+
+		$('#show_info_btn').click(function() {
+			$('.summary_hidden').toggle('slow');
+		});
+	});
+	</script>

@@ -37,10 +37,34 @@
           </div>
         </div>
         
+        <!-- DELIO NOTE: IT'S JUST THE VIEW; IT INDICATES THAT THE CHART OF ACCOUNTS MUST BE CALLED FROM THE DB -->
+        
+        <div class="col-md-6">
+    <div class="form-group">
+        {!! Form::label('sales_account_id', 'Cuenta contable IVA ventas:') !!}
+        {!! Form::select('sales_account_id', $accounts, null, [
+            'class' => 'form-control select2',
+            'placeholder' => 'Seleccione cuenta'
+        ]) !!}
+    </div>
+</div>
+        
+        <div class="col-md-6">
+    <div class="form-group">
+        {!! Form::label('purchase_account_id', 'Cuenta contable IVA compras:') !!}
+        {!! Form::select('purchase_account_id', $accounts, null, [
+            'class' => 'form-control select2',
+            'placeholder' => 'Seleccione cuenta'
+        ]) !!}
+    </div>
+</div>
+        
+        
+        <!-- FIN DELIO NOTE:  -->
+        
       </div>
       
 
-      
 
       <div class="form-group">
         <div class="checkbox">
@@ -51,7 +75,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Craer Impuesto' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'Crear Impuesto' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

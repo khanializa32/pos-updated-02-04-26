@@ -28,7 +28,7 @@
                     {!! $icon !!}
                 @else
                     
-                    <i class="fas fa-caret-down" style="font-size:48px;color:red" aria-hidden="true"></i>
+                    <i class="fas fa-caret-down" style="font-size:50px;color:teal" aria-hidden="true"></i>
                 @endif {{ $title ?? '' }}
             </a>
         </h3>

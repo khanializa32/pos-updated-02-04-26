@@ -6,6 +6,7 @@
             <th>@lang('purchase.ref_no')</th>
             <th>@lang('purchase.location')</th>
             <th>@lang('purchase.supplier')</th>
+            <th>dian</th>
             <th>@lang('purchase.purchase_status')</th>
             <th>@lang('purchase.payment_status')</th>
             <th>@lang('purchase.grand_total')</th>
@@ -15,7 +16,7 @@
     </thead>
     <tfoot>
         <tr class="bg-gray font-17 text-center footer-total">
-            <td colspan="5"><strong>@lang('sale.total'):</strong></td>
+            <td colspan="6"><strong>@lang('sale.total'):</strong></td>
             <td class="footer_status_count"></td>
             <td class="footer_payment_status_count"></td>
             <td class="footer_purchase_total"></td>

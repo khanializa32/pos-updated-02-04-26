@@ -138,7 +138,7 @@
 	</div> <!--box end-->
 	<div class="row">
 		<div class="col-md-12 text-center">
-			<button type="button" id="submit_purchase_return_form" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.submit')</button>
+			<button type="button" id="submit_purchase_return_form" class="tw-dw-btn bg-info tw-text-white">@lang('Crear Devolución')</button>
 		</div>
 	</div>
 	{!! Form::close() !!}

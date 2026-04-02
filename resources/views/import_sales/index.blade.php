@@ -7,36 +7,19 @@
 <section class="content-header">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('lang_v1.import_sales')
     
-     &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
+ 
+ 
+ 
+ 
+ 
+ 
 					
 
 	    </h4>
        
        
-    <div data-width="500" tabindex="-1" class="modal fade" id="stack" style="display: none;">
-     <div class="modal-dialog">
-        <div class="modal-content" style="padding-bottom: 40px">
-               <div class="modal-header">
-                  <button type="button" id='close-modal' class="close" data-dismiss="modal" rel=0;aria-hidden="true"></button>
-                <div id="title-tutorial">
-                Modulo Importar Ventas           
-                </div>
-        </div>
-            <div class="modal-body">
-                <div id="video-tutorial">
-                    
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/HBV8Mn4lCyk?si=kYkTV6AbRGAX_cZd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                
-                </div>
-                <p id="description-tutorial">Importe masivamente sus facturas o ventas</p>
 
-                
-            </div>
-        </div>
-      </div>
-    
-    
-    </h1>
-</section>
+  
 
 <!-- Main content -->
 <section class="content">
@@ -75,7 +58,7 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <br>
-                            <a href="{{ asset('files/import_sales_template.xlsx') }}" class="tw-dw-btn tw-dw-btn-success tw-text-white" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
+                            <a href="{{ asset('files/import_sales_template.xlsx') }}" class="tw-dw-btn bg-info tw-text-white" download><i class="fa fa-download"></i> @lang('lang_v1.download_template_file')</a>
                         </div>
                     </div>
 

@@ -196,6 +196,29 @@ class StockAdjustmentController extends Controller
             $input_data['created_by'] = $user_id;
             $input_data['transaction_date'] = $this->productUtil->uf_date($input_data['transaction_date'], true);
             $input_data['total_amount_recovered'] = $this->productUtil->num_uf($input_data['total_amount_recovered']);
+            
+            
+            
+            $operation = $request->input('adjustment_operation');
+            
+            foreach ($request->products as $product) {
+
+    $qty = (float)$product['quantity'];
+
+    // NUEVA LOGICA
+    if (isset($product['operation']) && $product['operation'] == 'add') {
+        $adjusted_qty = abs($qty);   // SUMA
+    } else {
+        $adjusted_qty = -abs($qty);  // RESTA
+    }
+
+    // Guardar cantidad ajustada
+    $data[] = [
+        'variation_id' => $product['variation_id'],
+        'quantity' => $adjusted_qty,
+        'unit_price' => $product['unit_price']
+    ];
+}
 
             //Update reference count
             $ref_count = $this->productUtil->setAndGetReferenceCount('stock_adjustment');

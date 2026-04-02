@@ -32,6 +32,7 @@ use App\Brands;
 use App\Business;
 use App\BusinessLocation;
 use App\Category;
+use App\CashRegister;
 use App\Contact;
 use App\CustomerGroup;
 use App\Department;
@@ -39,6 +40,7 @@ use App\InvoiceLayout;
 use App\InvoiceScheme;
 use App\Media;
 use App\Product;
+use App\ProductRack;
 use App\SellingPriceGroup;
 use App\TaxRate;
 use App\Transaction;
@@ -54,6 +56,7 @@ use App\Utils\NotificationUtil;
 use App\Utils\ProductUtil;
 use App\Utils\TransactionUtil;
 use App\Variation;
+use App\VariationGroupPrice;
 use App\Warranty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,6 +74,7 @@ use App\TypeLiability;
 use App\TypeRegime;
 use App\Services\DianService as UtilsDianService;
 use Illuminate\Support\Facades\Http;
+use App\Events\CommissionAgentSaleMade;
 
 class SellPosController extends Controller
 {
@@ -114,8 +118,35 @@ class SellPosController extends Controller
         $this->moduleUtil = $moduleUtil;
         $this->notificationUtil = $notificationUtil;
 
-        $this->dummyPaymentLine = ['method' => 'cash', 'amount' => 0, 'note' => '', 'card_transaction_number' => '', 'card_number' => '', 'card_type' => '', 'card_holder_name' => '', 'card_month' => '', 'card_year' => '', 'card_security' => '', 'cheque_number' => '', 'bank_account_number' => '',
-            'is_return' => 0, 'transaction_no' => ''];
+        $this->dummyPaymentLine = [
+            'method' => 'cash',
+            'amount' => 0,
+            'note' => '',
+            'card_transaction_number' => '',
+            'card_number' => '',
+            'card_type' => '',
+            'card_holder_name' => '',
+            'card_month' => '',
+            'card_year' => '',
+            'card_security' => '',
+            'cheque_number' => '',
+            'bank_account_number' => '',
+            'is_return' => 0,
+            'transaction_no' => ''
+        ];
+    }
+
+    /**
+     * Simple product lookup page for scanning/searching a product
+     * Shows product image, name, selling price and stock when clicked
+     */
+    public function productLookupPage(Request $request)
+    {
+        $business_id = $request->session()->get('user.business_id');
+        $location = BusinessLocation::where('business_id', $business_id)->first();
+        $location_id = !empty($location) ? $location->id : null;
+
+        return view('product_lookup')->with(compact('location_id'));
     }
 
     /**
@@ -187,6 +218,8 @@ class SellPosController extends Controller
         }
 
         $register_details = $this->cashRegisterUtil->getCurrentCashRegister(auth()->user()->id);
+        
+        // return $register_details;
 
         $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
 
@@ -217,10 +250,21 @@ class SellPosController extends Controller
 
         $commsn_agnt_setting = $business_details->sales_cmsn_agnt;
         $commission_agent = [];
+        $default_commission_agent_id = null;
         if ($commsn_agnt_setting == 'user') {
             $commission_agent = User::forDropdown($business_id, false);
         } elseif ($commsn_agnt_setting == 'cmsn_agnt') {
             $commission_agent = User::saleCommissionAgentsDropdown($business_id, false);
+        }
+
+        // Get default commission agent (Common for both 'user' and 'cmsn_agnt' if they are marked as agents)
+        $default_agent = User::where('business_id', $business_id)
+            ->where('is_cmmsn_agnt', 1)
+            ->where('is_default', 1)
+            ->first();
+
+        if ($default_agent) {
+            $default_commission_agent_id = $default_agent->id;
         }
 
         //If brands, category are enabled then send else false.
@@ -269,15 +313,46 @@ class SellPosController extends Controller
         //Added check because $users is of no use if enable_contact_assign if false
         $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
 
-        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
+        $type_document_identifications = TypeDocumentIdentification::pluck('name', 'id');
         // $countries = Country::pluck('name','id');
-        $departments = Department::pluck('name','id');
+        $departments = Department::pluck('name', 'id');
         // $municipalities = municipality::pluck('name','id');
-        $type_regimes = TypeRegime::pluck('name','id');
-        $type_liabilities = TypeLiability::pluck('name','id');
+        $type_regimes = TypeRegime::pluck('name', 'id');
+        $type_liabilities = TypeLiability::pluck('name', 'id');
 
-        $is_mobile = null;
+        // Get racks for Estante filter
+        $racks = [];
+        $rack_enabled = false;
+        if (
+            request()->session()->get('business.enable_racks') == 1 &&
+            request()->session()->get('business.enable_row') == 1 &&
+            request()->session()->get('business.enable_position') == 1
+        ) {
+            $rack_enabled = true;
+            $racks = \App\ProductRack::where('business_id', $business_id)
+                ->select('rack')
+                ->whereNotNull('rack')
+                ->where('rack', '!=', '')
+                ->distinct()
+                ->orderBy('rack')
+                ->pluck('rack')
+                ->filter(function ($rack) {
+                    return !empty($rack) && trim($rack) !== '';
+                })
+                ->values()
+                ->toArray();
+        }
         
+        $is_mobile = null;
+
+        $cashRegister = CashRegister::where('user_id', auth()->user()->id)
+            ->where('status', 'open')
+            ->where(function ($q) {
+                $q->whereNull('closing_type')
+                    ->orWhere('closing_type', '!=', 'general');
+            })->latest('id')->first();
+        $pos_lock_location = !empty($cashRegister->location_id);
+
         return view('sale_pos.create')
             ->with(compact(
                 'is_mobile',
@@ -297,8 +372,11 @@ class SellPosController extends Controller
                 'default_location',
                 'shortcuts',
                 'commission_agent',
+                'default_commission_agent_id',
                 'categories',
                 'brands',
+                'racks',
+                'rack_enabled',
                 'pos_settings',
                 'change_return',
                 'types',
@@ -316,15 +394,30 @@ class SellPosController extends Controller
                 'default_invoice_schemes',
                 'invoice_layouts',
                 'users',
+                'pos_lock_location',
+                'cashRegister'
             ));
+    }
+
+    /**
+     * Display the POS screen.
+     * @return \Illuminate\View\View
+     */
+
+    public function posDisplay()
+    {
+        $business_id = request()->session()->get('user.business_id');
+        $business_details = $this->businessUtil->getDetails($business_id);
+        $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+        return view('sale_pos.display', compact('pos_settings'));
     }
 
     private function convert_numeric($number)
     {
-        return  str_replace(',', '', $number);
+        return str_replace(',', '', $number);
     }
 
-    private function tax($number,$percent)
+    private function tax($number, $percent)
     {
         $base = 1000;
         // $porcentaje = 19;
@@ -332,12 +425,13 @@ class SellPosController extends Controller
 
         $resultado = $number * $factor;
 
-        return  $resultado - $number;
+        return $resultado - $number;
     }
 
-    private function round_number($valor) {
-        
-        return round($valor,2);
+    private function round_number($valor)
+    {
+
+        return round($valor, 2);
     }
 
     /**
@@ -346,7 +440,495 @@ class SellPosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    // public function store(Request $request)
+    // {
+    //     if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access') && !auth()->user()->can('so.create')) {
+    //         abort(403, 'Unauthorized action.');
+    //     }
+
+    //     $is_direct_sale = false;
+    //     if (!empty($request->input('is_direct_sale'))) {
+    //         $is_direct_sale = true;
+    //     }
+
+    //     //Check if there is a open register, if no then redirect to Create Register screen.
+    //     if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
+    //         return redirect()->action([\App\Http\Controllers\CashRegisterController::class, 'create']);
+    //     }
+
+    //     try {
+    //         $input = $request->except('_token');
+
+    //         $input['is_quotation'] = 0;
+    //         //status is send as quotation from Add sales screen.
+    //         if ($input['status'] == 'quotation') {
+    //             $input['status'] = 'draft';
+    //             $input['is_quotation'] = 1;
+    //             $input['sub_status'] = 'quotation';
+    //         } elseif ($input['status'] == 'proforma') {
+    //             $input['status'] = 'draft';
+    //             $input['sub_status'] = 'proforma';
+    //         }
+
+    //         //Add change return
+    //         $change_return = $this->dummyPaymentLine;
+    //         if (!empty($input['payment']['change_return'])) {
+    //             $change_return = $input['payment']['change_return'];
+    //             unset($input['payment']['change_return']);
+    //         }
+
+    //         //Check Customer credit limit
+    //         $is_credit_limit_exeeded = $this->transactionUtil->isCustomerCreditLimitExeeded($input);
+
+    //         if ($is_credit_limit_exeeded !== false) {
+    //             $credit_limit_amount = $this->transactionUtil->num_f($is_credit_limit_exeeded, true);
+    //             $output = [
+    //                 'success' => 0,
+    //                 'msg' => __('lang_v1.cutomer_credit_limit_exeeded', ['credit_limit' => $credit_limit_amount]),
+    //             ];
+    //             if (!$is_direct_sale) {
+    //                 return $output;
+    //             } else {
+    //                 return redirect()
+    //                     ->action([\App\Http\Controllers\SellController::class, 'index'])
+    //                     ->with('status', $output);
+    //             }
+    //         }
+
+    //         if (!empty($input['products'])) {
+    //             $business_id = $request->session()->get('user.business_id');
+
+    //             //Check if subscribed or not, then check for users quota
+    //             if (!$this->moduleUtil->isSubscribed($business_id)) {
+    //                 return $this->moduleUtil->expiredResponse();
+    //             } elseif (!$this->moduleUtil->isQuotaAvailable('invoices', $business_id)) {
+    //                 return $this->moduleUtil->quotaExpiredResponse('invoices', $business_id, action([\App\Http\Controllers\SellPosController::class, 'index']));
+    //             }
+
+    //             $user_id = $request->session()->get('user.id');
+
+    //             $discount = [
+    //                 'discount_type' => $input['discount_type'],
+    //                 'discount_amount' => $input['discount_amount'],
+    //             ];
+    //             $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
+
+    //             DB::beginTransaction();
+
+    //             if (empty($request->input('transaction_date'))) {
+    //                 $input['transaction_date'] = \Carbon::now();
+    //             } else {
+    //                 $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
+    //             }
+    //             if ($is_direct_sale) {
+    //                 $input['is_direct_sale'] = 1;
+    //             }
+
+    //             //Set commission agent
+    //             $input['commission_agent'] = !empty($request->input('commission_agent')) ? $request->input('commission_agent') : null;
+    //             $commsn_agnt_setting = $request->session()->get('business.sales_cmsn_agnt');
+    //             if ($commsn_agnt_setting == 'logged_in_user') {
+    //                 $input['commission_agent'] = $user_id;
+    //             }
+
+    //             if (isset($input['exchange_rate']) && $this->transactionUtil->num_uf($input['exchange_rate']) == 0) {
+    //                 $input['exchange_rate'] = 1;
+    //             }
+
+    //             //Customer group details
+    //             $contact_id = $request->get('contact_id', null);
+    //             $cg = $this->contactUtil->getCustomerGroup($business_id, $contact_id);
+    //             $input['customer_group_id'] = (empty($cg) || empty($cg->id)) ? null : $cg->id;
+
+    //             //set selling price group id
+    //             $price_group_id = $request->has('price_group') ? $request->input('price_group') : null;
+
+    //             //If default price group for the location exists
+    //             $price_group_id = $price_group_id == 0 && $request->has('default_price_group') ? $request->input('default_price_group') : $price_group_id;
+
+    //             $input['is_suspend'] = isset($input['is_suspend']) && 1 == $input['is_suspend'] ? 1 : 0;
+    //             if ($input['is_suspend']) {
+    //                 $input['sale_note'] = !empty($input['additional_notes']) ? $input['additional_notes'] : null;
+    //             }
+
+    //             //Generate reference number
+    //             if (!empty($input['is_recurring'])) {
+    //                 //Update reference count
+    //                 $ref_count = $this->transactionUtil->setAndGetReferenceCount('subscription');
+    //                 $input['subscription_no'] = $this->transactionUtil->generateReferenceNumber('subscription', $ref_count);
+    //             }
+
+    //             if (!empty($request->input('invoice_scheme_id'))) {
+    //                 $input['invoice_scheme_id'] = $request->input('invoice_scheme_id');
+    //             }
+
+    //             //Types of service
+    //             if ($this->moduleUtil->isModuleEnabled('types_of_service')) {
+    //                 $input['types_of_service_id'] = $request->input('types_of_service_id');
+    //                 $price_group_id = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_id;
+    //                 $input['packing_charge'] = !empty($request->input('packing_charge')) ?
+    //                     $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
+    //                 $input['packing_charge_type'] = $request->input('packing_charge_type');
+    //                 $input['service_custom_field_1'] = !empty($request->input('service_custom_field_1')) ?
+    //                     $request->input('service_custom_field_1') : null;
+    //                 $input['service_custom_field_2'] = !empty($request->input('service_custom_field_2')) ?
+    //                     $request->input('service_custom_field_2') : null;
+    //                 $input['service_custom_field_3'] = !empty($request->input('service_custom_field_3')) ?
+    //                     $request->input('service_custom_field_3') : null;
+    //                 $input['service_custom_field_4'] = !empty($request->input('service_custom_field_4')) ?
+    //                     $request->input('service_custom_field_4') : null;
+    //                 $input['service_custom_field_5'] = !empty($request->input('service_custom_field_5')) ?
+    //                     $request->input('service_custom_field_5') : null;
+    //                 $input['service_custom_field_6'] = !empty($request->input('service_custom_field_6')) ?
+    //                     $request->input('service_custom_field_6') : null;
+    //             }
+
+    //             if ($request->input('additional_expense_value_1') != '') {
+    //                 $input['additional_expense_key_1'] = $request->input('additional_expense_key_1');
+    //                 $input['additional_expense_value_1'] = $request->input('additional_expense_value_1');
+    //             }
+
+    //             if ($request->input('additional_expense_value_2') != '') {
+    //                 $input['additional_expense_key_2'] = $request->input('additional_expense_key_2');
+    //                 $input['additional_expense_value_2'] = $request->input('additional_expense_value_2');
+    //             }
+
+    //             if ($request->input('additional_expense_value_3') != '') {
+    //                 $input['additional_expense_key_3'] = $request->input('additional_expense_key_3');
+    //                 $input['additional_expense_value_3'] = $request->input('additional_expense_value_3');
+    //             }
+
+    //             if ($request->input('additional_expense_value_4') != '') {
+    //                 $input['additional_expense_key_4'] = $request->input('additional_expense_key_4');
+    //                 $input['additional_expense_value_4'] = $request->input('additional_expense_value_4');
+    //             }
+
+    //             $input['selling_price_group_id'] = $price_group_id;
+
+    //             if ($this->transactionUtil->isModuleEnabled('tables')) {
+    //                 $input['res_table_id'] = request()->get('res_table_id');
+    //             }
+    //             if ($this->transactionUtil->isModuleEnabled('service_staff')) {
+    //                 $input['res_waiter_id'] = request()->get('res_waiter_id');
+    //             }
+
+    //             if ($this->transactionUtil->isModuleEnabled('kitchen')) {
+    //                 $input['is_kitchen_order'] = request()->get('is_kitchen_order');
+    //             }
+
+    //             //upload document
+    //             $input['document'] = $this->transactionUtil->uploadFile($request, 'sell_document', 'documents');
+
+    //             $transaction = $this->transactionUtil->createSellTransaction($business_id, $input, $invoice_total, $user_id);
+
+    //             //Upload Shipping documents
+    //             Media::uploadMedia($business_id, $transaction, $request, 'shipping_documents', false, 'shipping_document');
+
+    //             $this->transactionUtil->createOrUpdateSellLines($transaction, $input['products'], $input['location_id']);
+
+    //             $change_return['amount'] = $input['change_return'] ?? 0;
+    //             $change_return['is_return'] = 1;
+    //             if (isset($input['payment']['change_return'])) {
+    //                 $change_return['method'] = $input['payment']['change_return']['method'];
+    //                 $change_return['account_id'] = $input['payment']['change_return']['account_id'] ?? null;
+    //                 unset($input['payment']['change_return']);
+    //             }
+    //             $input['payment'][] = $change_return;
+
+    //             $is_credit_sale = isset($input['is_credit_sale']) && $input['is_credit_sale'] == 1 ? true : false;
+
+    //             if (!$transaction->is_suspend && !empty($input['payment']) && !$is_credit_sale) {
+    //                 $this->transactionUtil->createOrUpdatePaymentLines($transaction, $input['payment']);
+    //             }
+
+    //             //Check for final and do some processing.
+    //             if ($input['status'] == 'final') {
+    //                 if (!$is_direct_sale) {
+    //                     //set service staff timer
+    //                     foreach ($input['products'] as $product_line) {
+    //                         if (!empty($product_line['res_service_staff_id'])) {
+    //                             $product = Product::find($product_line['product_id']);
+
+    //                             if (!empty($product->preparation_time_in_minutes)) {
+    //                                 $service_staff = User::find($product_line['res_service_staff_id']);
+
+    //                                 $base_time = \Carbon::parse($transaction->transaction_date);
+
+    //                                 //if already assigned set base time as available_at
+    //                                 if (!empty($service_staff->available_at) && \Carbon::parse($service_staff->available_at)->gt(\Carbon::now())) {
+    //                                     $base_time = \Carbon::parse($service_staff->available_at);
+    //                                 }
+
+    //                                 $total_minutes = $product->preparation_time_in_minutes * $this->transactionUtil->num_uf($product_line['quantity']);
+
+    //                                 $service_staff->available_at = $base_time->addMinutes($total_minutes);
+    //                                 $service_staff->save();
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //                 //update product stock (per-line location aware)
+    //                 foreach ($input['products'] as $product) {
+    //                     $decrease_qty = $this->productUtil
+    //                         ->num_uf($product['quantity']);
+    //                     if (!empty($product['base_unit_multiplier'])) {
+    //                         $decrease_qty = (float) $decrease_qty * (float) $product['base_unit_multiplier'];
+    //                     }
+
+    //                     $line_location_id = !empty($product['line_location_id']) ? $product['line_location_id'] : $input['location_id'];
+
+    //                     if ($product['enable_stock']) {
+    //                         $this->productUtil->decreaseProductQuantity(
+    //                             $product['product_id'],
+    //                             $product['variation_id'],
+    //                             $line_location_id,
+    //                             $decrease_qty
+    //                         );
+    //                     }
+
+    //                     if ($product['product_type'] == 'combo') {
+    //                         //Decrease quantity of combo as well.
+    //                         $this->productUtil
+    //                             ->decreaseProductQuantityCombo(
+    //                                 $product['combo'],
+    //                                 $line_location_id
+    //                             );
+    //                     }
+    //                 }
+
+    //                 //Add payments to Cash Register
+    //                 if (!$is_direct_sale && !$transaction->is_suspend && !empty($input['payment']) && !$is_credit_sale) {
+    //                     $this->cashRegisterUtil->addSellPayments($transaction, $input['payment']);
+    //                 }
+
+    //                 //Update payment status
+    //                 $payment_status = $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
+
+    //                 $transaction->payment_status = $payment_status;
+
+    //                 if ($request->session()->get('business.enable_rp') == 1) {
+    //                     $redeemed = !empty($input['rp_redeemed']) ? $input['rp_redeemed'] : 0;
+    //                     $this->transactionUtil->updateCustomerRewardPoints($contact_id, $transaction->rp_earned, 0, $redeemed);
+    //                 }
+
+    //                 //Allocate the quantity from purchase and add mapping of
+    //                 //purchase & sell lines in
+    //                 //transaction_sell_lines_purchase_lines table
+    //                 $business_details = $this->businessUtil->getDetails($business_id);
+    //                 $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+
+    //                 $business = [
+    //                     'id' => $business_id,
+    //                     'accounting_method' => $request->session()->get('business.accounting_method'),
+    //                     'location_id' => $input['location_id'],
+    //                     'pos_settings' => $pos_settings,
+    //                 ];
+    //                 $this->transactionUtil->mapPurchaseSell($business, $transaction->sell_lines, 'purchase');
+
+    //                 //Auto send notification
+    //                 $whatsapp_link = $this->notificationUtil->autoSendNotification($business_id, 'new_sale', $transaction, $transaction->contact);
+    //             }
+
+    //             if (!empty($transaction->sales_order_ids)) {
+    //                 $this->transactionUtil->updateSalesOrderStatus($transaction->sales_order_ids);
+    //             }
+
+    //             $this->moduleUtil->getModuleData('after_sale_saved', ['transaction' => $transaction, 'input' => $input]);
+
+    //             Media::uploadMedia($business_id, $transaction, $request, 'documents');
+
+    //             $this->transactionUtil->activityLog($transaction, 'added');
+
+    //             if ($request->filled('commission_agent') && !$request->has('is_direct_sale')) {
+    //                 $agent = User::where('is_cmmsn_agnt', 1)->find($input['commission_agent']);
+    //                 if ($agent) {
+                        
+    //                     // ✅ Check pos_settings se activate_popup_agent_commission
+    //                     $business_details = $this->businessUtil->getDetails($business_id);
+    //                     $pos_settings = empty($business_details->pos_settings) 
+    //                         ? $this->businessUtil->defaultPosSettings() 
+    //                         : json_decode($business_details->pos_settings, true);
+
+    //                     if (!empty($pos_settings['activate_popup_agent_commission']) && $pos_settings['activate_popup_agent_commission'] == 1) {
+    //                         event(new CommissionAgentSaleMade(
+    //                             $agent->first_name . ' ' . $agent->last_name,
+    //                             $transaction->invoice_no,
+    //                             $business_id,
+    //                             $user_id
+    //                         ));
+    //                     }
+    //                 }
+    //             }
+
+    //             DB::commit();
+
+    //             SellCreatedOrModified::dispatch($transaction);
+
+    //             if ($request->input('is_save_and_print') == 1) {
+    //                 $url = $this->transactionUtil->getInvoiceUrl($transaction->id, $business_id);
+
+    //                 return redirect()->to($url . '?print_on_load=true');
+    //             }
+
+    //             $msg = trans('sale.pos_sale_added');
+    //             $msg = '';
+    //             $receipt = '';
+    //             $message = null;
+    //             $response = null;
+    //             $invoice_layout_id = $request->input('invoice_layout_id');
+    //             $print_invoice = false;
+    //             if (!$is_direct_sale) {
+    //                 if ($input['status'] == 'draft') {
+    //                     $msg = trans('sale.draft_added');
+
+    //                     if ($input['is_quotation'] == 1) {
+    //                         $msg = trans('lang_v1.quotation_added');
+    //                         $print_invoice = true;
+    //                     }
+    //                 } elseif ($input['status'] == 'final') {
+    //                     $print_invoice = true;
+
+
+    //                 }
+    //             }
+
+    //             // dd($request->invoice_scheme_id	);
+
+    //             // Llamar al servicio para enviar la factura
+    //             if ($request->invoice_scheme_id != '') {
+    //                 $invoice_scheme = InvoiceScheme::where('id', $request->invoice_scheme_id)->where('business_id', $business_id)->first();
+
+    //             } else {
+    //                 $invoice_scheme = InvoiceScheme::where('is_default', 1)->where('business_id', $business_id)->first();
+
+    //             }
+
+    //             if ($invoice_scheme->is_fe == 'si') {
+    //                 $DianService = new UtilsDianService();
+    //                 if ($invoice_scheme->type_document_id == 1) {
+    //                     $response = $DianService->send_invoice(
+    //                         $invoice_scheme->id,
+    //                         $business_id,
+    //                         $contact_id,
+    //                         $input,
+    //                         $transaction
+    //                     );
+
+    //                 } elseif ($invoice_scheme->type_document_id == 15) {
+    //                     $response = $DianService->send_eqpos(
+    //                         $invoice_scheme->id,
+    //                         $business_id,
+    //                         $contact_id,
+    //                         $input,
+    //                         $transaction
+    //                     );
+
+    //                 } else {
+    //                     $response = null;
+    //                 }
+
+
+    //                 $output = [
+    //                     'success' => 1,
+    //                     // 'msg' => $msg, 
+    //                     'msg' => ($response) ? $response['msg'] : $msg,
+    //                     // 'msg_error_dian' => $response_invoice['ErrorMessage'], 
+    //                     'invoice' => ($response) ? $response : '',
+    //                     'receipt' => $receipt,
+    //                     // 'input_curl'=> $data, 
+    //                     'response' => $response
+    //                 ];
+
+
+
+    //             } else {
+    //                 $response = null;
+    //             }
+
+
+
+    //             if ($transaction->is_suspend == 1 && empty($pos_settings['print_on_suspend'])) {
+    //                 $print_invoice = false;
+    //             }
+
+    //             if (!auth()->user()->can('print_invoice')) {
+    //                 $print_invoice = false;
+    //             }
+
+    //             if ($print_invoice) {
+    //                 $receipt = $this->receiptContent($business_id, $input['location_id'], $transaction->id, null, false, true, $invoice_layout_id);
+    //             }
+    //             // dd($msg);
+
+    //             $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt];
+
+    //             if (!empty($whatsapp_link)) {
+    //                 $output['whatsapp_link'] = $whatsapp_link;
+    //             }
+    //         } else {
+    //             $output = [
+    //                 'success' => 0,
+    //                 'msg' => trans('messages.something_went_wrong') . ' - Error',
+    //             ];
+    //         }
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
+    //         $msg = trans('messages.something_went_wrong');
+
+    //         if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
+    //             $msg = $e->getMessage();
+    //         }
+    //         if (get_class($e) == \App\Exceptions\AdvanceBalanceNotAvailable::class) {
+    //             $msg = $e->getMessage();
+    //         }
+
+    //         $output = [
+    //             'success' => 0,
+    //             'msg' => $msg . ' - Error' . $e->getMessage() . ' - ' . $e->getFile() . ' - ' . $e->getLine(),
+    //             'error' => $e->getMessage(),
+    //             'error_line' => $e->getLine(),
+    //             'error_file' => $e->getFile(),
+    //         ];
+    //     }
+
+    //     if (!$is_direct_sale) {
+    //         return $output;
+    //     } else {
+    //         if ($input['status'] == 'draft') {
+    //             if (isset($input['is_quotation']) && $input['is_quotation'] == 1) {
+    //                 return redirect()
+    //                     ->action([\App\Http\Controllers\SellController::class, 'getQuotations'])
+    //                     ->with('status', $output);
+    //             } else {
+    //                 return redirect()
+    //                     ->action([\App\Http\Controllers\SellController::class, 'getDrafts'])
+    //                     ->with('status', $output);
+    //             }
+    //         } elseif ($input['status'] == 'quotation') {
+    //             return redirect()
+    //                 ->action([\App\Http\Controllers\SellController::class, 'getQuotations'])
+    //                 ->with('status', $output);
+    //         } elseif (isset($input['type']) && $input['type'] == 'sales_order') {
+    //             return redirect()
+    //                 ->action([\App\Http\Controllers\SalesOrderController::class, 'index'])
+    //                 ->with('status', $output);
+    //         } else {
+    //             if (!empty($input['sub_type']) && $input['sub_type'] == 'repair') {
+    //                 $redirect_url = $input['print_label'] == 1 ? action([\Modules\Repair\Http\Controllers\RepairController::class, 'printLabel'], [$transaction->id]) : action([\Modules\Repair\Http\Controllers\RepairController::class, 'index']);
+
+    //                 return redirect($redirect_url)
+    //                     ->with('status', $output);
+    //             }
+
+    //             return redirect()
+    //                 ->action([\App\Http\Controllers\SellController::class, 'index'])
+    //                 ->with('status', $output);
+    //         }
+    //     }
+    // }
+    
+     public function store(Request $request)
     {
         if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access') && !auth()->user()->can('so.create')) {
             abort(403, 'Unauthorized action.');
@@ -364,6 +946,28 @@ class SellPosController extends Controller
 
         try {
             $input = $request->except('_token');
+            $business_id = $request->session()->get('user.business_id');
+            $user_id = $request->session()->get('user.id');
+
+            // Lock POS location to the location selected at cash register opening.
+            if (!$is_direct_sale) {
+                $active_register = CashRegister::where('user_id', $user_id)
+                    ->where('status', 'open')
+                    ->where(function ($q) {
+                        $q->whereNull('closing_type')
+                            ->orWhere('closing_type', '!=', 'general');
+                    })->latest('id')->first();
+
+                if (!empty($active_register->location_id)) {
+                    $input['location_id'] = $active_register->location_id;
+                    if (!empty($input['products']) && is_array($input['products'])) {
+                        foreach ($input['products'] as &$product_line) {
+                            $product_line['line_location_id'] = $active_register->location_id;
+                        }
+                        unset($product_line);
+                    }
+                }
+            }
 
             $input['is_quotation'] = 0;
             //status is send as quotation from Add sales screen.
@@ -374,6 +978,37 @@ class SellPosController extends Controller
             } elseif ($input['status'] == 'proforma') {
                 $input['status'] = 'draft';
                 $input['sub_status'] = 'proforma';
+            }
+
+            // Enforce location permission for POS header location and line-level locations.
+            $invalid_locations = [];
+            if (!empty($input['location_id']) && !\App\User::can_access_this_location($input['location_id'], $business_id)) {
+                $invalid_locations[] = $input['location_id'];
+            }
+
+            if (!empty($input['products']) && is_array($input['products'])) {
+                foreach ($input['products'] as $product_line) {
+                    $line_location_id = !empty($product_line['line_location_id']) ? $product_line['line_location_id'] : $input['location_id'];
+
+                    if (!empty($line_location_id) && !\App\User::can_access_this_location($line_location_id, $business_id)) {
+                        $invalid_locations[] = $line_location_id;
+                    }
+                }
+            }
+
+            if (!empty($invalid_locations)) {
+                $output = [
+                    'success' => 0,
+                    'msg' => __('lang_v1.no_location_access_found'),
+                ];
+
+                if (!$is_direct_sale) {
+                    return $output;
+                }
+
+                return redirect()
+                    ->action([\App\Http\Controllers\SellController::class, 'index'])
+                    ->with('status', $output);
             }
 
             //Add change return
@@ -388,7 +1023,8 @@ class SellPosController extends Controller
 
             if ($is_credit_limit_exeeded !== false) {
                 $credit_limit_amount = $this->transactionUtil->num_f($is_credit_limit_exeeded, true);
-                $output = ['success' => 0,
+                $output = [
+                    'success' => 0,
                     'msg' => __('lang_v1.cutomer_credit_limit_exeeded', ['credit_limit' => $credit_limit_amount]),
                 ];
                 if (!$is_direct_sale) {
@@ -401,8 +1037,6 @@ class SellPosController extends Controller
             }
 
             if (!empty($input['products'])) {
-                $business_id = $request->session()->get('user.business_id');
-
                 //Check if subscribed or not, then check for users quota
                 if (!$this->moduleUtil->isSubscribed($business_id)) {
                     return $this->moduleUtil->expiredResponse();
@@ -410,9 +1044,8 @@ class SellPosController extends Controller
                     return $this->moduleUtil->quotaExpiredResponse('invoices', $business_id, action([\App\Http\Controllers\SellPosController::class, 'index']));
                 }
 
-                $user_id = $request->session()->get('user.id');
-
-                $discount = ['discount_type' => $input['discount_type'],
+                $discount = [
+                    'discount_type' => $input['discount_type'],
                     'discount_amount' => $input['discount_amount'],
                 ];
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
@@ -471,20 +1104,20 @@ class SellPosController extends Controller
                     $input['types_of_service_id'] = $request->input('types_of_service_id');
                     $price_group_id = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_id;
                     $input['packing_charge'] = !empty($request->input('packing_charge')) ?
-                    $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
+                        $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
                     $input['packing_charge_type'] = $request->input('packing_charge_type');
                     $input['service_custom_field_1'] = !empty($request->input('service_custom_field_1')) ?
-                    $request->input('service_custom_field_1') : null;
+                        $request->input('service_custom_field_1') : null;
                     $input['service_custom_field_2'] = !empty($request->input('service_custom_field_2')) ?
-                    $request->input('service_custom_field_2') : null;
+                        $request->input('service_custom_field_2') : null;
                     $input['service_custom_field_3'] = !empty($request->input('service_custom_field_3')) ?
-                    $request->input('service_custom_field_3') : null;
+                        $request->input('service_custom_field_3') : null;
                     $input['service_custom_field_4'] = !empty($request->input('service_custom_field_4')) ?
-                    $request->input('service_custom_field_4') : null;
+                        $request->input('service_custom_field_4') : null;
                     $input['service_custom_field_5'] = !empty($request->input('service_custom_field_5')) ?
-                    $request->input('service_custom_field_5') : null;
+                        $request->input('service_custom_field_5') : null;
                     $input['service_custom_field_6'] = !empty($request->input('service_custom_field_6')) ?
-                    $request->input('service_custom_field_6') : null;
+                        $request->input('service_custom_field_6') : null;
                 }
 
                 if ($request->input('additional_expense_value_1') != '') {
@@ -532,7 +1165,11 @@ class SellPosController extends Controller
 
                 $change_return['amount'] = $input['change_return'] ?? 0;
                 $change_return['is_return'] = 1;
-
+                if (isset($input['payment']['change_return'])) {
+                    $change_return['method'] = $input['payment']['change_return']['method'];
+                    $change_return['account_id'] = $input['payment']['change_return']['account_id'] ?? null;
+                    unset($input['payment']['change_return']);
+                }
                 $input['payment'][] = $change_return;
 
                 $is_credit_sale = isset($input['is_credit_sale']) && $input['is_credit_sale'] == 1 ? true : false;
@@ -617,7 +1254,8 @@ class SellPosController extends Controller
                     $business_details = $this->businessUtil->getDetails($business_id);
                     $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-                    $business = ['id' => $business_id,
+                    $business = [
+                        'id' => $business_id,
                         'accounting_method' => $request->session()->get('business.accounting_method'),
                         'location_id' => $input['location_id'],
                         'pos_settings' => $pos_settings,
@@ -637,6 +1275,27 @@ class SellPosController extends Controller
                 Media::uploadMedia($business_id, $transaction, $request, 'documents');
 
                 $this->transactionUtil->activityLog($transaction, 'added');
+
+                if ($request->filled('commission_agent') && !$request->has('is_direct_sale')) {
+                    $agent = User::where('is_cmmsn_agnt', 1)->find($input['commission_agent']);
+                    if ($agent) {
+
+                        // ✅ Check pos_settings se activate_popup_agent_commission
+                        $business_details = $this->businessUtil->getDetails($business_id);
+                        $pos_settings = empty($business_details->pos_settings)
+                            ? $this->businessUtil->defaultPosSettings()
+                            : json_decode($business_details->pos_settings, true);
+
+                        if (!empty($pos_settings['activate_popup_agent_commission']) && $pos_settings['activate_popup_agent_commission'] == 1) {
+                            event(new CommissionAgentSaleMade(
+                                $agent->first_name . ' ' . $agent->last_name,
+                                $transaction->invoice_no,
+                                $business_id,
+                                $user_id
+                            ));
+                        }
+                    }
+                }
 
                 DB::commit();
 
@@ -666,80 +1325,60 @@ class SellPosController extends Controller
                     } elseif ($input['status'] == 'final') {
                         $print_invoice = true;
 
-                        
+
                     }
                 }
 
                 // dd($request->invoice_scheme_id	);
 
                 // Llamar al servicio para enviar la factura
-                if($request->invoice_scheme_id	 != ''){
-                    $invoice_scheme = InvoiceScheme::where('id',$request->invoice_scheme_id	)->where('business_id',$business_id)->first();
+                if ($request->invoice_scheme_id != '') {
+                    $invoice_scheme = InvoiceScheme::where('id', $request->invoice_scheme_id)->where('business_id', $business_id)->first();
 
-                }else{
-                    $invoice_scheme = InvoiceScheme::where('is_default',1)->where('business_id',$business_id)->first();
-                    
+                } else {
+                    $invoice_scheme = InvoiceScheme::where('is_default', 1)->where('business_id', $business_id)->first();
+
                 }
 
-                if($invoice_scheme->is_fe == 'si'){
+                if ($invoice_scheme->is_fe == 'si') {
                     $DianService = new UtilsDianService();
-                    if($invoice_scheme->type_document_id == 1)
-                    {
+                    if ($invoice_scheme->type_document_id == 1) {
                         $response = $DianService->send_invoice(
-                            $invoice_scheme->id, 
-                            $business_id, 
-                            $contact_id, 
-                            $input, 
-                            $transaction
-                        );
-                        
-                    }elseif($invoice_scheme->type_document_id == 15){
-                        $response = $DianService->send_eqpos(
-                            $invoice_scheme->id, 
-                            $business_id, 
-                            $contact_id, 
-                            $input, 
+                            $invoice_scheme->id,
+                            $business_id,
+                            $contact_id,
+                            $input,
                             $transaction
                         );
 
-                    }else{
+                    } elseif ($invoice_scheme->type_document_id == 15) {
+                        $response = $DianService->send_eqpos(
+                            $invoice_scheme->id,
+                            $business_id,
+                            $contact_id,
+                            $input,
+                            $transaction
+                        );
+
+                    } else {
                         $response = null;
                     }
-                    // dd($response);
 
-                    // if($response['success'] == true)
-                    // {
-                    //     $message = $response['response'];
-                    //     dd($message);
-                    // }else{
-                    //     if(isset($response['msg']))
-                    //     {
-                    //         if(  $response['msg'] == 'The given data was invalid.')
-                    //         {
-                                
-                    //             foreach ($response['ErrorMessage'] as $field => $msgArray) {
-                    //                 $message .= "*".$msgArray[0]."<br>"; // Captura el primer mensaje
-                    //             }
-                    //         }
-                            
-                    //     }
-                    //     $message = $response['msg'].' '.$message;
-                    // }
 
                     $output = [
-                        'success' => 1, 
+                        'success' => 1,
                         // 'msg' => $msg, 
-                        'msg' => ($response) ? $response['msg'] : $msg, 
+                        'msg' => ($response) ? $response['msg'] : $msg,
                         // 'msg_error_dian' => $response_invoice['ErrorMessage'], 
-                        'invoice' => ($response) ? $response : '' , 
+                        'invoice' => ($response) ? $response : '',
                         'receipt' => $receipt,
                         // 'input_curl'=> $data, 
-                        // 'response' => $respuesta['errors']
+                        'response' => $response
                     ];
 
-                    
-                    
-                }else{
+
+
+                } else {
                     $response = null;
                 }
 
@@ -764,8 +1403,9 @@ class SellPosController extends Controller
                     $output['whatsapp_link'] = $whatsapp_link;
                 }
             } else {
-                $output = ['success' => 0,
-                    'msg' => trans('messages.something_went_wrong').' - Error',
+                $output = [
+                    'success' => 0,
+                    'msg' => trans('messages.something_went_wrong') . ' - Error',
                 ];
             }
         } catch (\Exception $e) {
@@ -780,8 +1420,9 @@ class SellPosController extends Controller
                 $msg = $e->getMessage();
             }
 
-            $output = ['success' => 0,
-                'msg' => $msg.' - Error'.$e->getMessage().' - '.$e->getFile().' - '.$e->getLine(),
+            $output = [
+                'success' => 0,
+                'msg' => $msg . ' - Error' . $e->getMessage() . ' - ' . $e->getFile() . ' - ' . $e->getLine(),
                 'error' => $e->getMessage(),
                 'error_line' => $e->getLine(),
                 'error_file' => $e->getFile(),
@@ -832,20 +1473,40 @@ class SellPosController extends Controller
             // $taxes = TaxRate::where('business_id', $business_id)
             //                     ->pluck('name', 'id');
             $query = Transaction::where('business_id', $business_id)
-                        ->where('id', $id)
-                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
-                            $q->whereNull('parent_sell_line_id');
-                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
-    
-            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                ->where('id', $id)
+                ->with([
+                    'contact',
+                    'delivery_person_user',
+                    'sell_lines' => function ($q) {
+                        $q->whereNull('parent_sell_line_id');
+                    },
+                    'sell_lines.product',
+                    'sell_lines.product.unit',
+                    'sell_lines.product.second_unit',
+                    'sell_lines.variations',
+                    'sell_lines.variations.product_variation',
+                    'payment_lines',
+                    'sell_lines.modifiers',
+                    'sell_lines.lot_details',
+                    'tax',
+                    'sell_lines.sub_unit',
+                    'table',
+                    'service_staff',
+                    'sell_lines.service_staff',
+                    'types_of_service',
+                    'sell_lines.warranties',
+                    'media'
+                ]);
+
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
                 $query->where('transactions.created_by', request()->session()->get('user.id'));
             }
-    
+
             $sell = $query->firstOrFail();
 
             // return $sell;
             // return $sell->sell_lines[0]->product->name;
-            return view('sale_pos.resend_invoice',compact('sell'));
+            return view('sale_pos.resend_invoice', compact('sell'));
         } catch (\Throwable $th) {
             return redirect()->back()->with('success', $th->getMessage());
         }
@@ -858,15 +1519,35 @@ class SellPosController extends Controller
             // $taxes = TaxRate::where('business_id', $business_id)
             //                     ->pluck('name', 'id');
             $query = Transaction::where('business_id', $business_id)
-                        ->where('id', $request->id)
-                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
-                            $q->whereNull('parent_sell_line_id');
-                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
-    
-            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                ->where('id', $request->id)
+                ->with([
+                    'contact',
+                    'delivery_person_user',
+                    'sell_lines' => function ($q) {
+                        $q->whereNull('parent_sell_line_id');
+                    },
+                    'sell_lines.product',
+                    'sell_lines.product.unit',
+                    'sell_lines.product.second_unit',
+                    'sell_lines.variations',
+                    'sell_lines.variations.product_variation',
+                    'payment_lines',
+                    'sell_lines.modifiers',
+                    'sell_lines.lot_details',
+                    'tax',
+                    'sell_lines.sub_unit',
+                    'table',
+                    'service_staff',
+                    'sell_lines.service_staff',
+                    'types_of_service',
+                    'sell_lines.warranties',
+                    'media'
+                ]);
+
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
                 $query->where('transactions.created_by', request()->session()->get('user.id'));
             }
-    
+
             $sell = $query->firstOrFail();
             $transaction_before = Transaction::find($request->id);
 
@@ -877,23 +1558,23 @@ class SellPosController extends Controller
 
             $invoice_scheme = InvoiceScheme::find($transaction_before->invoice_scheme_id);
 
-            if($invoice_scheme->type_document_id == 1)//factura electronica
+            if ($invoice_scheme->type_document_id == 1)//factura electronica
             {
                 $response_invoice = $DianService->resend_invoice(
                     $transaction_before,
-                    $sell->business_id, 
-                    $sell->contact_id, 
+                    $sell->business_id,
+                    $sell->contact_id,
                     $sell->sell_lines,
                     $transaction_before->prefix,
                     $transaction_before->number_invoice,
                     $transaction_before->resolution
                 );
-            }elseif($invoice_scheme->type_document_id == 15)//pos electronico
+            } elseif ($invoice_scheme->type_document_id == 15)//pos electronico
             {
                 $response_invoice = $DianService->resend_eqpos(
                     $transaction_before,
-                    $sell->business_id, 
-                    $sell->contact_id, 
+                    $sell->business_id,
+                    $sell->contact_id,
                     $sell->sell_lines,
                     $transaction_before->prefix,
                     $transaction_before->number_invoice,
@@ -901,19 +1582,141 @@ class SellPosController extends Controller
                 );
             }
 
-            
 
-            return ['success' => $response_invoice['success'],
-            'msg' =>$response_invoice['msg'],
-            'response' =>$response_invoice['response'],
-            'input_curl' =>$response_invoice['input_curl'],
 
-        ];
+            return [
+                'success' => $response_invoice['success'],
+                'msg' => $response_invoice['msg'],
+                'response' => $response_invoice['response'],
+                'input_curl' => $response_invoice['input_curl'],
 
-        //    dd($response_invoice);
+            ];
+
+            //    dd($response_invoice);
 
         } catch (\Throwable $th) {
-            return redirect()->back()->with('success', $th->getMessage().' - '.$th->getFile().' - '.$th->getLine());
+            return redirect()->back()->with('success', $th->getMessage() . ' - ' . $th->getFile() . ' - ' . $th->getLine());
+        }
+    }
+
+    public function ConvertToInvoiceDian($id)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            // $taxes = TaxRate::where('business_id', $business_id)
+            //                     ->pluck('name', 'id');
+            $query = Transaction::where('business_id', $business_id)
+                ->where('id', $id)
+                ->with([
+                    'contact',
+                    'delivery_person_user',
+                    'sell_lines' => function ($q) {
+                        $q->whereNull('parent_sell_line_id');
+                    },
+                    'sell_lines.product',
+                    'sell_lines.product.unit',
+                    'sell_lines.product.second_unit',
+                    'sell_lines.variations',
+                    'sell_lines.variations.product_variation',
+                    'payment_lines',
+                    'sell_lines.modifiers',
+                    'sell_lines.lot_details',
+                    'tax',
+                    'sell_lines.sub_unit',
+                    'table',
+                    'service_staff',
+                    'sell_lines.service_staff',
+                    'types_of_service',
+                    'sell_lines.warranties',
+                    'media'
+                ]);
+
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+
+            $sell = $query->firstOrFail();
+
+            $invoice_schemes = InvoiceScheme::forDropdown($business_id);
+            $default_invoice_scheme = InvoiceScheme::getDefault($business_id);
+
+
+
+            // return $sell;
+            // return $sell->sell_lines[0]->product->name;
+            return view('sale_pos.convert_to_invoice_dian', compact('sell', 'invoice_schemes', 'default_invoice_scheme'));
+        } catch (\Throwable $th) {
+            dd($th->getMessage());
+            // return redirect()->back()->with('success', $th->getMessage());
+        }
+    }
+
+    public function ConvertToInvoiceDianStore(Request $request)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            // $taxes = TaxRate::where('business_id', $business_id)
+            //                     ->pluck('name', 'id');
+            $query = Transaction::where('business_id', $business_id)
+                ->where('id', $request->sell_id)
+                ->with([
+                    'contact',
+                    'delivery_person_user',
+                    'sell_lines' => function ($q) {
+                        $q->whereNull('parent_sell_line_id');
+                    },
+                    'sell_lines.product',
+                    'sell_lines.product.unit',
+                    'sell_lines.product.second_unit',
+                    'sell_lines.variations',
+                    'sell_lines.variations.product_variation',
+                    'payment_lines',
+                    'sell_lines.modifiers',
+                    'sell_lines.lot_details',
+                    'tax',
+                    'sell_lines.sub_unit',
+                    'table',
+                    'service_staff',
+                    'sell_lines.service_staff',
+                    'types_of_service',
+                    'sell_lines.warranties',
+                    'media'
+                ]);
+
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+
+            $sell = $query->firstOrFail();
+
+            // return $request->sell_id;
+            $is_invoice_scheme_fe = InvoiceScheme::find($request->invoice_scheme_id);
+            if ($sell->e_invoice == 'no' && $is_invoice_scheme_fe->is_fe == 'si') {
+                $invoice_no = $this->transactionUtil->getInvoiceNumber(
+                    $business_id,
+                    'final',
+                    $sell->location_id,
+                    $request->invoice_scheme_id,
+                    'sell'
+                );
+
+                $sell->invoice_no = $invoice_no['invoice_no'];
+                $sell->prefix = $invoice_no['prefix'];
+                $sell->number_invoice = $invoice_no['count'];
+                $sell->resolution = $invoice_no['resolution'];
+                $sell->invoice_scheme_id = $request->invoice_scheme_id;
+                $sell->e_invoice = 'si';
+                $sell->save();
+
+            }
+
+            return redirect()->back()->with('success', "Factura convertida a factura electronica correctamente");
+            // return $invoice_no;
+
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('success', $th->getMessage());
+            // return redirect()->back()->with('success', $th->getMessage());
         }
     }
 
@@ -936,7 +1739,8 @@ class SellPosController extends Controller
         $invoice_layout_id = null,
         $is_delivery_note = false
     ) {
-        $output = ['is_enabled' => false,
+        $output = [
+            'is_enabled' => false,
             'print_type' => 'browser',
             'html_content' => null,
             'printer_config' => [],
@@ -1012,41 +1816,60 @@ class SellPosController extends Controller
             $business_id = request()->session()->get('user.business_id');
             $business = Business::findOrFail($business_id);
             $query = Transaction::where('business_id', $business_id)
-                        ->where('id', $id)
-                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
-                            $q->whereNull('parent_sell_line_id');
-                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
-    
-            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                ->where('id', $id)
+                ->with([
+                    'contact',
+                    'delivery_person_user',
+                    'sell_lines' => function ($q) {
+                        $q->whereNull('parent_sell_line_id');
+                    },
+                    'sell_lines.product',
+                    'sell_lines.product.unit',
+                    'sell_lines.product.second_unit',
+                    'sell_lines.variations',
+                    'sell_lines.variations.product_variation',
+                    'payment_lines',
+                    'sell_lines.modifiers',
+                    'sell_lines.lot_details',
+                    'tax',
+                    'sell_lines.sub_unit',
+                    'table',
+                    'service_staff',
+                    'sell_lines.service_staff',
+                    'types_of_service',
+                    'sell_lines.warranties',
+                    'media'
+                ]);
+
+            if (!auth()->user()->can('sell.view') && !auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
                 $query->where('transactions.created_by', request()->session()->get('user.id'));
             }
-    
+
             $sell = $query->firstOrFail();
 
             $invoice_scheme = InvoiceScheme::find($sell->invoice_scheme_id);
-            if($invoice_scheme->type_document_id == 1)//factura electronica
+            if ($invoice_scheme->type_document_id == 1)//factura electronica
             {
-                $url = getenv('APP_API_FE').'/api/invoice/'.$business->nit.'/FES-'.$sell->invoice_no.'.pdf';
-            }elseif($invoice_scheme->type_document_id == 15)//pos electronico
+                $url = getenv('APP_API_FE') . '/api/invoice/' . $business->nit . '/FES-' . $sell->invoice_no . '.pdf';
+            } elseif ($invoice_scheme->type_document_id == 15)//pos electronico
             {
-                $url = getenv('APP_API_FE').'/api/invoice/'.$business->nit.'/POSS-'.$sell->invoice_no.'.pdf';
+                $url = getenv('APP_API_FE') . '/api/invoice/' . $business->nit . '/POSS-' . $sell->invoice_no . '.pdf';
             }
             // return $url;
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer '.$business->dian_token
+                'Authorization' => 'Bearer ' . $business->dian_token
             ])->get($url, [
-            ]);
-            if($response->ok())
-            {
+                    ]);
+            if ($response->ok()) {
                 return response()->streamDownload(function () use ($response) {
                     echo $response->body();
-                }, $sell->invoice_no.'.pdf');
-            }else{
+                }, $sell->invoice_no . '.pdf');
+            } else {
                 return $response->body();
             }
-            
+
         } catch (\Throwable $th) {
             return $th->getMessage();
         }
@@ -1063,20 +1886,24 @@ class SellPosController extends Controller
     {
         $business_id = request()->session()->get('user.business_id');
 
-        if (!(auth()->user()->can('superadmin') || auth()->user()->can('sell.update')
-            || auth()->user()->can('edit_pos_payment')
-            || ($this->moduleUtil->hasThePermissionInSubscription($business_id, 'repair_module') &&
-                auth()->user()->can('repair.update')))) {
+        if (
+            !(auth()->user()->can('superadmin') || auth()->user()->can('sell.update')
+                || auth()->user()->can('edit_pos_payment')
+                || ($this->moduleUtil->hasThePermissionInSubscription($business_id, 'repair_module') &&
+                    auth()->user()->can('repair.update')))
+        ) {
             abort(403, 'Unauthorized action.');
         }
 
         //Check if the transaction can be edited or not.
-        $edit_days = request()->session()->get('business.transaction_edit_days');
-        if (!$this->transactionUtil->canBeEdited($id, $edit_days)) {
-            return back()
-                ->with('status', ['success' => 0,
-                    'msg' => __('messages.transaction_edit_not_allowed', ['days' => $edit_days])]);
-        }
+        // $edit_days = request()->session()->get('business.transaction_edit_days');
+        // if (!$this->transactionUtil->canBeEdited($id, $edit_days)) {
+        //     return back()
+        //         ->with('status', [
+        //             'success' => 0,
+        //             'msg' => __('messages.transaction_edit_not_allowed', ['days' => $edit_days])
+        //         ]);
+        // }
 
         //Check if there is a open register, if no then redirect to Create Register screen.
         if ($this->cashRegisterUtil->countOpenedRegister() == 0) {
@@ -1085,8 +1912,10 @@ class SellPosController extends Controller
 
         //Check if return exist then not allowed
         if ($this->transactionUtil->isReturnExist($id)) {
-            return back()->with('status', ['success' => 0,
-                'msg' => __('lang_v1.return_exist')]);
+            return back()->with('status', [
+                'success' => 0,
+                'msg' => __('lang_v1.return_exist')
+            ]);
         }
 
         $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
@@ -1129,7 +1958,7 @@ class SellPosController extends Controller
             ->leftjoin('units', 'units.id', '=', 'p.unit_id')
             ->leftjoin('units as u', 'p.secondary_unit_id', '=', 'u.id')
             ->where('transaction_sell_lines.transaction_id', $id)
-            ->with(['warranties'])
+            ->with(['warranties', 'location'])
             ->select(
                 DB::raw("IF(pv.is_dummy = 0, CONCAT(p.name, ' (', pv.name, ':',variations.name, ')'), p.name) AS product_name"),
                 'p.id as product_id',
@@ -1148,6 +1977,7 @@ class SellPosController extends Controller
                 'units.allow_decimal as unit_allow_decimal',
                 'u.short_name as second_unit',
                 'transaction_sell_lines.secondary_unit_quantity',
+                'transaction_sell_lines.location_id',
                 'transaction_sell_lines.tax_id as tax_id',
                 'transaction_sell_lines.item_tax as item_tax',
                 'transaction_sell_lines.unit_price as default_sell_price',
@@ -1250,7 +2080,7 @@ class SellPosController extends Controller
                             ];
                         }
                         $sell_details[$key]->qty_available =
-                        $this->productUtil->calculateComboQuantity($location_id, $combo_variations);
+                            $this->productUtil->calculateComboQuantity($location_id, $combo_variations);
 
                         if ($transaction->status == 'final') {
                             $sell_details[$key]->qty_available = $sell_details[$key]->qty_available + $sell_details[$key]->quantity_ordered;
@@ -1350,22 +2180,83 @@ class SellPosController extends Controller
         $users = config('constants.enable_contact_assign') ? User::forDropdown($business_id, false, false, false, true) : [];
         $only_payment = request()->segment(2) == 'payment';
 
-        $type_document_identifications = TypeDocumentIdentification::pluck('name','id');
-        $departments = Department::pluck('name','id');
-        $type_regimes = TypeRegime::pluck('name','id');
-        $type_liabilities = TypeLiability::pluck('name','id');
+        $type_document_identifications = TypeDocumentIdentification::pluck('name', 'id');
+        $departments = Department::pluck('name', 'id');
+        $type_regimes = TypeRegime::pluck('name', 'id');
+        $type_liabilities = TypeLiability::pluck('name', 'id');
 
+        $types_of_service = [];
+        if ($this->moduleUtil->isModuleEnabled('types_of_service')) {
+            $types_of_service = TypesOfService::forDropdown($business_id);
+        }
+
+        $business_locations = BusinessLocation::forDropdown($business_id, false, true);
+        $bl_attributes = $business_locations['attributes'];
+        $business_locations = $business_locations['locations'];
+
+        $cashRegister = CashRegister::where('user_id', auth()->user()->id)
+            ->where('status', 'open')
+            ->where(function ($q) {
+                $q->whereNull('closing_type')
+                    ->orWhere('closing_type', '!=', 'general');
+            })->latest('id')->first();
+        $default_location = $business_location;
+        if (!empty($cashRegister->location_id)) {
+            $register_location = BusinessLocation::find($cashRegister->location_id);
+            if (!empty($register_location)) {
+                $default_location = $register_location;
+                $payment_types = $this->productUtil->payment_types($register_location, true);
+                $location_printer_type = $register_location->receipt_printer_type;
+                $featured_products = $register_location->getFeaturedProducts();
+            }
+        }
+        $pos_lock_location = !empty($cashRegister->location_id);
         // return response()->json($transaction);
 
         return view('sale_pos.edit')
-            ->with(compact('type_document_identifications','type_regimes','type_liabilities','departments',
-                'business_details', 'taxes', 'payment_types', 'walk_in_customer',
-                'sell_details', 'transaction', 'payment_lines', 'location_printer_type', 'shortcuts',
-                'commission_agent', 'categories', 'pos_settings', 'change_return', 'types', 'customer_groups',
-                'brands', 'accounts', 'waiters', 'redeem_details', 'edit_price', 'edit_discount',
-                'shipping_statuses', 'warranties', 'sub_type', 'pos_module_data', 'invoice_schemes',
-                'default_invoice_schemes', 'invoice_layouts', 'featured_products', 'customer_due',
-                'users', 'only_payment'));
+            ->with(compact(
+                'type_document_identifications',
+                'type_regimes',
+                'type_liabilities',
+                'departments',
+                'business_details',
+                'taxes',
+                'payment_types',
+                'walk_in_customer',
+                'sell_details',
+                'transaction',
+                'payment_lines',
+                'location_printer_type',
+                'shortcuts',
+                'commission_agent',
+                'categories',
+                'pos_settings',
+                'change_return',
+                'types',
+                'customer_groups',
+                'brands',
+                'accounts',
+                'waiters',
+                'redeem_details',
+                'edit_price',
+                'edit_discount',
+                'shipping_statuses',
+                'warranties',
+                'sub_type',
+                'pos_module_data',
+                'invoice_schemes',
+                'default_invoice_schemes',
+                'invoice_layouts',
+                'featured_products',
+                'customer_due',
+                'users',
+                'only_payment',
+                'types_of_service',
+                'business_locations',
+                'pos_lock_location',
+                'default_location',
+                'cashRegister'
+            ));
     }
 
     /**
@@ -1378,8 +2269,10 @@ class SellPosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('sell.update') && !auth()->user()->can('direct_sell.access') &&
-            !auth()->user()->can('so.update') && !auth()->user()->can('edit_pos_payment')) {
+        if (
+            !auth()->user()->can('sell.update') && !auth()->user()->can('direct_sell.access') &&
+            !auth()->user()->can('so.update') && !auth()->user()->can('edit_pos_payment')
+        ) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -1427,7 +2320,8 @@ class SellPosController extends Controller
 
                 if ($is_credit_limit_exeeded !== false) {
                     $credit_limit_amount = $this->transactionUtil->num_f($is_credit_limit_exeeded, true);
-                    $output = ['success' => 0,
+                    $output = [
+                        'success' => 0,
                         'msg' => __('lang_v1.cutomer_credit_limit_exeeded', ['credit_limit' => $credit_limit_amount]),
                     ];
                     if (!$is_direct_sale) {
@@ -1448,7 +2342,26 @@ class SellPosController extends Controller
                 $user_id = $request->session()->get('user.id');
                 $commsn_agnt_setting = $request->session()->get('business.sales_cmsn_agnt');
 
-                $discount = ['discount_type' => $input['discount_type'],
+                // Lock POS location to the location selected at cash register opening.
+                if (!$is_direct_sale) {
+                    $active_register = CashRegister::where('user_id', $user_id)
+                        ->where('status', 'open')
+                        ->where(function ($q) {
+                            $q->whereNull('closing_type')
+                                ->orWhere('closing_type', '!=', 'general');
+                        })->latest('id')->first();
+
+                    if (!empty($active_register->location_id)) {
+                        $input['location_id'] = $active_register->location_id;
+                        foreach ($input['products'] as &$product_line) {
+                            $product_line['line_location_id'] = $active_register->location_id;
+                        }
+                        unset($product_line);
+                    }
+                }
+
+                $discount = [
+                    'discount_type' => $input['discount_type'],
                     'discount_amount' => $input['discount_amount'],
                 ];
                 $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
@@ -1494,20 +2407,20 @@ class SellPosController extends Controller
                     $input['types_of_service_id'] = $request->input('types_of_service_id');
                     $price_group_id = !empty($request->input('types_of_service_price_group')) ? $request->input('types_of_service_price_group') : $price_group_id;
                     $input['packing_charge'] = !empty($request->input('packing_charge')) ?
-                    $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
+                        $this->transactionUtil->num_uf($request->input('packing_charge')) : 0;
                     $input['packing_charge_type'] = $request->input('packing_charge_type');
                     $input['service_custom_field_1'] = !empty($request->input('service_custom_field_1')) ?
-                    $request->input('service_custom_field_1') : null;
+                        $request->input('service_custom_field_1') : null;
                     $input['service_custom_field_2'] = !empty($request->input('service_custom_field_2')) ?
-                    $request->input('service_custom_field_2') : null;
+                        $request->input('service_custom_field_2') : null;
                     $input['service_custom_field_3'] = !empty($request->input('service_custom_field_3')) ?
-                    $request->input('service_custom_field_3') : null;
+                        $request->input('service_custom_field_3') : null;
                     $input['service_custom_field_4'] = !empty($request->input('service_custom_field_4')) ?
-                    $request->input('service_custom_field_4') : null;
+                        $request->input('service_custom_field_4') : null;
                     $input['service_custom_field_5'] = !empty($request->input('service_custom_field_5')) ?
-                    $request->input('service_custom_field_5') : null;
+                        $request->input('service_custom_field_5') : null;
                     $input['service_custom_field_6'] = !empty($request->input('service_custom_field_6')) ?
-                    $request->input('service_custom_field_6') : null;
+                        $request->input('service_custom_field_6') : null;
                 }
 
                 $input['selling_price_group_id'] = $price_group_id;
@@ -1669,7 +2582,8 @@ class SellPosController extends Controller
                     $business_details = $this->businessUtil->getDetails($business_id);
                     $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-                    $business = ['id' => $business_id,
+                    $business = [
+                        'id' => $business_id,
                         'accounting_method' => $request->session()->get('business.accounting_method'),
                         'location_id' => $input['location_id'],
                         'pos_settings' => $pos_settings,
@@ -1727,7 +2641,7 @@ class SellPosController extends Controller
                         $receipt = '';
                     }
                 }
-                
+
 
                 $output = ['success' => 1, 'msg' => $msg, 'receipt' => $receipt];
 
@@ -1735,14 +2649,16 @@ class SellPosController extends Controller
                     $output['whatsapp_link'] = $whatsapp_link;
                 }
             } else {
-                $output = ['success' => 0,
+                $output = [
+                    'success' => 0,
                     'msg' => "No se pudo actualizar la factura",
                 ];
             }
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
-            $output = ['success' => 0,
+            $output = [
+                'success' => 0,
                 'msg' => "Error al intentar actualizar la factura",
                 'error' => $e->getMessage(),
                 'line' => $e->getLine(),
@@ -1883,24 +2799,271 @@ class SellPosController extends Controller
         ];
     }
 
-    private function getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell, $so_line = null)
+    // private function getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell, $so_line = null)
+    // {
+    //     $business_id = request()->session()->get('user.business_id');
+    //     $business_details = $this->businessUtil->getDetails($business_id);
+    //     //Check for weighing scale barcode
+    //     $weighing_barcode = request()->get('weighing_scale_barcode');
+
+    //     $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+
+    //     $check_qty = !empty($pos_settings['allow_overselling']) ? false : true;
+
+    //     $is_sales_order = request()->has('is_sales_order') && request()->input('is_sales_order') == 'true' ? true : false;
+    //     $is_draft = request()->has('is_draft') && request()->input('is_draft') == 'true' ? true : false;
+
+    //     if ($is_sales_order || !empty($so_line) || $is_draft) {
+    //         $check_qty = false;
+    //     }
+
+    //     if (request()->input('disable_qty_alert') === 'true') {
+    //         $pos_settings['allow_overselling'] = true;
+    //     }
+
+    //     $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id, $check_qty);
+
+    //     if (!isset($product->quantity_ordered)) {
+    //         $product->quantity_ordered = $quantity;
+    //     }
+
+    //     $product->secondary_unit_quantity = !isset($product->secondary_unit_quantity) ? 0 : $product->secondary_unit_quantity;
+
+    //     $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available, false, null, true);
+
+    //     $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, false, $product->product_id);
+
+    //     //Get customer group and change the price accordingly
+    //     $customer_id = request()->get('customer_id', null);
+    //     $cg = $this->contactUtil->getCustomerGroup($business_id, $customer_id);
+    //     $percent = (empty($cg) || empty($cg->amount) || $cg->price_calculation_type != 'percentage') ? 0 : $cg->amount;
+    //     $product->default_sell_price = $product->default_sell_price + ($percent * $product->default_sell_price / 100);
+    //     $product->sell_price_inc_tax = $product->sell_price_inc_tax + ($percent * $product->sell_price_inc_tax / 100);
+
+    //     // Set price group price if customer has a price group
+    //     if (!empty($cg) && !empty($cg->selling_price_group_id) && !empty($variation_id)) {
+    //         try {
+    //             $vgp = VariationGroupPrice::where('variation_id', $variation_id)
+    //                 ->where('price_group_id', $cg->selling_price_group_id)
+    //                 ->select(['price_inc_tax', 'price_type'])
+    //                 ->first();
+
+    //             if (!empty($vgp)) {
+    //                 $calculated_price = 0;
+    //                 if (isset($vgp->price_type) && $vgp->price_type == 'percentage') {
+    //                     $calculated_price = (($vgp->price_inc_tax) * $product->sell_price_inc_tax) / 100;
+    //                 } else {
+    //                     $calculated_price = $vgp->price_inc_tax;
+    //                 }
+
+    //                 // Only apply price group price if it's greater than zero
+    //                 if ($calculated_price > 0) {
+    //                     if (isset($vgp->price_type) && $vgp->price_type == 'percentage') {
+    //                         $product->default_sell_price = (($vgp->price_inc_tax) * $product->default_sell_price) / 100;
+    //                         $product->sell_price_inc_tax = $calculated_price;
+    //                     } else {
+    //                         $product->default_sell_price = $vgp->price_inc_tax;
+    //                         $product->sell_price_inc_tax = $vgp->price_inc_tax;
+    //                     }
+    //                 }
+    //             }
+    //         } catch (\Exception $e) {
+    //             \Log::error('Error fetching VariationGroupPrice: ' . $e->getMessage());
+    //         }
+    //     }
+
+    //     $tax_dropdown = TaxRate::forBusinessDropdown($business_id, true, true);
+
+    //     $enabled_modules = $this->transactionUtil->allModulesEnabled();
+
+    //     //Get lot number dropdown if enabled
+    //     $lot_numbers = [];
+    //     if (request()->session()->get('business.enable_lot_number') == 1 || request()->session()->get('business.enable_product_expiry') == 1) {
+    //         $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($variation_id, $business_id, $location_id, true);
+    //         foreach ($lot_number_obj as $lot_number) {
+    //             $lot_number->qty_formated = $this->productUtil->num_f($lot_number->qty_available);
+    //             $lot_numbers[] = $lot_number;
+    //         }
+    //     }
+    //     $product->lot_numbers = $lot_numbers;
+
+    //     $purchase_line_id = request()->get('purchase_line_id');
+
+    //     $price_group = request()->input('price_group');
+    //     $businessLocation = BusinessLocation::find($location_id);
+    //     if (!empty($price_group) && !empty($businessLocation->selling_price_group_id)) {
+    //         $variation_group_prices = $this->productUtil->getVariationGroupPrice($variation_id, $price_group, $product->tax_id);
+
+    //         if (!empty($variation_group_prices['price_inc_tax']) && $variation_group_prices['price_inc_tax'] > 0) {
+    //             $product->sell_price_inc_tax = $variation_group_prices['price_inc_tax'];
+    //             $product->default_sell_price = $variation_group_prices['price_exc_tax'];
+    //         }
+    //     }
+
+    //     $warranties = $this->__getwarranties();
+
+    //     $output['success'] = true;
+    //     $output['enable_sr_no'] = $product->enable_sr_no;
+
+    //     $waiters = [];
+    //     if ($this->productUtil->isModuleEnabled('service_staff') && !empty($pos_settings['inline_service_staff'])) {
+    //         $waiters_enabled = true;
+    //         $waiters = $this->productUtil->serviceStaffDropdown($business_id, $location_id);
+    //     }
+
+    //     $last_sell_line = null;
+    //     if ($is_direct_sell) {
+    //         $last_sell_line = $this->getLastSellLineForCustomer($variation_id, $customer_id, $location_id);
+    //     }
+
+    //     if (request()->get('type') == 'sell-return') {
+    //         $output['html_content'] = view('sell_return.partials.product_row')
+    //             ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'sub_units'))
+    //             ->render();
+    //     } else {
+    //         $is_cg = !empty($cg->id) ? true : false;
+
+    //         $discount = $this->productUtil->getProductDiscount($product, $business_id, $location_id, $is_cg, $price_group, $variation_id);
+
+    //         if ($is_direct_sell) {
+    //             $edit_discount = auth()->user()->can('edit_product_discount_from_sale_screen');
+    //             $edit_price = auth()->user()->can('edit_product_price_from_sale_screen');
+    //         } else {
+    //             $edit_discount = auth()->user()->can('edit_product_discount_from_pos_screen');
+    //             $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
+    //         }
+
+    //         $output['html_content'] = view('sale_pos.product_row')
+    //             ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order', 'last_sell_line', 'location_id'))
+    //             ->render();
+    //     }
+
+    //     return $output;
+    // }
+    
+    //  private function getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell, $so_line = null)    {
+    //     $business_id = request()->session()->get('user.business_id');
+    //     $business_details = $this->businessUtil->getDetails($business_id);
+    //     $weighing_barcode = request()->get('weighing_scale_barcode');
+
+    //     $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+
+    //     $check_qty = !empty($pos_settings['allow_overselling']) ? false : true;
+    //     $is_sales_order = request()->has('is_sales_order') && request()->input('is_sales_order') == 'true';
+    //     $is_draft = request()->has('is_draft') && request()->input('is_draft') == 'true';
+
+    //     if ($is_sales_order || !empty($so_line) || $is_draft) {
+    //         $check_qty = false;
+    //     }
+
+    //     $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id, $check_qty);
+
+    //     if (!isset($product->quantity_ordered)) {
+    //         $product->quantity_ordered = $quantity;
+    //     }
+
+    //     // --- USER PERMISSION PRICE LOGIC START ---
+    //     $price_group = request()->input('price_group');
+
+    //     // Check if current user is Admin
+    //     $is_admin = auth()->user()->hasRole('Admin') || auth()->user()->id == 1;
+
+    //     // ADMIN CHECK: Agar admin nahi hai, tabhi permission-based price group check karein
+    //     if (!$is_admin) {
+    //         // Agar request mein price group nahi hai, toh user ki permission check karein
+    //         if (empty($price_group) || $price_group == 0) {
+    //             $all_spgs = \App\SellingPriceGroup::where('business_id', $business_id)->active()->get();
+    //             foreach ($all_spgs as $spg) {
+    //                 if (auth()->user()->can('selling_price_group.' . $spg->id)) {
+    //                     $price_group = $spg->id;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+
+    //         // Agar humein koi price group mil gaya (chahe request se ya permission se)
+    //         if (!empty($price_group)) {
+    //             $variation_group_prices = $this->productUtil->getVariationGroupPrice($variation_id, $price_group, $product->tax_id);
+
+    //             if (!empty($variation_group_prices['price_inc_tax']) && $variation_group_prices['price_inc_tax'] > 0) {
+    //                 // Forcefully set the price to Group Price (e.g. 14,000)
+    //                 $product->sell_price_inc_tax = $variation_group_prices['price_inc_tax'];
+    //                 $product->default_sell_price = $variation_group_prices['price_exc_tax'];
+    //             }
+    //         }
+    //     }
+    //     else {
+    //         // Agar Admin hai, toh price_group ko null kar dein taake discount calculation bhi default par ho
+    //         $price_group = null;
+    //     }
+    //     // --- USER PERMISSION PRICE LOGIC END ---
+
+    //     $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, false, $product->product_id);
+    //     $customer_id = request()->get('customer_id', null);
+
+    //     // Tax and Modules logic
+    //     $tax_dropdown = TaxRate::forBusinessDropdown($business_id, true, true);
+    //     $enabled_modules = $this->transactionUtil->allModulesEnabled();
+
+    //     // Lot numbers logic
+    //     $lot_numbers = [];
+    //     if (request()->session()->get('business.enable_lot_number') == 1 || request()->session()->get('business.enable_product_expiry') == 1) {
+    //         $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($variation_id, $business_id, $location_id, true);
+    //         foreach ($lot_number_obj as $lot_number) {
+    //             $lot_number->qty_formated = $this->productUtil->num_f($lot_number->qty_available);
+    //             $lot_numbers[] = $lot_number;
+    //         }
+    //     }
+    //     $product->lot_numbers = $lot_numbers;
+
+    //     $purchase_line_id = request()->get('purchase_line_id');
+    //     $warranties = $this->__getwarranties();
+
+    //     $output['success'] = true;
+    //     $output['enable_sr_no'] = $product->enable_sr_no;
+
+    //     $waiters = ($this->productUtil->isModuleEnabled('service_staff') && !empty($pos_settings['inline_service_staff']))
+    //         ? $this->productUtil->serviceStaffDropdown($business_id, $location_id) : [];
+
+    //     $last_sell_line = ($is_direct_sell) ? $this->getLastSellLineForCustomer($variation_id, $customer_id, $location_id) : null;
+
+    //     if (request()->get('type') == 'sell-return') {
+    //         $output['html_content'] = view('sell_return.partials.product_row')
+    //             ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'sub_units'))->render();
+    //     }
+    //     else {
+    //         // Note: $price_group here will be null for Admin, ensuring default discount/price
+    //         $discount = $this->productUtil->getProductDiscount($product, $business_id, $location_id, !empty($customer_id), $price_group, $variation_id);
+
+    //         $edit_discount = auth()->user()->can($is_direct_sell ? 'edit_product_discount_from_sale_screen' : 'edit_product_discount_from_pos_screen');
+    //         $edit_price = auth()->user()->can($is_direct_sell ? 'edit_product_price_from_sale_screen' : 'edit_product_price_from_pos_screen');
+
+    //         $output['html_content'] = view('sale_pos.product_row')
+    //             ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order', 'last_sell_line', 'location_id'))
+    //             ->render();
+    //     }
+
+    //     return $output;    
+    // }
+   private function getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell, $so_line = null)
     {
         $business_id = request()->session()->get('user.business_id');
         $business_details = $this->businessUtil->getDetails($business_id);
-        //Check for weighing scale barcode
         $weighing_barcode = request()->get('weighing_scale_barcode');
 
-        $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+        $pos_settings = empty($business_details->pos_settings)
+            ? $this->businessUtil->defaultPosSettings()
+            : json_decode($business_details->pos_settings, true);
 
         $check_qty = !empty($pos_settings['allow_overselling']) ? false : true;
-
-        $is_sales_order = request()->has('is_sales_order') && request()->input('is_sales_order') == 'true' ? true : false;
-        $is_draft = request()->has('is_draft') && request()->input('is_draft') == 'true' ? true : false;
+        $is_sales_order = request()->has('is_sales_order') && request()->input('is_sales_order') == 'true';
+        $is_draft = request()->has('is_draft') && request()->input('is_draft') == 'true';
 
         if ($is_sales_order || !empty($so_line) || $is_draft) {
             $check_qty = false;
         }
 
+        // ✅ OLD se liya
         if (request()->input('disable_qty_alert') === 'true') {
             $pos_settings['allow_overselling'] = true;
         }
@@ -1911,24 +3074,90 @@ class SellPosController extends Controller
             $product->quantity_ordered = $quantity;
         }
 
+        // ✅ OLD se liya
         $product->secondary_unit_quantity = !isset($product->secondary_unit_quantity) ? 0 : $product->secondary_unit_quantity;
-
         $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available, false, null, true);
 
-        $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, false, $product->product_id);
-
-        //Get customer group and change the price accordingly
+        // ✅ OLD se liya — Customer Group Price
         $customer_id = request()->get('customer_id', null);
         $cg = $this->contactUtil->getCustomerGroup($business_id, $customer_id);
         $percent = (empty($cg) || empty($cg->amount) || $cg->price_calculation_type != 'percentage') ? 0 : $cg->amount;
         $product->default_sell_price = $product->default_sell_price + ($percent * $product->default_sell_price / 100);
         $product->sell_price_inc_tax = $product->sell_price_inc_tax + ($percent * $product->sell_price_inc_tax / 100);
 
-        $tax_dropdown = TaxRate::forBusinessDropdown($business_id, true, true);
+        // ✅ OLD se liya — Customer group selling_price_group_id
+        if (!empty($cg) && !empty($cg->selling_price_group_id) && !empty($variation_id)) {
+            try {
+                $vgp = VariationGroupPrice::where('variation_id', $variation_id)
+                    ->where('price_group_id', $cg->selling_price_group_id)
+                    ->select(['price_inc_tax', 'price_type'])
+                    ->first();
 
+                if (!empty($vgp)) {
+                    $calculated_price = 0;
+                    if (isset($vgp->price_type) && $vgp->price_type == 'percentage') {
+                        $calculated_price = (($vgp->price_inc_tax) * $product->sell_price_inc_tax) / 100;
+                    } else {
+                        $calculated_price = $vgp->price_inc_tax;
+                    }
+                    if ($calculated_price > 0) {
+                        if (isset($vgp->price_type) && $vgp->price_type == 'percentage') {
+                            $product->default_sell_price = (($vgp->price_inc_tax) * $product->default_sell_price) / 100;
+                            $product->sell_price_inc_tax = $calculated_price;
+                        } else {
+                            $product->default_sell_price = $vgp->price_inc_tax;
+                            $product->sell_price_inc_tax = $vgp->price_inc_tax;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error fetching VariationGroupPrice: ' . $e->getMessage());
+            }
+        }
+
+        // --- TUMHARA NEW ADMIN LOGIC ---
+        $price_group = request()->input('price_group');
+
+        $is_admin = false;
+        $user_roles = auth()->user()->getRoleNames();
+        foreach ($user_roles as $role) {
+            if (str_contains(strtolower($role), 'admin')) {
+                $is_admin = true;
+                break;
+            }
+        }
+        if (auth()->user()->id == 1) {
+            $is_admin = true;
+        }
+
+        if (!$is_admin) {
+            if (empty($price_group) || $price_group == 0) {
+                $all_spgs = \App\SellingPriceGroup::where('business_id', $business_id)->active()->get();
+                foreach ($all_spgs as $spg) {
+                    if (auth()->user()->can('selling_price_group.' . $spg->id)) {
+                        $price_group = $spg->id;
+                        break;
+                    }
+                }
+            }
+
+            if (!empty($price_group)) {
+                $variation_group_prices = $this->productUtil->getVariationGroupPrice($variation_id, $price_group, $product->tax_id);
+                if (!empty($variation_group_prices['price_inc_tax']) && $variation_group_prices['price_inc_tax'] > 0) {
+                    $product->sell_price_inc_tax = $variation_group_prices['price_inc_tax'];
+                    $product->default_sell_price = $variation_group_prices['price_exc_tax'];
+                }
+            }
+        } else {
+            $price_group = null;
+        }
+        // --- END ADMIN LOGIC ---
+
+        $sub_units = $this->productUtil->getSubUnits($business_id, $product->unit_id, false, $product->product_id);
+
+        $tax_dropdown = TaxRate::forBusinessDropdown($business_id, true, true);
         $enabled_modules = $this->transactionUtil->allModulesEnabled();
 
-        //Get lot number dropdown if enabled
         $lot_numbers = [];
         if (request()->session()->get('business.enable_lot_number') == 1 || request()->session()->get('business.enable_product_expiry') == 1) {
             $lot_number_obj = $this->transactionUtil->getLotNumbersFromVariation($variation_id, $business_id, $location_id, true);
@@ -1940,17 +3169,6 @@ class SellPosController extends Controller
         $product->lot_numbers = $lot_numbers;
 
         $purchase_line_id = request()->get('purchase_line_id');
-
-        $price_group = request()->input('price_group');
-        if (!empty($price_group)) {
-            $variation_group_prices = $this->productUtil->getVariationGroupPrice($variation_id, $price_group, $product->tax_id);
-
-            if (!empty($variation_group_prices['price_inc_tax'])) {
-                $product->sell_price_inc_tax = $variation_group_prices['price_inc_tax'];
-                $product->default_sell_price = $variation_group_prices['price_exc_tax'];
-            }
-        }
-
         $warranties = $this->__getwarranties();
 
         $output['success'] = true;
@@ -1976,13 +3194,8 @@ class SellPosController extends Controller
 
             $discount = $this->productUtil->getProductDiscount($product, $business_id, $location_id, $is_cg, $price_group, $variation_id);
 
-            if ($is_direct_sell) {
-                $edit_discount = auth()->user()->can('edit_product_discount_from_sale_screen');
-                $edit_price = auth()->user()->can('edit_product_price_from_sale_screen');
-            } else {
-                $edit_discount = auth()->user()->can('edit_product_discount_from_pos_screen');
-                $edit_price = auth()->user()->can('edit_product_price_from_pos_screen');
-            }
+            $edit_discount = auth()->user()->can($is_direct_sell ? 'edit_product_discount_from_sale_screen' : 'edit_product_discount_from_pos_screen');
+            $edit_price = auth()->user()->can($is_direct_sell ? 'edit_product_price_from_sale_screen' : 'edit_product_price_from_pos_screen');
 
             $output['html_content'] = view('sale_pos.product_row')
                 ->with(compact('product', 'row_count', 'tax_dropdown', 'enabled_modules', 'pos_settings', 'sub_units', 'discount', 'waiters', 'edit_discount', 'edit_price', 'purchase_line_id', 'warranties', 'quantity', 'is_direct_sell', 'so_line', 'is_sales_order', 'last_sell_line', 'location_id'))
@@ -1991,6 +3204,7 @@ class SellPosController extends Controller
 
         return $output;
     }
+
 
     /**
      * Finds last sell line of a variation for the customer for a location
@@ -2017,6 +3231,57 @@ class SellPosController extends Controller
      * @param  int  $location_id
      * @return \Illuminate\Http\Response
      */
+    // public function getProductRow($variation_id, $location_id)
+    // {
+    //     $output = [];
+
+    //     try {
+    //         $row_count = request()->get('product_row');
+    //         $row_count = $row_count + 1;
+    //         $quantity = request()->get('quantity', 1);
+    //         $weighing_barcode = request()->get('weighing_scale_barcode', null);
+
+    //         $is_direct_sell = false;
+    //         if (request()->get('is_direct_sell') == 'true') {
+    //             $is_direct_sell = true;
+    //         }
+
+    //         if ($variation_id == 'null' && !empty($weighing_barcode)) {
+    //             $product_details = $this->__parseWeighingBarcode($weighing_barcode);
+    //             if ($product_details['success']) {
+    //                 $variation_id = $product_details['variation_id'];
+    //                 $quantity = $product_details['qty'];
+    //             } else {
+    //                 $output['success'] = false;
+    //                 $output['msg'] = $product_details['msg'];
+
+    //                 return $output;
+    //             }
+    //         }
+
+    //         $output = $this->getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell);
+
+    //         if ($this->transactionUtil->isModuleEnabled('modifiers') && !$is_direct_sell) {
+    //             $variation = Variation::find($variation_id);
+    //             $business_id = request()->session()->get('user.business_id');
+    //             $this_product = Product::where('business_id', $business_id)
+    //                 ->with(['modifier_sets'])
+    //                 ->find($variation->product_id);
+    //             if (count($this_product->modifier_sets) > 0) {
+    //                 $product_ms = $this_product->modifier_sets;
+    //                 $output['html_modifier'] = view('restaurant.product_modifier_set.modifier_for_product')
+    //                     ->with(compact('product_ms', 'row_count'))->render();
+    //             }
+    //         }
+    //     } catch (\Exception $e) {
+    //         \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
+
+    //         $output['success'] = false;
+    //         $output['msg'] = __('lang_v1.item_out_of_stock');
+    //     }
+
+    //     return $output;
+    // }
     public function getProductRow($variation_id, $location_id)
     {
         $output = [];
@@ -2026,6 +3291,21 @@ class SellPosController extends Controller
             $row_count = $row_count + 1;
             $quantity = request()->get('quantity', 1);
             $weighing_barcode = request()->get('weighing_scale_barcode', null);
+
+            // ✅ Price Group Logic
+            $price_group_id = request()->get('price_group', null);
+            if (empty($price_group_id) || $price_group_id == 0) {
+                $business_id = request()->session()->get('user.business_id');
+                $all_spgs = \App\SellingPriceGroup::where('business_id', $business_id)
+                    ->active()->get();
+                foreach ($all_spgs as $spg) {
+                    if (auth()->user()->can('selling_price_group.' . $spg->id)) {
+                        $price_group_id = $spg->id;
+                        request()->merge(['price_group' => $price_group_id]);
+                        break;
+                    }
+                }
+            }
 
             $is_direct_sell = false;
             if (request()->get('is_direct_sell') == 'true') {
@@ -2040,12 +3320,17 @@ class SellPosController extends Controller
                 } else {
                     $output['success'] = false;
                     $output['msg'] = $product_details['msg'];
-
                     return $output;
                 }
             }
 
-            $output = $this->getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell);
+            $output = $this->getSellLineRow(
+                $variation_id,
+                $location_id,
+                $quantity,
+                $row_count,
+                $is_direct_sell
+            );
 
             if ($this->transactionUtil->isModuleEnabled('modifiers') && !$is_direct_sell) {
                 $variation = Variation::find($variation_id);
@@ -2059,9 +3344,9 @@ class SellPosController extends Controller
                         ->with(compact('product_ms', 'row_count'))->render();
                 }
             }
+
         } catch (\Exception $e) {
             \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
-
             $output['success'] = false;
             $output['msg'] = __('lang_v1.item_out_of_stock');
         }
@@ -2140,6 +3425,9 @@ class SellPosController extends Controller
             $query->where('transactions.sub_type', null);
         }
 
+        // Retrieve the limit for displaying recent transactions from the configuration
+        $limit = config('constants.pos_recent_transactions_display_limit', 20);
+
         $transactions = $query->orderBy('transactions.created_at', 'desc')
             ->groupBy('transactions.id')
             ->select('transactions.*')
@@ -2161,7 +3449,8 @@ class SellPosController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $output = ['success' => 0,
+                $output = [
+                    'success' => 0,
                     'msg' => trans('messages.something_went_wrong'),
                 ];
 
@@ -2193,7 +3482,8 @@ class SellPosController extends Controller
             } catch (\Exception $e) {
                 \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
 
-                $output = ['success' => 0,
+                $output = [
+                    'success' => 0,
                     'msg' => trans('messages.something_went_wrong'),
                 ];
             }
@@ -2208,101 +3498,504 @@ class SellPosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function getProductSuggestion(Request $request)
+    // public function getProductSuggestion(Request $request)
+    // {
+
+    //     // echo('<script>console.log("KKK");</script>');
+    //     // echo($request);
+
+    //     if ($request->ajax()) {
+    //         $category_id = $request->get('category_id');
+    //         $brand_id = $request->get('brand_id');
+    //         $location_id = $request->get('location_id');
+    //         $term = $request->get('term');
+    //         $customer_id = $request->get('customer_id');
+    //         // $price_group = $request->get('price_group');
+
+    //         $price_group_id = $request->get('price_group');
+
+    //         // Treat 0 or empty as no price group
+    //         if ($price_group_id == '0' || $price_group_id == 0 || empty($price_group_id)) {
+    //             $price_group_id = null;
+    //         }
+
+    //         // Debug: Log the request parameters
+    //         \Log::info('Product suggestion request - Location ID: ' . $location_id . ', Customer ID: ' . $customer_id . ', Price Group: ' . $price_group_id);
+
+    //         $check_qty = false;
+    //         $business_id = $request->session()->get('user.business_id');
+    //         $business = $request->session()->get('business');
+    //         $pos_settings = empty($business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business->pos_settings, true);
+
+    //         $products = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+    //             ->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
+    //             ->join('units as u', 'p.unit_id', '=', 'u.id')
+    //             ->leftJoin('brands as b', 'p.brand_id', '=', 'b.id')
+    //             ->leftjoin(
+    //                 'variation_location_details AS VLD',
+    //                 function ($join) use ($location_id) {
+    //                     $join->on('variations.id', '=', 'VLD.variation_id');
+
+    //                     //Include Location
+    //                     if (!empty($location_id)) {
+    //                         $join->where(function ($query) use ($location_id) {
+    //                             $query->where('VLD.location_id', '=', $location_id);
+    //                             //Check null to show products even if no quantity is available in a location.
+    //                             //TODO: Maybe add a settings to show product not available at a location or not.
+    //                             $query->orWhereNull('VLD.location_id');
+    //                         });
+    //                     }
+    //                 }
+    //             )
+    //             ->where('p.business_id', $business_id)
+    //             ->where('p.type', '!=', 'modifier')
+    //             ->where('p.is_inactive', 0)
+    //             ->where('p.not_for_selling', 0)
+    //             //Hide products not available in the selected location
+    //             ->where(function ($q) use ($location_id) {
+    //                 $q->where('pl.location_id', $location_id);
+    //             });
+
+    //         //Include search
+    //         if (!empty($term)) {
+    //             $products->where(function ($query) use ($term) {
+    //                 $query->where('p.name', 'like', '%' . $term . '%');
+    //                 $query->orWhere('sku', 'like', '%' . $term . '%');
+    //                 $query->orWhere('sub_sku', 'like', '%' . $term . '%');
+    //             });
+    //         }
+
+    //         //Include check for quantity
+    //         if ($check_qty) {
+    //             $products->where('VLD.qty_available', '>', 0);
+    //         }
+
+    //         if (!empty($category_id) && ($category_id != 'all')) {
+    //             $products->where(function ($query) use ($category_id) {
+    //                 $query->where('p.category_id', $category_id);
+    //                 $query->orWhere('p.sub_category_id', $category_id);
+    //             });
+    //         }
+    //         if (!empty($brand_id) && ($brand_id != 'all')) {
+    //             $products->where('p.brand_id', $brand_id);
+    //         }
+
+    //         if (!empty($request->get('is_enabled_stock'))) {
+    //             $is_enabled_stock = 0;
+    //             if ($request->get('is_enabled_stock') == 'product') {
+    //                 $is_enabled_stock = 1;
+    //             }
+
+    //             $products->where('p.enable_stock', $is_enabled_stock);
+    //         }
+
+    //         if (!empty($request->get('repair_model_id'))) {
+    //             $products->where('p.repair_model_id', $request->get('repair_model_id'));
+    //         }
+            
+    //         // Add rack filter
+    //         $rack_filter = $request->get('rack_filter');
+    //         if (!empty($rack_filter)) {
+    //             $products->whereHas('product.rack_details', function ($query) use ($rack_filter, $location_id) {
+    //                 $query->where('rack', $rack_filter);
+    //                 if (!empty($location_id)) {
+    //                     $query->where('location_id', $location_id);
+    //                 }
+    //             });
+    //         }
+
+    //         // Add price group join if price group is selected
+    //         if (!empty($price_group_id)) {
+    //             $products->leftjoin(
+    //                 'variation_group_prices AS VGP',
+    //                 function ($join) use ($price_group_id) {
+    //                     $join->on('variations.id', '=', 'VGP.variation_id')
+    //                         ->where('VGP.price_group_id', '=', $price_group_id);
+    //                 }
+    //             );
+    //         }
+            
+    //         // Add product_racks join for rack, row, position
+    //         $products->leftjoin(
+    //             'product_racks AS PR',
+    //             function ($join) use ($location_id, $business_id) {
+    //                 $join->on('p.id', '=', 'PR.product_id')
+    //                     ->where('PR.business_id', '=', $business_id);
+    //                 if (!empty($location_id)) {
+    //                     $join->where('PR.location_id', '=', $location_id);
+    //                 }
+    //             }
+    //         );
+
+    //         $select_fields = [
+    //             'p.id as product_id',
+    //             'p.name',
+    //             'p.type',
+    //             'p.enable_stock',
+    //             'p.image as product_image',
+    //             'variations.id',
+    //             'p.weight',
+    //             'b.name as brand',
+    //             'variations.name as variation',
+    //             'VLD.qty_available',
+    //             'variations.sell_price_inc_tax as selling_price',
+    //             'variations.dpp_inc_tax as purchase_price',
+    //             'variations.sub_sku',
+    //             'u.short_name as unit',
+    //             'PR.rack as rack',
+    //             'PR.row as row',
+    //             'PR.position as position'
+    //         ];
+
+    //         // Add price group price if price group is selected
+    //         if (!empty($price_group_id)) {
+    //             $select_fields[] = DB::raw('IF (VGP.price_type = "fixed", VGP.price_inc_tax, VGP.price_inc_tax * variations.sell_price_inc_tax / 100) as group_price');
+    //         }
+
+    //         $products = $products->select($select_fields)
+    //             ->with(['media', 'group_prices'])
+    //             ->orderBy('p.name', 'asc')
+    //             ->paginate(80);
+
+    //         $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->pluck('name', 'id');
+
+    //         $allowed_group_prices = [];
+    //         foreach ($price_groups as $key => $value) {
+    //             if (auth()->user()->can('selling_price_group.' . $key)) {
+    //                 $allowed_group_prices[$key] = $value;
+    //             }
+    //         }
+
+    //         $show_prices = !empty($pos_settings['show_pricing_on_product_sugesstion']);
+
+    //         // Adjust each product's selling_price to reflect customer group and price group (to match cart)
+    //         $cg = $this->contactUtil->getCustomerGroup($business_id, $customer_id);
+    //         $is_cg = !empty($cg->id);
+    //         $percent = ($is_cg && !empty($cg->amount) && $cg->price_calculation_type == 'percentage') ? $cg->amount : 0;
+
+    //         // Get branch-specific price group if available (not 0 and not null)
+    //         $branch_price_group = null;
+    //         if (!empty($location_id)) {
+    //             $branch = BusinessLocation::find($location_id);
+    //             \Log::info('Branch lookup - Location ID: ' . $location_id . ', Branch found: ' . ($branch ? 'Yes' : 'No'));
+    //             if ($branch) {
+    //                 \Log::info('Branch selling_price_group_id: ' . $branch->selling_price_group_id);
+    //             }
+    //             if (!empty($branch) && !empty($branch->selling_price_group_id) && $branch->selling_price_group_id != 0) {
+    //                 $branch_price_group = $branch->selling_price_group_id;
+    //                 \Log::info('Using branch price group: ' . $branch_price_group);
+    //             } else {
+    //                 \Log::info('No valid branch price group found');
+    //             }
+    //         }
+
+    //         $products->getCollection()->transform(function ($p) use ($business_id, $location_id, $percent, $is_cg, $branch_price_group, $cg) {
+    //             // Base inc-tax price
+    //             $price_inc_tax = $p->selling_price;
+    //             $price_found = false;
+    //             // First check if branch has a specific price group (not 0 and not null)
+    //             if (!empty($branch_price_group)) {
+    //                 $vgp = VariationGroupPrice::where('variation_id', $p->id)
+    //                     ->where('price_group_id', $branch_price_group)
+    //                     ->select(['price_inc_tax', 'price_type'])
+    //                     ->first();
+    //                 if (!empty($vgp)) {
+    //                     if (isset($vgp->price_type) && $vgp->price_type == 'percentage') {
+    //                         $price_inc_tax = (($vgp->price_inc_tax) * $price_inc_tax) / 100;
+    //                     } else {
+    //                         $price_inc_tax = $vgp->price_inc_tax;
+    //                     }
+    //                     // If price group price is zero, use actual sell price
+    //                     if ($price_inc_tax > 0) {
+    //                         $price_found = true;
+    //                     }
+    //                 }
+    //             }
+
+    //             // If no branch price group or no price found, check selected price group
+    //             if (!$price_found && !empty($price_group) && !empty($branch_price_group)) {
+    //                 // dd($price_group);
+
+    //                 $vgp = VariationGroupPrice::where('variation_id', $p->id)
+    //                     ->where('price_group_id', $price_group)
+    //                     ->select(['price_inc_tax', 'price_type'])
+    //                     ->first();
+    //                 if (!empty($vgp)) {
+    //                     if (isset($vgp->price_type) && $vgp->price_type == 'percentage') {
+    //                         $price_inc_tax = (($vgp->price_inc_tax) * $price_inc_tax) / 100;
+    //                     } else {
+    //                         $price_inc_tax = $vgp->price_inc_tax;
+    //                     }
+    //                     // If price group price is zero, use actual sell price
+    //                     if ($price_inc_tax > 0) {
+    //                         $price_found = true;
+    //                     }
+    //                 }
+    //             }
+
+
+    //             if (!$price_found && !empty($is_cg) && !empty($cg->selling_price_group_id)) {
+    //                 $vgp = VariationGroupPrice::where('variation_id', $p->id)
+    //                     ->where('price_group_id', $cg->selling_price_group_id)
+    //                     ->select(['price_inc_tax', 'price_type'])
+    //                     ->first();
+    //                 if (!empty($vgp)) {
+    //                     if (isset($vgp->price_type) && $vgp->price_type == 'percentage') {
+    //                         $price_inc_tax = (($vgp->price_inc_tax) * $price_inc_tax) / 100;
+    //                     } else {
+    //                         $price_inc_tax = $vgp->price_inc_tax;
+    //                     }
+    //                     // If price group price is zero, use actual sell price
+    //                     if ($price_inc_tax > 0) {
+    //                         $price_found = true;
+    //                     }
+    //                 }
+    //             }
+    //             // If no price group pricing found or price is zero, keep the original selling price from variation
+    //             if (!$price_found) {
+    //                 $price_inc_tax = $p->selling_price;
+    //             }
+    //             // Apply customer group percentage
+    //             if ($percent != 0) {
+    //                 $price_inc_tax = $price_inc_tax + ($percent * $price_inc_tax / 100);
+    //             }
+
+    //             $p->selling_price = $price_inc_tax;
+    //             \Log::info('Product ' . $p->id . ' final price: ' . $price_inc_tax . ' (original: ' . $p->selling_price . ')');
+    //             return $p;
+    //         });
+    //         return view('sale_pos.partials.product_list')
+    //             ->with(compact('products', 'allowed_group_prices', 'show_prices', 'price_group_id'));
+    //     }
+    // }
+    
+    //   public function getProductSuggestion(Request $request)
+    // {
+    //     if ($request->ajax()) {
+    //         $category_id = $request->get('category_id');
+    //         $brand_id = $request->get('brand_id');
+    //         $location_id = $request->get('location_id');
+    //         $term = $request->get('term');
+    //         $customer_id = $request->get('customer_id');
+    //         $business_id = $request->session()->get('user.business_id');
+
+    //         // --- PERMISSION LOGIC ---
+    //         $price_group_id = $request->get('price_group');
+    //         if (empty($price_group_id) || $price_group_id == '0') {
+    //             $all_spgs = \App\SellingPriceGroup::where('business_id', $business_id)->active()->get();
+    //             foreach ($all_spgs as $spg) {
+    //                 if (auth()->user()->can('selling_price_group.' . $spg->id)) {
+    //                     $price_group_id = $spg->id;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+
+    //         $business = $request->session()->get('business');
+    //         $pos_settings = empty($business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business->pos_settings, true);
+
+    //         $products = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
+    //             ->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
+    //             ->join('units as u', 'p.unit_id', '=', 'u.id')
+    //             ->leftJoin('brands as b', 'p.brand_id', '=', 'b.id')
+    //             ->leftjoin('variation_location_details AS VLD', function ($join) use ($location_id) {
+    //             $join->on('variations.id', '=', 'VLD.variation_id');
+    //             if (!empty($location_id)) {
+    //                 $join->where(function ($query) use ($location_id) {
+    //                             $query->where('VLD.location_id', '=', $location_id)->orWhereNull('VLD.location_id');
+    //                         }
+    //                         );
+    //                     }
+    //                 })
+    //             ->where('p.business_id', $business_id)
+    //             ->where('p.type', '!=', 'modifier')
+    //             ->where('p.is_inactive', 0)
+    //             ->where('p.not_for_selling', 0)
+    //             ->where('pl.location_id', $location_id);
+
+    //         if (!empty($term)) {
+    //             $products->where(function ($query) use ($term) {
+    //                 $query->where('p.name', 'like', '%' . $term . '%')
+    //                     ->orWhere('sku', 'like', '%' . $term . '%')
+    //                     ->orWhere('sub_sku', 'like', '%' . $term . '%');
+    //             });
+    //         }
+
+    //         if (!empty($category_id) && ($category_id != 'all')) {
+    //             $products->where(function ($query) use ($category_id) {
+    //                 $query->where('p.category_id', $category_id)->orWhere('p.sub_category_id', $category_id);
+    //             });
+    //         }
+
+    //         if (!empty($brand_id) && ($brand_id != 'all')) {
+    //             $products->where('p.brand_id', $brand_id);
+    //         }
+            
+            
+    //         // Add product_racks join for rack, row, position
+    //         $products->leftjoin(
+    //             'product_racks AS PR',
+    //             function ($join) use ($location_id, $business_id) {
+    //                 $join->on('p.id', '=', 'PR.product_id')
+    //                     ->where('PR.business_id', '=', $business_id);
+    //                 if (!empty($location_id)) {
+    //                     $join->where('PR.location_id', '=', $location_id);
+    //                 }
+    //             }
+    //         );
+            
+            
+
+    //         $select_fields = [
+    //             'p.id as product_id', 'p.name', 'p.type', 'p.enable_stock', 'p.image as product_image',
+    //             'variations.id', 'p.weight', 'b.name as brand', 'variations.name as variation',
+    //             'VLD.qty_available', 'variations.sell_price_inc_tax as selling_price',
+    //             'variations.sub_sku', 'u.short_name as unit','PR.rack as rack',
+    //             'PR.row as row',
+    //             'PR.position as position'
+    //         ];
+
+    //         $products = $products->select($select_fields)
+    //             ->with(['media', 'group_prices'])
+    //             ->orderBy('p.name', 'asc')
+    //             ->paginate(80);
+
+    //         // --- FIX: Define $allowed_group_prices for the view ---
+    //         $price_groups = \App\SellingPriceGroup::where('business_id', $business_id)->active()->pluck('name', 'id');
+    //         $allowed_group_prices = [];
+    //         foreach ($price_groups as $key => $value) {
+    //             if (auth()->user()->can('selling_price_group.' . $key)) {
+    //                 $allowed_group_prices[$key] = $value;
+    //             }
+    //         }
+
+    //         // Price Calculation Logic
+    //         $cg = $this->contactUtil->getCustomerGroup($business_id, $customer_id);
+    //         $percent = (!empty($cg) && $cg->price_calculation_type == 'percentage') ? $cg->amount : 0;
+    //         $is_admin = auth()->user()->hasRole('Admin') || auth()->user()->id == 1;
+    //         $products->getCollection()->transform(function ($p) use ($price_group_id, $percent, $is_admin) {
+    //             $price_inc_tax = $p->selling_price;
+
+    //             // Sirf tab Price Group apply karein agar user ADMIN NAHI HAI
+    //             if (!$is_admin && !empty($price_group_id)) {
+    //                 $vgp = \App\VariationGroupPrice::where('variation_id', $p->id)
+    //                     ->where('price_group_id', $price_group_id)
+    //                     ->first();
+
+    //                 if (!empty($vgp) && $vgp->price_inc_tax > 0) {
+    //                     $price_inc_tax = ($vgp->price_type == 'percentage')
+    //                         ? ($vgp->price_inc_tax * $p->selling_price / 100)
+    //                         : $vgp->price_inc_tax;
+    //                 }
+    //             }
+
+    //             if ($percent != 0) {
+    //                 $price_inc_tax += ($percent * $price_inc_tax / 100);
+    //             }
+
+    //             $p->selling_price = $price_inc_tax;
+    //             return $p;            });
+
+    //         $show_prices = !empty($pos_settings['show_pricing_on_product_sugesstion']);
+
+    //         return view('sale_pos.partials.product_list')
+    //             ->with(compact('products', 'show_prices', 'price_group_id', 'allowed_group_prices'));
+    //     }    
+        
+    //     // Add rack filter
+    //         $rack_filter = $request->get('rack_filter');
+    //         if (!empty($rack_filter)) {
+    //             $products->whereHas('product.rack_details', function($query) use ($rack_filter, $location_id) {
+    //                 $query->where('rack', $rack_filter);
+    //                 if (!empty($location_id)) {
+    //                     $query->where('location_id', $location_id);
+    //                 }
+    //             });
+    //         }
+        
+        
+        
+        
+    // }
+     public function getProductSuggestion(Request $request)
     {
         if ($request->ajax()) {
             $category_id = $request->get('category_id');
             $brand_id = $request->get('brand_id');
             $location_id = $request->get('location_id');
             $term = $request->get('term');
+            $customer_id = $request->get('customer_id');
+            $business_id = $request->session()->get('user.business_id');
+
+            // --- PERMISSION LOGIC ---
             $price_group_id = $request->get('price_group');
-            
-            // Treat 0 or empty as no price group
-            if ($price_group_id == '0' || $price_group_id == 0 || empty($price_group_id)) {
-                $price_group_id = null;
+            if (empty($price_group_id) || $price_group_id == '0') {
+                $all_spgs = \App\SellingPriceGroup::where('business_id', $business_id)->active()->get();
+                foreach ($all_spgs as $spg) {
+                    if (auth()->user()->can('selling_price_group.' . $spg->id)) {
+                        $price_group_id = $spg->id;
+                        break;
+                    }
+                }
             }
 
-            $check_qty = false;
-            $business_id = $request->session()->get('user.business_id');
             $business = $request->session()->get('business');
             $pos_settings = empty($business->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business->pos_settings, true);
 
             $products = Variation::join('products as p', 'variations.product_id', '=', 'p.id')
                 ->join('product_locations as pl', 'pl.product_id', '=', 'p.id')
                 ->join('units as u', 'p.unit_id', '=', 'u.id')
-                ->leftjoin(
-                    'variation_location_details AS VLD',
-                    function ($join) use ($location_id) {
-                        $join->on('variations.id', '=', 'VLD.variation_id');
-
-                        //Include Location
-                        if (!empty($location_id)) {
-                            $join->where(function ($query) use ($location_id) {
-                                $query->where('VLD.location_id', '=', $location_id);
-                                //Check null to show products even if no quantity is available in a location.
-                                //TODO: Maybe add a settings to show product not available at a location or not.
-                                $query->orWhereNull('VLD.location_id');
-                            });
-                        }
+                ->leftJoin('brands as b', 'p.brand_id', '=', 'b.id')
+                ->leftjoin('variation_location_details AS VLD', function ($join) use ($location_id) {
+                    $join->on('variations.id', '=', 'VLD.variation_id');
+                    if (!empty($location_id)) {
+                        $join->where(function ($query) use ($location_id) {
+                            $query->where('VLD.location_id', '=', $location_id)->orWhereNull('VLD.location_id');
+                        });
                     }
-                )
+                })
                 ->where('p.business_id', $business_id)
                 ->where('p.type', '!=', 'modifier')
                 ->where('p.is_inactive', 0)
                 ->where('p.not_for_selling', 0)
-            //Hide products not available in the selected location
-                ->where(function ($q) use ($location_id) {
-                    $q->where('pl.location_id', $location_id);
-                });
+                ->where('pl.location_id', $location_id);
 
-            //Include search
             if (!empty($term)) {
                 $products->where(function ($query) use ($term) {
-                    $query->where('p.name', 'like', '%' . $term . '%');
-                    $query->orWhere('sku', 'like', '%' . $term . '%');
-                    $query->orWhere('sub_sku', 'like', '%' . $term . '%');
+                    $query->where('p.name', 'like', '%' . $term . '%')
+                        ->orWhere('sku', 'like', '%' . $term . '%')
+                        ->orWhere('sub_sku', 'like', '%' . $term . '%');
                 });
-            }
-
-            //Include check for quantity
-            if ($check_qty) {
-                $products->where('VLD.qty_available', '>', 0);
             }
 
             if (!empty($category_id) && ($category_id != 'all')) {
                 $products->where(function ($query) use ($category_id) {
-                    $query->where('p.category_id', $category_id);
-                    $query->orWhere('p.sub_category_id', $category_id);
+                    $query->where('p.category_id', $category_id)->orWhere('p.sub_category_id', $category_id);
                 });
             }
+
             if (!empty($brand_id) && ($brand_id != 'all')) {
                 $products->where('p.brand_id', $brand_id);
             }
 
-            if (!empty($request->get('is_enabled_stock'))) {
-                $is_enabled_stock = 0;
-                if ($request->get('is_enabled_stock') == 'product') {
-                    $is_enabled_stock = 1;
-                }
-
-                $products->where('p.enable_stock', $is_enabled_stock);
-            }
-
-            if (!empty($request->get('repair_model_id'))) {
-                $products->where('p.repair_model_id', $request->get('repair_model_id'));
-            }
-
-            // Add price group join if price group is selected
-            if (!empty($price_group_id)) {
-                $products->leftjoin(
-                    'variation_group_prices AS VGP',
-                    function ($join) use ($price_group_id) {
-                        $join->on('variations.id', '=', 'VGP.variation_id')
-                            ->where('VGP.price_group_id', '=', $price_group_id);
+            // JOIN FOR RACKS
+            $products->leftjoin(
+                'product_racks AS PR',
+                function ($join) use ($location_id, $business_id) {
+                    $join->on('p.id', '=', 'PR.product_id')
+                        ->where('PR.business_id', '=', $business_id);
+                    if (!empty($location_id)) {
+                        $join->where('PR.location_id', '=', $location_id);
                     }
-                );
+                }
+            );
+
+            $rack_filter = $request->get('rack_filter');
+            if (!empty($rack_filter)) {
+                $products->where('PR.rack', $rack_filter);
             }
 
+            // ✅ purchase_price ADD KIYA
             $select_fields = [
                 'p.id as product_id',
                 'p.name',
@@ -2310,26 +4003,26 @@ class SellPosController extends Controller
                 'p.enable_stock',
                 'p.image as product_image',
                 'variations.id',
+                'p.weight',
+                'b.name as brand',
                 'variations.name as variation',
                 'VLD.qty_available',
                 'variations.sell_price_inc_tax as selling_price',
-                'variations.default_purchase_price as purchase_price',
+                'variations.dpp_inc_tax as purchase_price', // ✅ YE ADD KIYA
                 'variations.sub_sku',
-                'u.short_name as unit'
+                'u.short_name as unit',
+                'PR.rack as rack',
+                'PR.row as row',
+                'PR.position as position'
             ];
-
-            // Add price group price if price group is selected
-            if (!empty($price_group_id)) {
-                $select_fields[] = DB::raw('IF (VGP.price_type = "fixed", VGP.price_inc_tax, VGP.price_inc_tax * variations.sell_price_inc_tax / 100) as group_price');
-            }
 
             $products = $products->select($select_fields)
                 ->with(['media', 'group_prices'])
                 ->orderBy('p.name', 'asc')
                 ->paginate(80);
 
-            $price_groups = SellingPriceGroup::where('business_id', $business_id)->active()->pluck('name', 'id');
-
+            // --- Allowed Price Groups for view ---
+            $price_groups = \App\SellingPriceGroup::where('business_id', $business_id)->active()->pluck('name', 'id');
             $allowed_group_prices = [];
             foreach ($price_groups as $key => $value) {
                 if (auth()->user()->can('selling_price_group.' . $key)) {
@@ -2337,12 +4030,56 @@ class SellPosController extends Controller
                 }
             }
 
+            // --- ADMIN DETECTION LOGIC ---
+            $is_admin = false;
+            $user_roles = auth()->user()->getRoleNames();
+            foreach ($user_roles as $role) {
+                if (str_contains(strtolower($role), 'admin')) {
+                    $is_admin = true;
+                    break;
+                }
+            }
+            // Superadmin bypass
+            if (auth()->user()->id == 1) {
+                $is_admin = true;
+            }
+
+            // --- Price Calculation ---
+            $cg = $this->contactUtil->getCustomerGroup($business_id, $customer_id);
+            $percent = (!empty($cg) && $cg->price_calculation_type == 'percentage') ? $cg->amount : 0;
+
+            $products->getCollection()->transform(function ($p) use ($price_group_id, $percent, $is_admin) {
+                $price_inc_tax = $p->selling_price;
+
+                // SIRF tab group price apply karein agar user Admin NAHI HAI
+                if (!$is_admin && !empty($price_group_id)) {
+                    $vgp = \App\VariationGroupPrice::where('variation_id', $p->id)
+                        ->where('price_group_id', $price_group_id)
+                        ->first();
+
+                    if (!empty($vgp) && $vgp->price_inc_tax > 0) {
+                        $price_inc_tax = ($vgp->price_type == 'percentage')
+                            ? ($vgp->price_inc_tax * $p->selling_price / 100)
+                            : $vgp->price_inc_tax;
+                    }
+                }
+
+                // Customer Group Percentage
+                if ($percent != 0) {
+                    $price_inc_tax += ($percent * $price_inc_tax / 100);
+                }
+
+                $p->selling_price = $price_inc_tax;
+                return $p;
+            });
+
             $show_prices = !empty($pos_settings['show_pricing_on_product_sugesstion']);
 
             return view('sale_pos.partials.product_list')
-                ->with(compact('products', 'allowed_group_prices', 'show_prices', 'price_group_id'));
+                ->with(compact('products', 'show_prices', 'price_group_id', 'allowed_group_prices'));
         }
     }
+
 
     /**
      * Shows invoice url.
@@ -2619,7 +4356,7 @@ class SellPosController extends Controller
 
                     if ($row->recur_interval_type == 'months' && !empty($row->subscription_repeat_on)) {
                         $recur_interval .= '<br><small class="text-muted">' .
-                        __('lang_v1.repeat_on') . ': ' . str_ordinal($row->subscription_repeat_on);
+                            __('lang_v1.repeat_on') . ': ' . str_ordinal($row->subscription_repeat_on);
                     }
 
                     return $recur_interval;
@@ -2642,7 +4379,7 @@ class SellPosController extends Controller
                     }
                     if ($count > 0) {
                         $html .= '<br><small class="text-muted">' .
-                        __('sale.total') . ': ' . $count . '</small>';
+                            __('sale.total') . ': ' . $count . '</small>';
                     }
 
                     return $html;
@@ -2656,7 +4393,7 @@ class SellPosController extends Controller
                 })
                 ->addColumn('upcoming_invoice', function ($row) {
                     if (empty($row->recur_stopped_on)) {
-                        $last_generated = !empty(count($row->subscription_invoices))?\Carbon::parse($row->subscription_invoices->max('transaction_date')) : \Carbon::parse($row->transaction_date);
+                        $last_generated = !empty(count($row->subscription_invoices)) ? \Carbon::parse($row->subscription_invoices->max('transaction_date')) : \Carbon::parse($row->transaction_date);
                         $last_generated_string = $last_generated->format('Y-m-d');
                         $last_generated = \Carbon::parse($last_generated_string);
 
@@ -2711,13 +4448,15 @@ class SellPosController extends Controller
             }
             $transaction->save();
 
-            $output = ['success' => 1,
+            $output = [
+                'success' => 1,
                 'msg' => trans('lang_v1.updated_success'),
             ];
         } catch (\Exception $e) {
             \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
 
-            $output = ['success' => 0,
+            $output = [
+                'success' => 0,
                 'msg' => trans('messages.something_went_wrong'),
             ];
         }
@@ -2879,7 +4618,8 @@ class SellPosController extends Controller
                 $msg = $e->getMessage();
             }
 
-            $output = ['success' => 0,
+            $output = [
+                'success' => 0,
                 'error_messages' => [$msg],
             ];
         }
@@ -2915,7 +4655,7 @@ class SellPosController extends Controller
             ->first();
 
         $price_group_id = !empty($types_of_service->location_price_group[$location_id])
-        ? $types_of_service->location_price_group[$location_id] : '';
+            ? $types_of_service->location_price_group[$location_id] : '';
         $price_group_name = '';
 
         if (!empty($price_group_id)) {
@@ -2977,7 +4717,8 @@ class SellPosController extends Controller
             $result = $this->productUtil->filterProduct($business_id, $sku, null, false, null, [], ['sub_sku'], false, 'exact')->first();
 
             if (!empty($result)) {
-                return ['variation_id' => $result->variation_id,
+                return [
+                    'variation_id' => $result->variation_id,
                     'qty' => $qty,
                     'success' => true,
                 ];
@@ -3018,10 +4759,12 @@ class SellPosController extends Controller
         try {
             $business_id = request()->session()->get('user.business_id');
 
-            $transaction = Transaction::with(['sell_lines',
+            $transaction = Transaction::with([
+                'sell_lines',
                 'sell_lines.product',
                 'sell_lines.variations',
-                'contact'])
+                'contact'
+            ])
                 ->where('business_id', $business_id)
                 ->where('status', 'draft')
                 ->findOrFail($id);
@@ -3038,7 +4781,8 @@ class SellPosController extends Controller
 
             if ($is_credit_limit_exeeded !== false) {
                 $credit_limit_amount = $this->transactionUtil->num_f($is_credit_limit_exeeded, true);
-                $output = ['success' => 0,
+                $output = [
+                    'success' => 0,
                     'msg' => __('lang_v1.cutomer_credit_limit_exeeded', ['credit_limit' => $credit_limit_amount]),
                 ];
 
@@ -3106,7 +4850,8 @@ class SellPosController extends Controller
             $business_details = $this->businessUtil->getDetails($business_id);
             $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
 
-            $business = ['id' => $business_id,
+            $business = [
+                'id' => $business_id,
                 'accounting_method' => request()->session()->get('business.accounting_method'),
                 'location_id' => $transaction->location_id,
                 'pos_settings' => $pos_settings,
@@ -3126,7 +4871,8 @@ class SellPosController extends Controller
                     $msg = $e->getMessage();
                 }
 
-                $output = ['success' => 0,
+                $output = [
+                    'success' => 0,
                     'msg' => $msg,
                 ];
 
@@ -3156,7 +4902,8 @@ class SellPosController extends Controller
                 $msg = $e->getMessage();
             }
 
-            $output = ['success' => 0,
+            $output = [
+                'success' => 0,
                 'msg' => $msg,
             ];
         }
@@ -3193,7 +4940,8 @@ class SellPosController extends Controller
         } catch (Exception $e) {
             \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
 
-            $output = ['success' => 0,
+            $output = [
+                'success' => 0,
                 'msg' => trans('messages.something_went_wrong'),
             ];
         }
@@ -3222,8 +4970,11 @@ class SellPosController extends Controller
             $quotation = $transaction->replicate();
 
             $quotation->transaction_date = \Carbon::now()->format('Y-m-d H:i:s');
-            $quotation->invoice_no = $this->transactionUtil->getInvoiceNumber($business_id, 'draft',
-                $transaction->location_id);
+            $quotation->invoice_no = $this->transactionUtil->getInvoiceNumber(
+                $business_id,
+                'draft',
+                $transaction->location_id
+            );
             $quotation->save();
 
             $sell_lines = TransactionSellLine::where('transaction_id', $transaction->id)->get();
@@ -3246,7 +4997,8 @@ class SellPosController extends Controller
 
             \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
 
-            $output = ['success' => 0,
+            $output = [
+                'success' => 0,
                 'msg' => trans("messages.something_went_wrong"),
             ];
         }
@@ -3280,7 +5032,8 @@ class SellPosController extends Controller
             ->with(compact('receipt_details', 'location_details', 'is_email_attachment'))
             ->render();
 
-        $mpdf = new \Mpdf\Mpdf(['tempDir' => public_path('uploads/temp'),
+        $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => public_path('uploads/temp'),
             'mode' => 'utf-8',
             'autoScriptToLang' => true,
             'autoLangToFont' => true,
@@ -3319,7 +5072,8 @@ class SellPosController extends Controller
             ->with(compact('receipt_details', 'location_details', 'sub_status'))
             ->render();
         $pdf_name = (!empty($sub_status) && $sub_status == 'proforma') ? __('lang_v1.proforma_invoice') : 'QUOTATION';
-        $mpdf = new \Mpdf\Mpdf(['tempDir' => public_path('uploads/temp'),
+        $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => public_path('uploads/temp'),
             'mode' => 'utf-8',
             'autoScriptToLang' => true,
             'autoLangToFont' => true,
@@ -3358,7 +5112,8 @@ class SellPosController extends Controller
             ->with(compact('receipt_details', 'location_details'))
             ->render();
 
-        $mpdf = new \Mpdf\Mpdf(['tempDir' => public_path('uploads/temp'),
+        $mpdf = new \Mpdf\Mpdf([
+            'tempDir' => public_path('uploads/temp'),
             'mode' => 'utf-8',
             'autoScriptToLang' => true,
             'autoLangToFont' => true,
@@ -3423,7 +5178,8 @@ class SellPosController extends Controller
         $transaction = $transaction->first();
 
         if (empty($transaction)) {
-            return ['success' => 0,
+            return [
+                'success' => 0,
                 'msg' => trans('lang_v1.sell_not_found'),
             ];
         }
@@ -3477,7 +5233,8 @@ class SellPosController extends Controller
         }
 
         if ($transaction) {
-            return ['success' => 1,
+            return [
+                'success' => 1,
                 'msg' => view('sale_pos.partials.service_staff_replacement_modal', compact('transaction', 'sell_details', 'waiters', 'enabled_modules', 'pos_settings'))->render(),
             ];
         }
@@ -3510,14 +5267,16 @@ class SellPosController extends Controller
 
                 DB::commit();
 
-                $output = ['success' => 1,
+                $output = [
+                    'success' => 1,
                     'msg' => __('lang_v1.updated_success'),
                 ];
 
             } catch (\Exception $e) {
                 DB::rollBack();
                 \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
-                $output = ['success' => 0,
+                $output = [
+                    'success' => 0,
                     'msg' => __('messages.something_went_wrong'),
                 ];
             }

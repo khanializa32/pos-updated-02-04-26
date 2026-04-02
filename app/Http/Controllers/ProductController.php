@@ -9,6 +9,7 @@ use App\Category;
 use App\Exports\ProductsExport;
 use App\Media;
 use App\Product;
+use App\ProductRack;
 use App\ProductVariation;
 use App\PurchaseLine;
 use App\SellingPriceGroup;
@@ -68,6 +69,7 @@ class ProductController extends Controller
         $business_id = request()->session()->get('user.business_id');
         $selling_price_group_count = SellingPriceGroup::countSellingPriceGroups($business_id);
         $is_woocommerce = $this->moduleUtil->isModuleInstalled('Woocommerce');
+        $rack_enabled = (request()->session()->get('business.enable_racks') || request()->session()->get('business.enable_row') || request()->session()->get('business.enable_position'));
 
         if (request()->ajax()) {
             //Filter by location
@@ -119,6 +121,7 @@ class ProductController extends Controller
                 'brands.name as brand',
                 'tax_rates.name as tax',
                 'products.sku',
+                'products.weight',
                 'products.image',
                 'products.enable_stock',
                 'products.is_inactive',
@@ -181,13 +184,32 @@ class ProductController extends Controller
                 $products->ProductNotForSales();
             }
 
+            // Filter by inventory check (exclude products with 0 stock)
+            $inventory_check = request()->get('inventory_check', null);
+            if ($inventory_check == 'true') {
+                $products->where('VLD.qty_available', '>', 0);
+            }
+
             $woocommerce_enabled = request()->get('woocommerce_enabled', 0);
             if ($woocommerce_enabled == 1) {
                 $products->where('products.woocommerce_disable_sync', 0);
             }
 
+            $nonzero_quantity = request()->get('nonzero_quantity', null);
+            if ($nonzero_quantity == 'true') {
+                $products->havingRaw('COALESCE(SUM(vld.qty_available), 0) <> 0');
+            }
+
             if (! empty(request()->get('repair_model_id'))) {
                 $products->where('products.repair_model_id', request()->get('repair_model_id'));
+            }
+
+            // Filter by rack
+            $rack_filter = request()->get('rack', null);
+            if (! empty($rack_filter)) {
+                $products->whereHas('rack_details', function($query) use ($rack_filter) {
+                    $query->where('rack', $rack_filter);
+                });
             }
 
             return Datatables::of($products)
@@ -197,10 +219,13 @@ class ProductController extends Controller
                         return $row->product_locations->implode('name', ', ');
                     }
                 )
+                ->addColumn('weight', function ($row) {
+                    return $row->weight; 
+                })
                 ->editColumn('category', '{{$category}} @if(!empty($sub_category))<br/> -- {{$sub_category}}@endif')
                 ->addColumn(
                     'action',
-                    function ($row) use ($selling_price_group_count) {
+                    function ($row) use ($selling_price_group_count, $rack_enabled) {
                         $html =
                         '<div class="btn-group"><button type="button" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-info tw-w-max dropdown-toggle" data-toggle="dropdown" aria-expanded="false">'.__('messages.actions').'<span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button><ul class="dropdown-menu dropdown-menu-left" role="menu"><li><a href="'.action([\App\Http\Controllers\LabelsController::class, 'show']).'?product_id='.$row->id.'" data-toggle="tooltip" title="'.__('lang_v1.label_help').'"><i class="fa fa-barcode" style=color:darkorange></i> '.__('barcode.labels').'</a></li>';
 
@@ -226,14 +251,19 @@ class ProductController extends Controller
 
                         $html .= '<li class="divider"></li>';
 
+                        // Edit rack/row/position
+                        if ($rack_enabled && auth()->user()->can('product.update')) {
+                            $html .=
+                            '<li><a href="#" data-href="'.action([\App\Http\Controllers\ProductController::class, 'editRackDetails'], [$row->id]).'" class="edit-rack-details"><i class="fas fa-edit" style="color:purple"></i> Editar Estante</a></li>';
+                        }
+
                         //if ($row->enable_stock == 1 && auth()->user()->can('product.opening_stock')) {
                             //$html .=
                             //'<li><a href="#" data-href="'.action([\App\Http\Controllers\OpeningStockController::class, 'add'], ['product_id' => $row->id]).'" class="add-opening-stock"><i class="fas fa-gavel" style=color:dodgerblue></i> '.__('lang_v1.add_edit_opening_stock').'</a></li>';
                         //}
 
-                        if (auth()->user()->can('product.view')) {
-                            $html .=
-                            '<li><a href="'.action([\App\Http\Controllers\ProductController::class, 'productStockHistory'], [$row->id]).'"><i class="fas fa-history" style=color:dodgerblue></i> '.__('lang_v1.product_stock_history').'</a></li>';
+                        if (auth()->user()->can('dashboard.data')) {
+                            $html .= '<li><a href="'.action([\App\Http\Controllers\ProductController::class, 'productStockHistory'], [$row->id]).'"><i class="fas fa-history" style="color:dodgerblue"></i> '.__('lang_v1.product_stock_history').'</a></li>';
                         }
 
                         if (auth()->user()->can('product.create')) {
@@ -286,11 +316,33 @@ class ProductController extends Controller
                 })
                 ->addColumn(
                     'purchase_price',
-                    '<div style="white-space: nowrap;">@format_currency($min_purchase_price) @if($max_purchase_price != $min_purchase_price && $type == "variable") -  @format_currency($max_purchase_price)@endif </div>'
+                    function ($row) {
+                        $min_price = $row->min_purchase_price;
+                        $max_price = $row->max_purchase_price;
+                        $formatted_min = $this->productUtil->num_f($min_price, true);
+
+                        if ($max_price != $min_price && $row->type == 'variable') {
+                            $formatted_max = $this->productUtil->num_f($max_price, true);
+                            return '<div style="white-space: nowrap;"><span data-orig-value="'.$min_price.'">'.$formatted_min.'</span> - <span data-orig-value="'.$max_price.'">'.$formatted_max.'</span></div>';
+                        }
+
+                        return '<div style="white-space: nowrap;"><span data-orig-value="'.$min_price.'">'.$formatted_min.'</span></div>';
+                    }
                 )
                 ->addColumn(
                     'selling_price',
-                    '<div style="white-space: nowrap;">@format_currency($min_price) @if($max_price != $min_price && $type == "variable") -  @format_currency($max_price)@endif </div>'
+                    function ($row) {
+                        $min_price = $row->min_price;
+                        $max_price = $row->max_price;
+                        $formatted_min = $this->productUtil->num_f($min_price, true);
+
+                        if ($max_price != $min_price && $row->type == 'variable') {
+                            $formatted_max = $this->productUtil->num_f($max_price, true);
+                            return '<div style="white-space: nowrap;"><span data-orig-value="'.$min_price.'">'.$formatted_min.'</span> - <span data-orig-value="'.$max_price.'">'.$formatted_max.'</span></div>';
+                        }
+
+                        return '<div style="white-space: nowrap;"><span data-orig-value="'.$min_price.'">'.$formatted_min.'</span></div>';
+                    }
                 )
                 ->filterColumn('products.sku', function ($query, $keyword) {
                     $query->whereHas('variations', function ($q) use ($keyword) {
@@ -306,11 +358,26 @@ class ProductController extends Controller
                             return '';
                         }
                     }, ])
-                ->rawColumns(['action', 'image', 'mass_delete', 'product', 'selling_price', 'purchase_price', 'category', 'current_stock'])
+                ->rawColumns(['action', 'image','mass_delete', 'product', 'selling_price', 'purchase_price', 'category', 'current_stock'])
                 ->make(true);
         }
 
         $rack_enabled = (request()->session()->get('business.enable_racks') || request()->session()->get('business.enable_row') || request()->session()->get('business.enable_position'));
+
+        // Get unique rack values for filter dropdown
+        $racks = [];
+        if ($rack_enabled) {
+            $racks = ProductRack::where('business_id', $business_id)
+                ->whereNotNull('rack')
+                ->where('rack', '!=', '')
+                ->distinct()
+                ->pluck('rack', 'rack')
+                ->toArray();
+        
+            // ORDENAMIENTO NATURAL:
+            // natsort mantiene la asociación de índices y ordena (1, 2, 10...)
+            natsort($racks); 
+        }
 
         $categories = Category::forDropdown($business_id, 'product');
 
@@ -342,6 +409,7 @@ class ProductController extends Controller
             ->with(compact(
                 'data',
                 'rack_enabled',
+                'racks',
                 'categories',
                 'brands',
                 'units',
@@ -450,7 +518,7 @@ class ProductController extends Controller
         }
         try {
             $business_id = $request->session()->get('user.business_id');
-            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'sub_unit_prices', 'sub_unit_sell_prices', 'sub_unit_margins', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',];
+            $form_fields = ['name', 'brand_id', 'unit_id', 'category_id', 'tax', 'type', 'barcode_type', 'sku', 'weight', 'alert_quantity', 'tax_type', 'weight', 'product_description', 'sub_unit_ids', 'sub_unit_prices', 'sub_unit_sell_prices', 'sub_unit_margins', 'preparation_time_in_minutes', 'product_custom_field1', 'product_custom_field2', 'product_custom_field3', 'product_custom_field4', 'product_custom_field5', 'product_custom_field6', 'product_custom_field7', 'product_custom_field8', 'product_custom_field9', 'product_custom_field10', 'product_custom_field11', 'product_custom_field12', 'product_custom_field13', 'product_custom_field14', 'product_custom_field15', 'product_custom_field16', 'product_custom_field17', 'product_custom_field18', 'product_custom_field19', 'product_custom_field20',];
 
             $module_form_fields = $this->moduleUtil->getModuleFormField('product_form_fields');
             if (! empty($module_form_fields)) {
@@ -647,6 +715,139 @@ class ProductController extends Controller
         return redirect('products')->with('status', $output);
     }
 
+    /**
+     * Get rack details for editing via modal
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function editRackDetails($id)
+{
+    // Permitir solo a usuarios con acceso al POS
+    if (! auth()->user()->can('sell.create')) {
+        abort(403, 'Unauthorized action.');
+    }
+
+    $business_id = request()->session()->get('user.business_id');
+    $product = Product::where('business_id', $business_id)->findOrFail($id);
+    $business_locations = BusinessLocation::forDropdown($business_id);
+    if (request()->has('location_id')) {
+            $loc_id = request()->get('location_id');
+            if (isset($business_locations[$loc_id])) {
+                $business_locations = [$loc_id => $business_locations[$loc_id]];
+            }
+        }
+    $rack_details = $this->productUtil->getRackDetails($business_id, $id);
+
+    return view('product.partials.edit_rack_details_modal')
+        ->with(compact('product', 'business_locations', 'rack_details'));
+}
+
+    /**
+     * Update rack details
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+//     public function updateRackDetails(Request $request, $id)
+// {
+//     if (! auth()->user()->can('sell.create')) {
+//         abort(403, 'Unauthorized action.');
+//     }
+
+//         try {
+//             $business_id = request()->session()->get('user.business_id');
+//             $product = Product::where('business_id', $business_id)->findOrFail($id);
+            
+//             $product_racks = $request->get('product_racks', []);
+            
+//             foreach ($product_racks as $location_id => $rack_data) {
+//                 ProductRack::updateOrCreate(
+//                     [
+//                         'business_id' => $business_id,
+//                         'location_id' => $location_id,
+//                         'product_id' => $id
+//                     ],
+//                     [
+//                         'rack' => $rack_data['rack'] ?? null,
+//                         'row' => $rack_data['row'] ?? null,
+//                         'position' => $rack_data['position'] ?? null
+//                     ]
+//                 );
+//             }
+
+//             return response()->json([
+//                 'success' => true,
+//                 'msg' => __('lang_v1.updated_success')
+//             ]);
+//         } catch (\Exception $e) {
+//             \Log::emergency('File:' . $e->getFile() . ' Line:' . $e->getLine() . ' Message:' . $e->getMessage());
+//             return response()->json([
+//                 'success' => false,
+//                 'msg' => __('messages.something_went_wrong')
+//             ]);
+//         }
+//     }
+
+public function updateRackDetails(Request $request, $id)
+    {
+        if (!auth()->user()->can('sell.create')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $product = Product::where('business_id', $business_id)->findOrFail($id);
+
+            $product_racks = $request->get('product_racks', []);
+            $permitted_locations = auth()->user()->permitted_locations($business_id);
+
+            if ($permitted_locations != 'all') {
+                $invalid_locations = [];
+                foreach (array_keys($product_racks) as $location_id) {
+                    if (!in_array((int) $location_id, $permitted_locations)) {
+                        $invalid_locations[] = $location_id;
+                    }
+                }
+
+                if (!empty($invalid_locations)) {
+                    return response()->json([
+                        'success' => false,
+                        'msg' => __('lang_v1.no_location_access_found')
+                    ], 403);
+                }
+            }
+
+            foreach ($product_racks as $location_id => $rack_data) {
+                ProductRack::updateOrCreate(
+                    [
+                        'business_id' => $business_id,
+                        'location_id' => $location_id,
+                        'product_id' => $id
+                    ],
+                    [
+                        'rack' => $rack_data['rack'] ?? null,
+                        'row' => $rack_data['row'] ?? null,
+                        'position' => $rack_data['position'] ?? null
+                    ]
+                );
+            }
+
+            
+
+            return response()->json([
+                'success' => true,
+                'msg' => __('lang_v1.updated_success')
+            ]);
+        } catch (\Exception $e) {
+            \Log::emergency('File:' . $e->getFile() . ' Line:' . $e->getLine() . ' Message:' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'msg' => __('messages.something_went_wrong')
+            ]);
+        }
+    }
     /**
      * Display the specified resource.
      *
@@ -1292,6 +1493,44 @@ class ProductController extends Controller
             'values' => $values,
         ];
     }
+    
+    
+    // HHH
+    public function getVarationDetail($variation_id, $location_id)
+    {               
+       
+        try {
+            $variation = \App\Variation::with([
+                'product_variation',
+                'product' => function($q) {
+                    $q->with(['brand', 'unit', 'media']);
+                }
+            ])->find($variation_id);
+            
+            if (!$variation) {
+                return response()->json(['error' => 'Variation not found'], 404);
+            }
+    
+            // Get variation location details
+            $variation_location = \App\VariationLocationDetails::where('variation_id', $variation_id)
+                ->where('location_id', $location_id)
+                ->first();
+    
+            return response()->json([
+                'variation_id' => $variation->id,
+                'product_name' => $variation->product->name,
+                'product_image' => $variation->product->image,
+                'sku' => $variation->sub_sku,
+                'media' => $variation->product->media,
+                'qty_available' => $variation_location->qty_available ?? 0,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+    
 
     /**
      * Return the view for combo product row
@@ -1334,24 +1573,161 @@ class ProductController extends Controller
      * @param  bool  $check_qty
      * @return JSON
      */
-    public function getProducts()
+    // public function getProducts()
+    // {
+    //     if (request()->ajax()) {
+    //         $search_term = request()->input('term', '');
+    //         $location_id = request()->input('location_id', null);
+    //         $check_qty = request()->input('check_qty', false);
+    //          $product_types = request()->get('product_types', []);
+    //         $business_id = request()->session()->get('user.business_id');
+    //         $not_for_selling = request()->get('not_for_selling', null);
+            
+    //         if(!empty($location_id)){
+    //         $businessLocation = BusinessLocation::find($location_id);
+    //         }else{
+    //             $business_id = auth()->user()->business_id;
+    //             $businessLocation = BusinessLocation::where('business_id', $business_id)->first();
+    //         }
+            
+    //         $price_group_id = $businessLocation->selling_price_group_id;
+    //         $search_fields = request()->get('search_fields', ['name', 'sku']);
+    //         if (in_array('sku', $search_fields)) {
+    //             $search_fields[] = 'sub_sku';
+    //         }
+
+    //         $result = $this->productUtil->filterProduct($business_id, $search_term, $location_id, $not_for_selling, $price_group_id, $product_types, $search_fields, $check_qty);
+
+    //         return json_encode($result);
+    //     }
+    // }
+    
+//   public function getProducts(){
+//         if (request()->ajax()) {
+//             $search_term = request()->input('term', '');
+//             $location_id = request()->input('location_id', null);
+//             $check_qty = request()->input('check_qty', false);
+//             $product_types = request()->get('product_types', []);
+//             $business_id = request()->session()->get('user.business_id');
+//             $not_for_selling = request()->get('not_for_selling', null);
+
+//             if (!empty($location_id)) {
+//                 $businessLocation = BusinessLocation::find($location_id);
+//             }
+//             else {
+//                 $business_id = auth()->user()->business_id;
+//                 $businessLocation = BusinessLocation::where('business_id', $business_id)->first();
+//             }
+
+//             // --- ADMIN CHECK ---
+//             $is_admin = auth()->user()->hasRole('Admin') || auth()->user()->id == 1;
+//             $price_group_id = null;
+
+//             // Agar user ADMIN NAHI HAI, sirf tabhi permission logic chalayein
+//             if (!$is_admin) {
+//                 $all_spgs = \App\SellingPriceGroup::where('business_id', $business_id)->get();
+
+//                 foreach ($all_spgs as $spg) {
+//                     if (auth()->user()->can('selling_price_group.' . $spg->id)) {
+//                         $price_group_id = $spg->id;
+//                         break;
+//                     }
+//                 }
+
+//                 // Agar user assigned nahi hai, tab location wala uthao
+//                 if (empty($price_group_id)) {
+//                     $price_group_id = !empty($businessLocation) ? $businessLocation->selling_price_group_id : null;
+//                 }
+//             }
+
+//             $search_fields = request()->get('search_fields', ['name', 'sku']);
+//             if (in_array('sku', $search_fields)) {
+//                 $search_fields[] = 'sub_sku';
+//             }
+
+//             // FilterProduct ko sahi Price Group pass karein (Admin ke liye null jayega)
+//             $result = $this->productUtil->filterProduct($business_id, $search_term, $location_id, $not_for_selling, $price_group_id, $product_types, $search_fields, $check_qty);
+
+//             // Sabse Aham: Card Display override
+//             foreach ($result as &$product) {
+//                 // Admin ke liye override nahi hoga kyunke $price_group_id null hai
+//                 if (!empty($product->group_price)) {
+//                     $product->selling_price = $product->group_price;
+//                 }
+//             }
+
+//             return json_encode($result);
+//         }  
+// }
+public function getProducts()
     {
         if (request()->ajax()) {
             $search_term = request()->input('term', '');
             $location_id = request()->input('location_id', null);
             $check_qty = request()->input('check_qty', false);
-            $price_group_id = request()->input('price_group', null);
+            $product_types = request()->get('product_types', []);
             $business_id = request()->session()->get('user.business_id');
             $not_for_selling = request()->get('not_for_selling', null);
-            $price_group_id = request()->input('price_group', '');
-            $product_types = request()->get('product_types', []);
+
+            if (!empty($location_id)) {
+                $businessLocation = BusinessLocation::find($location_id);
+            } else {
+                $business_id = auth()->user()->business_id;
+                $businessLocation = BusinessLocation::where('business_id', $business_id)->first();
+            }
+
+            // ✅ Admin Check
+            $is_admin = false;
+            $user_roles = auth()->user()->getRoleNames();
+            foreach ($user_roles as $role) {
+                if (str_contains(strtolower($role), 'admin')) {
+                    $is_admin = true;
+                    break;
+                }
+            }
+            if (auth()->user()->id == 1) {
+                $is_admin = true;
+            }
+
+            $price_group_id = null;
+
+            // ✅ Sirf Non-Admin ke liye price group logic
+            if (!$is_admin) {
+                $all_spgs = \App\SellingPriceGroup::where('business_id', $business_id)->get();
+                foreach ($all_spgs as $spg) {
+                    if (auth()->user()->can('selling_price_group.' . $spg->id)) {
+                        $price_group_id = $spg->id;
+                        break;
+                    }
+                }
+                // Fallback — location wala
+                if (empty($price_group_id)) {
+                    $price_group_id = !empty($businessLocation) ? $businessLocation->selling_price_group_id : null;
+                }
+            }
 
             $search_fields = request()->get('search_fields', ['name', 'sku']);
             if (in_array('sku', $search_fields)) {
                 $search_fields[] = 'sub_sku';
             }
 
-            $result = $this->productUtil->filterProduct($business_id, $search_term, $location_id, $not_for_selling, $price_group_id, $product_types, $search_fields, $check_qty);
+            $result = $this->productUtil->filterProduct(
+                $business_id,
+                $search_term,
+                $location_id,
+                $not_for_selling,
+                $price_group_id,
+                $product_types,
+                $search_fields,
+                $check_qty
+            );
+
+            // ✅ Card Display Override — Admin ke liye nahi hoga
+            foreach ($result as &$product) {
+                if (!empty($product->group_price)) {
+                    $product->selling_price = $product->group_price;
+                }
+            }
 
             return json_encode($result);
         }
@@ -1583,6 +1959,9 @@ class ProductController extends Controller
             if (! empty($product_details['alert_quantity'])) {
                 $product_details['alert_quantity'] = $this->productUtil->num_uf($product_details['alert_quantity']);
             }
+            if (! empty($product_details['weight'])) {
+    $product_details['weight'] = $this->productUtil->num_uf($product_details['weight']);
+}
 
             $expiry_enabled = $request->session()->get('business.enable_product_expiry');
             if (! empty($request->input('expiry_period_type')) && ! empty($request->input('expiry_period')) && ! empty($expiry_enabled)) {
@@ -2467,11 +2846,11 @@ class ProductController extends Controller
     public function downloadExcel()
     {
         $is_admin = $this->productUtil->is_admin(auth()->user());
-        if (! $is_admin) {
+        if (!$is_admin) {
             abort(403, 'Unauthorized action.');
         }
 
-        $filename = 'products-export-'.\Carbon::now()->format('Y-m-d').'.xlsx';
+        $filename = 'products-export-' . \Carbon::now()->format('Y-m-d') . '.xlsx';
 
         return Excel::download(new ProductsExport, $filename);
     }

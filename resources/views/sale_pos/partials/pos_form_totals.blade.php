@@ -10,7 +10,7 @@
 					 @if (empty($edit))
                     <button type="button"
                         class=""
-                        id="pos-cancel"> <i class="fas fa-trash"style=" font-size:14px ;color:red"></i> @lang('Vaciar Carrito')</button>
+                        id="pos-cancel"> <i class="fas fa-trash"style=" font-size:18px ;color:red"></i> @lang('Vaciar Carrito')</button>
                 @else
                     <button type="button"
                         class="tw-font-bold tw-text-white tw-cursor-pointer tw-text-xs md:tw-text-sm tw-bg-red-600 tw-p-2 tw-rounded-md tw-w-[9rem] tw-hidden md:tw-flex lg:tw-flex lg:tw-flex-row lg:tw-items-center lg:tw-justify-center lg:tw-gap-1 hide"
@@ -98,7 +98,7 @@
 				<tr style="align-content: center">
 					<td style="border:0px; background-color: black; color: white; font-size: 28px">
 						<b class="">@lang('$')</b> &nbsp;
-						<span class="price_total"  >0</span>
+						<span id="price_total" class="price_total"  >0</span>
 					</td>
 				</tr>
 			</tbody>

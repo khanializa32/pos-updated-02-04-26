@@ -35,7 +35,7 @@
                         <div class="col-md-12">
                             {!! Form::open(['url' => route('location.settings_update', [$location->id]), 'method' => 'post', 'id' => 'bl_receipt_setting_form']) !!}
 
-                        <div class="col-sm-4">
+                    <div class="col-sm-2">
                             <div class="form-group">
                                 {!! Form::label('print_receipt_on_invoice', __('receipt.print_receipt_on_invoice') . ':') !!}
                                 @show_tooltip(__('tooltip.print_receipt_on_invoice'))
@@ -48,7 +48,7 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-4">
+                        <!--<div class="col-sm-4">
                             <div class="form-group">
                                 {!! Form::label('receipt_printer_type', __('receipt.receipt_printer_type') . ':*') !!} @show_tooltip(__('tooltip.receipt_printer_type'))
                                 <div class="input-group">
@@ -89,9 +89,9 @@
                                     {!! Form::select('invoice_layout_id', $invoice_layouts, $location->invoice_layout_id, ['class' => 'form-control select2', 'required']); !!}
                                 </div>
                             </div>
-                        </div>
+                        </div>    -->
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-2">
                             <div class="form-group">
                                 {!! Form::label('invoice_scheme_id', __('Factura Prederminada') . ':*') !!}
                                 <div class="input-group">
@@ -108,7 +108,7 @@
 
                         <div class="row">
                             <div class="col-sm-12">
-                                <button class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right" type="submit">@lang('messages.save')</button>
+                                <button class="tw-dw-btn bg-info tw-text-white" type="submit">@lang('Aplicar Cambios')</button>
                             </div>
                         </div>
                         {!! Form::close() !!}

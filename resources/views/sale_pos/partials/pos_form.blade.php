@@ -11,7 +11,7 @@
 
 			<div class="input-group">
 				<span class="input-group-addon">
-					<i class="fas fa-user-plus" style='font-size:18px;color:teal'></i>
+					<i class="fas fa-user-plus" style='font-size:18px;color:LightSeaGreen'></i>
 				</span>
 				<input type="hidden" id="default_customer_id" 
 				value="{{ $walk_in_customer['id'] ?? ''}}" >
@@ -32,7 +32,7 @@
 				!!}
 				
 				<span class="input-group-btn">
-					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle text-danger fa-lg"></i></button>
+					<button type="button" class="btn btn-default bg-white btn-flat add_new_customer" data-name=""  @if(!auth()->user()->can('customer.create')) disabled @endif><i class="fa fa-plus-circle" style='font-size:18px;color:LightSeaGreen'></i></button>
 					
 				</span>
 			</div>
@@ -45,7 +45,7 @@
 		<div class="form-group">
 			<div class="input-group">
 				<div class="input-group-btn">
-					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="glyphicon glyphicon-qrcode" style='font-size:16px;color:teal'></i></button>
+					<button type="button" class="btn btn-default bg-white btn-flat" data-toggle="modal" data-target="#configure_search_modal" title="{{__('lang_v1.configure_product_search')}}"><i class="glyphicon glyphicon-qrcode" style='font-size:16px;color:LightSeaGreen'></i></button>
 				</div>
                 {{-- Removed mousetrap class as it was causing issue with barcode scanning --}}
 				{!! Form::text('search_product', null, ['class' => 'form-control', 'id' => 'search_product', 'placeholder' => __('lang_v1.search_product_placeholder'),
@@ -87,13 +87,22 @@
 		@php
 			$is_commission_agent_required = !empty($pos_settings['is_commission_agent_required']);
 		@endphp
-		<div class="col-md-4">
+		<input type="hidden" id="default_commission_agent_id"
+		value="{{ $default_commission_agent_id ?? ''}}" >
+		<div class="col-md-6">
 			<div class="form-group">
-			{!! Form::select('commission_agent', 
-						$commission_agent, null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.commission_agent'), 'id' => 'commission_agent', 'required' => $is_commission_agent_required]) !!}
+		        <div class="input-group">
+					{!! Form::select('commission_agent',
+								$commission_agent, $default_commission_agent_id ?? null, ['class' => 'form-control select2', 'placeholder' => __('lang_v1.commission_agent'), 'id' => 'commission_agent', 'required' => $is_commission_agent_required]) !!}
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-default btn-flat" id="set_default_commission_agent" title="@lang('lang_v1.set_as_default_commission_agent')" style="height: 34px;">
+							<i class="fa fa-star"></i>
+						</button>
+					</span>
+				</div>
 			</div>
 		</div>
-	@endif
+	@endif  
 	{{--
 	@if(!empty($pos_settings['enable_transaction_date']))
 		<div class="col-md-4 col-sm-6">
@@ -126,29 +135,23 @@
 			<div class="form-group">
 				<div class="input-group">
 					<span class="input-group-addon">
-						<i class="fas fa-tags" style="font-size:19px ;color:teal"></i>
+						<i class="fas fa-tags" style="font-size:19px ;color:LightSeaGreen"></i>
 					</span>
                     @php
-                        // Determine default selection priority:
-                        // 1) Branch default price group (if any and permitted)
-                        // 2) If role has exactly one allowed SPG, preselect that SPG
-                        //    (exclude key 0 which represents default selling price)
-                        // 3) Otherwise, no preselection
-                        $selected_price_group = null;
+						// Determine default selection priority:
+						// 1) Branch default price group (if any and permitted)
+						// 2) Otherwise default to base selling price (key '0') if present
+						$selected_price_group = null;
 
-                        if (!empty($default_price_group_id) && array_key_exists($default_price_group_id, $price_groups)) {
-                            $selected_price_group = $default_price_group_id;
-                        } else {
-                            $allowed_spg_ids = array_filter(array_keys($price_groups), function ($k) {
-                                return (string) $k !== '0';
-                            });
-                            if (count($allowed_spg_ids) === 1) {
-                                $selected_price_group = reset($allowed_spg_ids);
-                            }
-                        }
+						$has_base_price = array_key_exists(0, $price_groups) || array_key_exists('0', $price_groups);
+						if (!empty($default_price_group_id) && array_key_exists($default_price_group_id, $price_groups)) {
+							$selected_price_group = $default_price_group_id;
+						} elseif ($has_base_price) {
+							$selected_price_group = '0';
+						}
 
-                        // Hidden fallback to the first option to keep JS flows working
-                        $first_key = key($price_groups);
+						// Hidden fallback to keep JS flows working
+						$first_key = $has_base_price ? '0' : key($price_groups);
                     @endphp
                     {!! Form::hidden('hidden_price_group', $first_key, ['id' => 'hidden_price_group']) !!}
                     {!! Form::select('price_group', $price_groups, $selected_price_group, ['class' => 'form-control select2', 'id' => 'price_group', 'style' => 'max-width: 100%; min-width: 0;']) !!}

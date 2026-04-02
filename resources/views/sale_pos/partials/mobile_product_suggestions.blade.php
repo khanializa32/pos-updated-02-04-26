@@ -3,13 +3,14 @@
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content bg-gray">
 			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">Salir</span></button>
 			</div>
 			<div class="modal-body">
 				@include('sale_pos.partials.pos_sidebar')
 			</div>
 			<div class="modal-footer">
-			    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
+			    <button type="button" class="tw-dw-btn bg-info tw-text-white tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
+			    
 			</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->

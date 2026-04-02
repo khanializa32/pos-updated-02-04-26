@@ -1,6 +1,6 @@
 <!-- default value -->
 @php
-    $go_back_url = action([\App\Http\Controllers\SellPosController::class, 'index']);
+    $go_back_url = action([\App\Http\Controllers\SellController::class, 'index']);
     $transaction_sub_type = '';
     $view_suspended_sell_url = action([\App\Http\Controllers\SellController::class, 'index']) . '?suspended=1';
     $pos_redirect_url = action([\App\Http\Controllers\SellPosController::class, 'create']);
@@ -30,29 +30,30 @@
                  style="overflow: hidden; flex-shrink: 1;min-width: 0; margin-left: 6px;">
             <div class="tw-w-full" >
                 
+                
+                
+                
                 <div class="tw-flex tw-items-center tw-gap-1">
                     <p style="height: 20px; width: auto; font-size:10px"><strong>@lang('sale.location'): &nbsp;</strong></p>
 
                     <div>
-                        @if (empty($transaction->location_id))
-                            @if (count($business_locations) > 1)
-                                @php
-                                    $locOptions = [];
-                                    foreach($business_locations as $id => $name){
-                                        $code = optional(\App\BusinessLocation::find($id))->location_id;
-                                        $locOptions[$id] = ['value' => $id, 'label' => $name, 'code' => $code];
-                                    }
-                                @endphp
-                                <select name="select_location_id" id="select_location_id" class="control input-sm" required autofocus style="background:white; border:1px solid black; width: 120px;">
-                                    @foreach($locOptions as $id => $opt)
-                                        <option value="{{$opt['value']}}" data-location-code="{{$opt['code']}}" @if(($default_location->id ?? null) == $opt['value']) selected @endif>{{$opt['label']}}</option>
-                                    @endforeach
-                                </select>
-                            @else
-                                {{ $default_location->name }}
-                            @endif
+                        @if (count($business_locations) > 1)
+                            @php
+                                $locOptions = [];
+                                foreach($business_locations as $id => $name){
+                                    $location = optional(\App\BusinessLocation::find($id));
+                                    $locOptions[$id] = ['value' => $id, 'label' => $name, 'code' => $location->location_id, 'pgId' => $location->selling_price_group_id];
+                               }
+                            @endphp
+                            <select name="select_location_id" id="select_location_id" class="control input-sm" required autofocus style="background:white;  width: 120px;">
+                                @foreach($locOptions as $id => $opt)
+                                    <option value="{{$opt['value']}}" data-location-code="{{$opt['code']}}" data-default_price_group="{{ $opt['pgId'] }}" @if(($default_location->id ?? null) == $opt['value']) selected @endif>{{$opt['label']}}</option>
+                                @endforeach
+                            </select>
                         @else
-                        {{ $transaction->location->name }}
+                            <input type="hidden" value="{{ $business_locations->keys()->first() }}" name="select_location_id" id="select_location_id">
+                            {{ isset($business_locations)? $business_locations->first() : '' }}
+                        
                         @endif
                     </div>  
                     
@@ -87,7 +88,7 @@
                             </svg>
                         </button> --}}
                         {{-- Boton Verde Nuevo --}}
-                        @if (!Gate::check('disable_draft') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+                        @if (!Gate::check('disable_suspend_sale') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
                             {{-- <button type="button" class="btn btn-success  @if ($pos_settings['disable_draft'] != 0) hide @endif"
                                 id="pos-draft" @if (!empty($only_payment)) disabled @endif>
                                 <i class="bi bi-play-fill"></i> 
@@ -105,7 +106,7 @@
                                 </svg>
                            
                             </button>
-                         @endif
+                        @endif
 
                         
                     </div>
@@ -144,6 +145,15 @@
                     </strong>
                 </a>
 
+                @if (!empty($pos_settings['customer_display_screen']))
+                    <a href="{{route('pos_display')}}" id="customer_display_screen"  onclick="window.open(this.href, 'customer_display', 'width='+screen.width+',height='+screen.height+',top=0,left=0'); return false;"   title="{{ __('lang_v1.customer_display_screen') }}"
+                        class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right">
+                        <strong class="!tw-m-3">
+                            <i class="fa fa-tv fa-lg tw-text-[#646EE4] !tw-text-sm"></i>
+                            <span class="tw-inline md:tw-hidden">{{ __('lang_v1.customer_display_screen') }}</span>
+                        </strong>
+                    </a>
+                @endif
                 
             </div>
                 {{--
@@ -169,13 +179,13 @@
                             <span class="tw-inline md:tw-hidden">{{ __('lang_v1.service_staff_availability') }}</span>
                         </strong>
                     </button>
-                @endif
+                @endif  --}}
 
                 @can('close_cash_register')
-                    <button type="button" id="close_register" title="{{ __('cash_register.close_register') }}"
+                    <button type="button" id="close_register" title="{{ __('messages.close') }}"
                         class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 btn-modal pull-right"
                         data-container=".close_register_modal"
-                        data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getCloseRegister']) }}">
+                        data-href="{{ action([\App\Http\Controllers\CashRegisterController::class, 'getCloseRegister'], [$cashRegister->id]) }}">
                         <strong class="!tw-m-3">
                             <i class="fa fa-window-close fa-lg tw-text-[#EF4B53] !tw-text-sm"></i>
                             <span class="tw-inline md:tw-hidden">{{ __('cash_register.close_register') }}</span>
@@ -183,7 +193,7 @@
                     </button>
                 @endcan
 
-                @if (
+               {{-- @if (
                     !empty($pos_settings['inline_service_staff']) ||
                         (in_array('tables', $enabled_modules) || in_array('service_staff', $enabled_modules)))
                     <button type="button"
@@ -254,27 +264,25 @@
                         <span class="tw-inline md:tw-hidden">{{ __('lang_v1.view_suspended_sales') }}</span>
                     </strong>
                 </button>
-                @if (!empty($pos_settings['customer_display_screen']))
-                    <a href="{{route('pos_display')}}" id="customer_display_screen"  onclick="window.open(this.href, 'customer_display', 'width='+screen.width+',height='+screen.height+',top=0,left=0'); return false;"   title="{{ __('lang_v1.customer_display_screen') }}"
-                        class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer tw-border-2 tw-flex tw-items-center tw-justify-center tw-rounded-md md:tw-w-8 tw-w-auto tw-h-8 tw-text-gray-600 pull-right">
-                        <strong class="!tw-m-3">
-                            <i class="fa fa-tv fa-lg tw-text-[#646EE4] !tw-text-sm"></i>
-                            <span class="tw-inline md:tw-hidden">{{ __('lang_v1.customer_display_screen') }}</span>
-                        </strong>
-                    </a>
-                @endif
+                
 
                 @if (Module::has('Repair') && $transaction_sub_type != 'repair')
                     @include('repair::layouts.partials.pos_header')
                 @endif
-
                 
-                        DESDE AQUI TENGO QUE HACER EL OTRO CAMBIO - ABRIL  ESTOS ES AGREGA COSTO QUE VA PARA LA CATEGORIA 
-                
-            </div>
-            --}}
+            </div> --}}
+            
         </div>
     </div>
+    
+                            <div class="col-md-1/3  tw-w-auto tw-cursor-pointer  main-category-div main-category no-print"
+                                data-value="all" data-parent="0">
+                                <div class="tw-dw-card tw-w-25 tw-bg-base-100 tw-shadow-sm tw-h-auto tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white hover:tw-bg-white/60 tw-cursor-pointer !tw-text-xs md:!tw-text-sm tw-font-semibold tw-text-center tw-border-2">
+                                    <div class="tw-dw-card-body">
+                                        <h4 class="tw-flex tw-items-center tw-justify-center" style="align-text: center; font-size: inherit; font-weight: inherit; margin-bottom: -20px; margin-top: 0px">@lang('lang_v1.all_categories')</h4>
+                                    </div>
+                                </div>
+                            </div>
 
 
     <div class="col-md-7" >
@@ -303,26 +311,52 @@
                         </a>
                     @endcan
                 @endif
-            </div>
+            </div> 
+        </div>
+
+
+            
+    
 
             {{-- <div class="d-flex justify-content-center mt-3">
                 <button class="btn btn-secondary me-2" id="prev-page">Anterior</button>
                 <button class="btn btn-secondary" id="next-page">Siguiente</button>
             </div> --}}
         </div>
-
-    </div>
+       
+    
+    
     <div class="col-md-2">
         <div class="d-flex justify-content-center mt-3 tw-h-auto m-0 no-print">
             <div  id="categories-container" style="display:flex;gap:10px; overflow-y: auto; padding-bottom: 10px;wid">
+                 {{-- @can('expense.add') --}}
+                    <button type="button" title="{{ __('cash_register.withdraw_cash') }}" data-placement="bottom"
+                        class="tw-bg-white tw-dw-btn tw-cursor-pointer btn-modal"
+                        style="margin-top: 10px; height: 5vh; font-size: 15px" id="withdraw-cash">
+                        <strong><i class="fas fa-dollar-sign" style=" font-size:18px ;color:red"></i> @lang('cash_register.withdraw_cash')</strong>
+                    </button>
+                {{-- @endcan --}}
+               
                 @can('expense.add')
                     <button type="button" title="{{ __('expense.add_expense') }}" data-placement="bottom"
                         class="tw-bg-white tw-dw-btn tw-cursor-pointer btn-modal"
                         style="margin-top: 10px; height: 5vh; font-size: 15px" id="add_expense">
-                        <strong><i class="fa fas fa-minus-circle" style=" font-size:14px ;color:red"></i> @lang('expense.add_expense')</strong>
+                        <strong><i class="fa fas fa-minus-circle" style=" font-size:18px ;color:purple"></i> @lang('expense.add_expense')</strong>
                     </button>
                 @endcan
             </div>
+            
+        {{-- INICIO DE FECHA Y HORA --}}
+            <div class="tw-hidden md:tw-flex tw-flex-row tw-items-baseline tw-justify-center tw-flex-1 tw-text-black tw-gap-2">
+                {{--<div id="digital-date" class="tw-text-[10px] tw-uppercase tw-opacity-80 ">Cargando fecha...</div>--}}
+                <div id="digital-clock" class="tw-text-red-600 tw-text-[10px] tw-uppercase tw-opacity-80 ">00:00:00</div>
+                
+            </div>
+         {{-- FIN DE FECHA Y HORA --}}    
+            
+            
+            
+            
         </div>
     </div>
 </div>
@@ -367,3 +401,29 @@
         showPage(currentPage); // Inicializar
     });
 </script>
+
+
+
+// <script>
+//     function updateClock() {
+//         const now = new Date();
+        
+//         // Formatear Hora
+//         const hours = String(now.getHours()).padStart(2, '0');
+//         const minutes = String(now.getMinutes()).padStart(2, '0');
+//         const seconds = String(now.getSeconds()).padStart(2, '0');
+//         const timeString = `${hours}:${minutes}:${seconds}`;
+        
+//         // Formatear Fecha (Ejemplo: Martes, 17 Feb 2026)
+//         const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+//         const dateString = now.toLocaleDateString('es-ES', options);
+        
+//         console.log(dateString)
+//         document.getElementById('digital-clock').textContent = timeString;
+//         document.getElementById('digital-date').textContent = dateString;
+//     }
+
+//     // Ejecutar cada segundo
+//     setInterval(updateClock, 1000);
+//     updateClock(); // Llamada inicial
+// </script>

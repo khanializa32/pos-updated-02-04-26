@@ -133,47 +133,61 @@
                 @endif
             </div>
 
-	    <div class="tw-w-full md:tw-w-fit tw-flex tw-flex-col tw-items-end tw-gap-3 tw-hidden md:tw-block">
-                {{--@if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
-                    <button type="button"
-                        
-                        data-toggle="modal" data-target="#recent_transactions_modal" id="recent-transactions"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i
-                            class="fas fa-layer-group" style="font-size:24px ;color:teal"></i> </button>
-                @endif --}}
+	         <div class="tw-w-full md:tw-w-fit tw-flex tw-flex-row tw-items-center tw-justify-center tw-gap-3 tw-hidden md:tw-flex">
+
+
+                @if (!isset($pos_settings['hide_recent_trans']) || $pos_settings['hide_recent_trans'] == 0)
+                    <button
+                        type="button"
+                        data-toggle="modal"
+                        data-target="#recent_transactions_modal" id="recent-transactions" class="tw-flex tw-items-center tw-justify-center tw-h-10 tw-w-10">
+                        <i class="fas fa-layer-group tw-text-teal-600 tw-text-xl"></i>
+                    </button>
+
+                @endif
+                
+                 @can('admin')
+                    <button
+                        type="button"
+                        id="pos-quotation"
+                        class="tw-flex tw-items-center tw-justify-center tw-h-10 tw-px-4 tw-font-bold tw-text-gray-700 tw-text-xs md:tw-text-sm"
+                        @if (!empty($only_payment)) disabled @endif>
+                        <i class="fas fa-edit tw-text-[#E7A500] tw-mr-2"></i>
+                        @lang('lang_v1.quotation')
+                    </button>
+                @endcan
+
+
                     </div>
                 </div>
                 </div>
-                @if (!Gate::check('disable_quotation') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
-                    <button type="button"
-                        class="tw-font-bold tw-text-gray-700 tw-cursor-pointer tw-text-xs md:tw-text-sm tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-1 "
-                        id="pos-quotation" @if (!empty($only_payment)) disabled @endif></i>&nbsp;&nbsp;&nbsp; @lang('lang_v1.quotation')</button>
-                @endif
+               
                 </div>
 
-@if (isset($transaction))
-    @include('sale_pos.partials.edit_discount_modal', [
-        'sales_discount' => $transaction->discount_amount,
-        'discount_type' => $transaction->discount_type,
-        'rp_redeemed' => $transaction->rp_redeemed,
-        'rp_redeemed_amount' => $transaction->rp_redeemed_amount,
-        'max_available' => !empty($redeem_details['points']) ? $redeem_details['points'] : 0,
-    ])
-@else
-    @include('sale_pos.partials.edit_discount_modal', [
-        'sales_discount' => $business_details->default_sales_discount,
-        'discount_type' => 'percentage',
-        'rp_redeemed' => 0,
-        'rp_redeemed_amount' => 0,
-        'max_available' => 0,
-    ])
-@endif
-
-@if (isset($transaction))
-    @include('sale_pos.partials.edit_order_tax_modal', ['selected_tax' => $transaction->tax_id])
-@else
-    @include('sale_pos.partials.edit_order_tax_modal', [
-        'selected_tax' => $business_details->default_sales_tax,
-    ])
-@endif
+            @if (isset($transaction))
+                @include('sale_pos.partials.edit_discount_modal', [
+                    'sales_discount' => $transaction->discount_amount,
+                    'discount_type' => $transaction->discount_type,
+                    'rp_redeemed' => $transaction->rp_redeemed,
+                    'rp_redeemed_amount' => $transaction->rp_redeemed_amount,
+                    'max_available' => !empty($redeem_details['points']) ? $redeem_details['points'] : 0,
+                ])
+            @else
+                @include('sale_pos.partials.edit_discount_modal', [
+                    'sales_discount' => $business_details->default_sales_discount,
+                    'discount_type' => 'percentage',
+                    'rp_redeemed' => 0,
+                    'rp_redeemed_amount' => 0,
+                    'max_available' => 0,
+                ])
+            @endif
+            
+            @if (isset($transaction))
+                @include('sale_pos.partials.edit_order_tax_modal', ['selected_tax' => $transaction->tax_id])
+            @else
+                @include('sale_pos.partials.edit_order_tax_modal', [
+                    'selected_tax' => $business_details->default_sales_tax,
+                ])
+            @endif
 
 @include('sale_pos.partials.edit_shipping_modal')

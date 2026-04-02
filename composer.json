@@ -48,6 +48,7 @@
         "spatie/laravel-permission": "^5.5",
         "srmklive/paypal": "^3.0",
         "stripe/stripe-php": "^7.122",
+        "twilio/sdk": "^5.41",
         "unicodeveloper/laravel-paystack": "^1.0",
         "yajra/laravel-datatables-oracle": "^9.19"
     },
@@ -97,7 +98,8 @@
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
-        ]
+        ],
+        "p9000": "php artisan serve --port=9000"
     },
     "config": {
         "preferred-install": "dist",

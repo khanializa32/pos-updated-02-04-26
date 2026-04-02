@@ -20,13 +20,13 @@
                 <button class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-rounded-full pull-right tw-mb-2 btn-modal"
                     data-href="{{action([\App\Http\Controllers\CashRegisterInformationController::class, 'create'])}}" 
                     data-container=".cash_register_information_add_modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-                    viewBox="0 0 20 20" fill="none" stroke="red" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M12 5l0 14" />
-                        <path d="M5 12l14 0" />
-                    </svg> Crear Caja Registradora
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" 
+                                        viewBox="0 0 20 20" fill="none" stroke="teal" stroke-width="3" stroke-linecap="round"
+                                            stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M12 5l0 14" />
+                                            <path d="M5 12l14 0" />
+                                        </svg> Crear Caja Registradora
                 </button>
             </div>
         @endslot

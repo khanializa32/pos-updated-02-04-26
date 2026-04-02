@@ -22,7 +22,7 @@
      'unit_price' => 'Precio Base',
      'qty' => 'Cantidad',
      'subtotal' => 'Subtotal', /* modified */
-     'recent_transactions' => 'Transacciones recientes',
+     'recent_transactions' => 'Transacciones Recientes',
      'pos_sale_added' => 'Venta Creada',
      'price_inc_tax' => 'Precio',
      'tax' => 'Impuesto',
@@ -32,7 +32,7 @@
      'discount_amount' => 'Valor del Descuento',
      'no_recent_transactions' => 'Sin transacciones recientes',
      'final' => 'Factura',
-     'invoice_no' => 'Factura No.',
+     'invoice_no' => 'Factura.',
      'customer_name' => 'Tercero', /* modified */
      'payment_status' => 'Estado', /* modified */
      'status' => 'Estado',
@@ -61,5 +61,6 @@
      'edit_sale' => 'Editar Venta',
      'shipping' => 'Domicilio',
      'shipping_details' => 'Detalles del Envío',
-     'shipping_charges' => 'Domicilio / Flete',
+     'shipping_charges' => 'Domicilio',
+     'note' => 'Nota'
  ];

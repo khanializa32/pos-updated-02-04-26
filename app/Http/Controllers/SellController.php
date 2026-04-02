@@ -370,6 +370,13 @@ class SellController extends Controller
                         if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
                             $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" style="font-size:20px;color:dodgerblue" aria-hidden="true"></i> &nbsp;'.__('Ver Factura').'</a></li>';
                         }
+                        
+                         if ($row->type == 'sell' && $row->e_invoice == 'no') {
+                            $html .= '<li><a href="'.route('ConvertToInvoiceDian', [$row->id]).'" class=""><i class="fas fa-clone" aria-hidden="true" style="font-size:20px;color:teal"></i>Convertir a Factura Electrónica</a></li>';
+                        }
+
+                        
+                        
                         if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
                             if($row->e_invoice == 'si')
                             {
@@ -434,7 +441,8 @@ class SellController extends Controller
                                 }
                             }
                         }
-
+                        
+                       
                         //if ($is_admin || auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
                             //$html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'editShipping'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-truck" aria-hidden="true"></i>'.__('lang_v1.edit_shipping').'</a></li>';
                         //}
@@ -468,7 +476,7 @@ class SellController extends Controller
                                 
                             }
 
-                            //$html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_sale']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-bell"  style="font-size:20px;color:orange aria-hidden="true"></i>'.__('Notificaciones').'</a></li>';
+                            $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\NotificationController::class, 'getTemplate'], ['transaction_id' => $row->id, 'template_for' => 'new_sale']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-bell"  style="font-size:22px;color:orange aria-hidden="true"></i>&nbsp;&nbsp;'.__('lang_v1.notifications').'</a></li>';
                         } else {
                             $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'viewMedia'], ['model_id' => $row->id, 'model_type' => \App\Transaction::class, 'model_media_type' => 'shipping_document']).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-paperclip" aria-hidden="true"></i>'.__('lang_v1.shipping_documents').'</a></li>';
                         }
@@ -507,7 +515,11 @@ class SellController extends Controller
                         return '<span class="total-discount" data-orig-value="'.$discount.'">'.$this->transactionUtil->num_f($discount, true).'</span>';
                     }
                 )
-                ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
+                ->editColumn('transaction_date', function ($row) {
+                    $date = \Carbon\Carbon::parse($row->transaction_date);
+                    $formatted_date = $date->format(session('business.date_format', 'd/m/Y') . ' ' . (session('business.time_format') == 24 ? 'H:i' : 'h:i A'));
+                    return '<span data-orig-value="'.$date->format('Y-m-d H:i:s').'">'.$formatted_date.'</span>';
+                })
                 ->editColumn(
                     'payment_status',
                     function ($row) {
@@ -530,10 +542,10 @@ class SellController extends Controller
                     if($row->is_valid == 1 && $row->e_invoice == 'si')
                     {
                         // $is_valid = '<img src="'.asset('assets/images/d3pos/logoDian.webp').'" style="max-width:3rem;"/>';
-                        $is_valid = '<span style="color:#009166;font-weight:bolder;">Enviado</span>';
+                        $is_valid = '<span style="color:#2BB3B0;font-weight:bolder;">Enviado</span>';
                     }else if($row->is_valid == 0 && $row->e_invoice == 'si'){
                         // $is_valid = '<span style="color:#cf2e2e;font-weight:bolder;">Pendiente</span>';
-                        return '<button class="badge-p-warning pulse-warning btn-send-dian" style="font-size:12px; padding: 0.2rem 0.5rem; border-radius: 0.2rem; background-color:rgb(223, 142, 37); color: white;" data-id="' . $row->id . '"><span class="icon">!</span> Enviar</button>';
+                        return '<button class="badge-p-warning pulse-warning btn-send-dian" style="font-size:12px; padding: 0.2rem 0.5rem; border-radius: 0.2rem; background-color:#2BB3B0; color: white;" data-id="' . $row->id . '"><span class="icon">!</span> Enviar</button>';
                     }else{
                         $is_valid = '';
                     }
@@ -626,15 +638,23 @@ class SellController extends Controller
                         }
                     }, ])
                 ->addColumn('utility', function ($row) {
-                    // Prefer sub-unit aware calculation; fall back to precomputed utility if needed
+                    // 1. Verificación de seguridad: Si NO es Admin, retornamos vacío de inmediato
+                    if (!auth()->user()->hasRole('Admin') && auth()->user()->id !== 1) { 
+                    // Si no tiene el rol Y no es el usuario ID 1 (superadmin), bloquea
+                    return ''; 
+                
+                    }
+                
+                    // 2. Si el código llega aquí, es porque el usuario SÍ es Admin
                     try {
                         $profit = app(\App\Utils\TransactionUtil::class)->calculateTransactionProfitUsingSubUnits($row->id);
                     } catch (\Throwable $e) {
                         \Log::warning('Utility calc failed for transaction '.$row->id.' error: '.$e->getMessage());
                         $profit = $row->utility ?? 0;
-                    }
-                    return '<span class="display_currency" data-currency_symbol="true" data-orig-value="' . ($profit ?? 0) . '">' . ($profit ?? 0) . '</span>';
-                })
+                }
+            
+                return '<span class="display_currency" data-currency_symbol="true" data-orig-value="' . ($profit ?? 0) . '">' . ($profit ?? 0) . '</span>';
+            })
                 ->editColumn('business_location', function($row) {
                     // Preserve original label; only append non-null, different line locations
                     $baseName = $row->business_location;
@@ -658,7 +678,7 @@ class SellController extends Controller
                     // dd($names);
                     return implode(', ', $names);
                 });
-            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid', 'utility'];
+            $rawColumns = ['final_total', 'action', 'total_paid', 'total_remaining', 'payment_status', 'invoice_no', 'discount_amount', 'tax_amount', 'total_before_tax', 'shipping_status', 'types_of_service_name', 'payment_methods', 'return_due', 'conatct_name', 'status','is_valid', 'utility', 'transaction_date'];
 
             return $datatable->rawColumns($rawColumns)
                       ->make(true);
@@ -979,7 +999,7 @@ class SellController extends Controller
 
         $sell = $query->firstOrFail();
 
-        $invoice_schemes = InvoiceScheme::findOrFail($sell->invoice_scheme->id);
+        $invoice_schemes = InvoiceScheme::findOrFail($sell->invoice_scheme_id);
 
         $num_character = strlen($invoice_schemes->prefix);
         $string = $sell->invoice_no;

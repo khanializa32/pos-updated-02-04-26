@@ -58,7 +58,7 @@
           {!! Form::hidden('cash_register_information_id', array_key_first($cash_register_info->toArray()) ); !!}
         @endif
         <div class="col-sm-8 col-sm-offset-2">
-          <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right">@lang('cash_register.open_register')</button>
+          <button type="submit" class="tw-dw-btn tw-dw-btn-success tw-text-white pull-right">@lang('cash_register.open_register')</button>
         </div>
         @else
         <div class="col-sm-8 col-sm-offset-2 text-center">
@@ -71,5 +71,33 @@
   </div>
   {!! Form::close() !!}
 </section>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function () {
+            
+                const amountInput = document.querySelector('input[name="amount"]');
+            
+                if (amountInput) {
+            
+                    // Formatear mientras escribe
+                    amountInput.addEventListener('input', function (e) {
+                        let value = this.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+            
+                        if (value !== '') {
+                            this.value = new Intl.NumberFormat('es-CO').format(value);
+                        } else {
+                            this.value = '';
+                        }
+                    });
+            
+                    // Antes de enviar el formulario quitar los puntos
+                    document.getElementById('add_cash_register_form')
+                        .addEventListener('submit', function () {
+                            amountInput.value = amountInput.value.replace(/\./g, '');
+                        });
+                }
+            });
+    </script>
+
 <!-- /.content -->
 @endsection

@@ -2,6 +2,11 @@
 
  return [
      'add' => 'Crear',
+     'add_recipe' => 'Crear Receta',
+     'add_transfer' => 'Realizar Transferencia',
+     'add_payroll' => 'Crear Nómima',
+     'add_modifiers' => 'Crear Extras',
+     'add_production' => 'Realizar Producción',
      'edit' => 'Editar',
      'save' => 'Guardar', /* modified */
      'update' => 'Actualizar',
@@ -32,6 +37,7 @@
      'business_location_settings' => 'Configuración de Sucursales',
      'print' => 'Imprimir',
      'submit' => 'Guardar',
+     'ref_no' => 'Numero de Transferencia',
      'purchase_sell_mismatch_exception' => 'ERROR: NO PERMITIDO: desajuste entre la cantidad vendida y la compra. Producto: :product',
      'purchase_stock_adjustment_mismatch_exception' => 'ERROR: NO PERMITIDO: desajuste entre el ajuste de stock y la cantidad de compra. Producto: :product',
      'transaction_edit_not_allowed' => 'No se permite la edición de transacciones después de :days días.',

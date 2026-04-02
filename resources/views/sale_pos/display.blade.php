@@ -31,7 +31,7 @@
                                             </strong>
                                         </button>
                                     </div>
-                                    <div class="col-sm-12 pos_product_div">
+                                    <div class="col-sm-12 pos_product_div" style="height: 50vh !important;">
                                         <table class="table table-condensed table-bordered table-striped table-responsive"
                                             id="pos_table">
                                             <thead>
@@ -153,8 +153,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="md:tw-no-padding lg:tw-w-[40%] tw-px-5 !tw-h-[80vh] tw-shadow-xl tw-border tw-border-gray-400/30 tw-rounded-lg">
-                        <div id="myCarousel" class="carousel slide !tw-h-full tw-transition-all tw-duration-500 tw-ease-in-out" data-ride="carousel">
+                    <div class="md:tw-no-padding lg:tw-w-[40%] tw-px-5 !tw-h-[80vh] tw-shadow-xl tw-border tw-border-gray-400/30 tw-rounded-lg tw-flex tw-items-center tw-justify-center">
+                        <div id="myCarousel" class="carousel slide !tw-h-full tw-w-full tw-transition-all tw-duration-500 tw-ease-in-out" data-ride="carousel">
                             <!-- Indicators -->
                             <ol class="carousel-indicators">
                                 @foreach (range(1, 10) as $i)
@@ -169,9 +169,11 @@
                             <div class="carousel-inner !tw-h-[80vh] tw-rounded-lg">
                                 @foreach (range(1, 10) as $i)
                                     @if (isset($pos_settings['carousel_image_' . $i]))
-                                        <div class="item {{ $i == 1 ? 'active' : '' }} !tw-h-full tw-relative">
-                                            <img src="{{ url('uploads/carousel_images/' . $pos_settings['carousel_image_' . $i]) }}"
-                                                class="!tw-d-block !tw-mx-auto !tw-h-full !tw-w-full !tw-object-contain tw-rounded-lg tw-transition-all tw-duration-500">
+                                        <div class="item {{ $i == 1 ? 'active' : '' }} !tw-h-full tw-flex tw-items-center tw-justify-center">
+                                            <div class="tw-w-full tw-h-full tw-flex tw-items-center tw-justify-center">
+                                                <img src="{{ url('uploads/carousel_images/' . $pos_settings['carousel_image_' . $i]) }}"
+                                                    class="!tw-h-full !tw-w-full tw-object-contain tw-rounded-lg tw-transition-all tw-duration-500">
+                                            </div>
                                         </div>
                                     @endif
                                 @endforeach
@@ -220,7 +222,7 @@
             async function fetchProduct(variation_id, location_id) {
                 try {
                     let response = await $.ajax({
-                        url: `/pos/variation/${variation_id}/${location_id}`,
+                        url: `/sells/pos_show/${variation_id}/${location_id}`,
                         method: "GET",
                         dataType: "json",
                         delay: 250,
@@ -354,36 +356,58 @@
 
                 tableBody.empty(); // Ensure this runs BEFORE the loop
 
+                let rowHtml = '';    
+                
                 for (let product of resultArray) {
-                    let single_product = await fetchProduct(product.variation_id, location_id);
-                    // Determine product image URL
-                    let imageUrl = `${base_path}/img/default.png`; // Default image
-                    if (single_product && single_product.media && single_product.media.length > 0) {
-                        imageUrl = single_product.media[0].display_url;
-                    } else if (single_product && single_product.product_image) {
-                        imageUrl =
-                            `${base_path}/uploads/img/${encodeURIComponent(single_product.product_image)}`;
+                    // let single_product = await fetchProduct(product.variation_id, location_id);
+                    
+                     try {
+                        let response = await $.ajax({
+                            url: `/sells/pos_show/${product.variation_id}/${location_id}`,
+                            method: "GET",
+                            dataType: "json",
+                            delay: 250,
+                             success: function(result) {
+                                        
+                                    console.log("result",result);
+                                    
+                                    let single_product = result;   
+                                    let imageUrl = `${base_path}/img/default.png`; // Default image
+                                    if (single_product && single_product.media && single_product.media.length > 0) {
+                                        imageUrl = single_product.media[0].display_url;
+                                    } else if (single_product && single_product.product_image) {
+                                        imageUrl =
+                                            `${base_path}/uploads/img/${encodeURIComponent(single_product.product_image)}`;
+                                    }
+                
+                                    let quantity = parseFloat(product.quantity) || 0;
+                
+                                    totalQuantity = totalQuantity + quantity;
+                                    let unitPrice = parseFloat((product.unit_price_inc_tax || "0").replace(/,/g, "")) || 0;
+                
+                                    rowHtml += `
+                                        <tr>
+                                            <td class="text-left flex items-center">
+                                                <img loading="lazy"style="height:50px;display: inline;margin-left: 3px; border: black;border-radius: 5px; margin-top: 5px; width: 50px;object-fit: cover;" src="${imageUrl}" alt="Product Image" class="w-10 h-10 rounded mr-2"> <br/>
+                                                <span>${single_product ? single_product.product_name : "-"}</span>
+                                            </td> 
+                                            <td class="text-center">${product.quantity || "0"}</td>
+                                            <td class="text-center display_currency" data-currency_symbol="true">${product.unit_price_inc_tax || "0.00"}</td>
+                                            <td class="text-center display_currency" data-currency_symbol="true">${__currency_trans_from_en((quantity * unitPrice).toFixed(2), false)}</td>
+                                        </tr>
+                                    `;
+                             },
+                        });
+                    } catch (error) {
+                        console.error("Error fetching product data:", error);
+                        return null;
                     }
-
-                    let quantity = parseFloat(product.quantity) || 0;
-
-                    totalQuantity = totalQuantity + quantity;
-                    let unitPrice = parseFloat((product.unit_price_inc_tax || "0").replace(/,/g, "")) || 0;
-
-                    let rowHtml = `
-                        <tr>
-                            <td class="text-left flex items-center">
-                                <img loading="lazy"style="height:50px;display: inline;margin-left: 3px; border: black;border-radius: 5px; margin-top: 5px; width: 50px;object-fit: cover;" src="${imageUrl}" alt="Product Image" class="w-10 h-10 rounded mr-2"> <br/>
-                                <span>${single_product ? single_product.product_name : "-"}</span>
-                            </td> 
-                            <td class="text-center">${product.quantity || "0"}</td>
-                            <td class="text-center display_currency" data-currency_symbol="true">${product.unit_price_inc_tax || "0.00"}</td>
-                            <td class="text-center display_currency" data-currency_symbol="true">${__currency_trans_from_en((quantity * unitPrice).toFixed(2), false)}</td>
-                        </tr>
-                    `;
-
-                    tableBody.append(rowHtml);
+                
+                    // Determine product image URL
+                    
+                   
                 }
+                 tableBody.append(rowHtml);
                 $(".total_quantity").text(totalQuantity);
                 isLoadingTableData = false; // Allow function to execute again
                 console.log("Table updated with stored data.");

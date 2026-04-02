@@ -35,4 +35,25 @@ class CashRegister extends Model
     {
         return $this->belongsTo(CashRegisterInformation::class);
     }
+    
+    protected $fillable = [
+    'business_id',
+    'location_id',
+    'user_id',
+    'cash_register_information_id',
+    'cash_information_id',
+    'status',
+    'closing_type',
+    'closed_at',
+    'physical_cash',
+    'closing_amount',
+    'difference_amount',
+    'is_posted_to_accounts',
+    'total_card_slips',
+    'total_cheques',
+    'denominations',
+    'closing_note',
+    'created_at',
+    'updated_at'
+];
 }

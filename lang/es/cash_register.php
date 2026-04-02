@@ -17,7 +17,7 @@
      'other_payments' => 'Otros Pagos',
      'total_sales' => 'Total Venta',
      'total_cash' => 'Efectivo',
-     'current_register' => 'Caja Actual',
+     'current_register' => 'REPORTE DE INFORME DIARIO',
      'close_register' => 'Cerrar Caja',
      'total_card_slips' => 'Tarjetas', /* modified */
      'total_cheques' => 'Nequi', /* modified */
@@ -27,4 +27,11 @@
      'close' => 'Cerrar', /* modified */
      'total_refund' => 'Devoluciones',
      'refunds' => 'Devoluciones',
+     'cash_withdrawals' => 'Retiros Efectivo',
+    'created_by' => 'Creado por',
+    'withdraw_cash' => 'Retiros',
+    'initial_invoice' => 'Factura Inicial',
+    'final_invoice' => 'Factura Final',
+    'add_cash_withdrawal' => 'Agregar Retiro',
+    'view_cash_withdrawals' => 'Ver Retiros',
  ];

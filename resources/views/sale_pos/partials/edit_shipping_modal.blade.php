@@ -2,7 +2,7 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="posShippingModal">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title">@lang('sale.shipping')</h4>
 			</div>
@@ -46,13 +46,13 @@
 				            {!! Form::label('delivered_to_modal', __('lang_v1.delivered_to') . ':' ) !!}
 				            {!! Form::text('delivered_to_modal', !empty($transaction->delivered_to) ? $transaction->delivered_to : null, ['class' => 'form-control','placeholder' => __('lang_v1.delivered_to')]); !!}
 				        </div>
-				    </div> -->
+				    </div> 
 					<div class="col-md-6">
 				        <div class="form-group">
 				            {!! Form::label('delivery_person_modal', __('Domiciliario') . ':' ) !!} <br>
 				            {!! Form::select('delivery_person_modal', $users, !empty($transaction->delivery_person) ? $transaction->delivery_person : null, ['style' => 'width:100%' ,'class' => 'form-control select2 width-100','placeholder' => __('messages.please_select')]); !!}
 				        </div>
-				    </div>  
+				    </div>  -->
 				    @php
 				        $custom_labels = json_decode(session('business.custom_labels'), true);
 
@@ -155,7 +155,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-black" id="posShippingModalUpdate">@lang('Cargar')</button>
+				<button type="button" class="tw-dw-btn bg-info tw-text-white tw-text-white" id="posShippingModalUpdate">@lang('Cargar Domicilio')</button>
 			    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.cancel')</button>
 			</div>
 		</div><!-- /.modal-content -->

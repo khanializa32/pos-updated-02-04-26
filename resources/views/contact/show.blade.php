@@ -63,13 +63,13 @@
                             @endif">
                         <a href="#ledger_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-scroll" style="font-size:24px ;color:ForestGreen" aria-hidden="true"></i> @lang('lang_v1.ledger')</a>
                     </li>
-                    <li
+                    <!--<li
                             class="
                             @if (!empty($view_type) && $view_type == 'loans') active
                             @else
                                 '' @endif">
                             <a href="#loans_tab" class="credit_index_btn" data-toggle="tab" data-url="{{route('loans.show', $contact->id)}}" aria-expanded="true"><i class="fas fa-solid fa-credit-card" style="font-size:24px ;color:DodgerBlue"></i> Creditos</a>
-                        </li>
+                        </li> -->
                     @if(in_array($contact->type, ['both', 'supplier']))
                         <li class="
                             @if(!empty($view_type) &&  $view_type == 'purchase')
@@ -108,7 +108,7 @@
                             </li>
                         @endif
                     @endif
-                    <li class="
+                    <!--<li class="
                             @if(!empty($view_type) &&  $view_type == 'documents_and_notes')
                                 active
                             @else
@@ -116,7 +116,7 @@
                             @endif
                             ">
                         <a href="#documents_and_notes_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-paperclip" style="font-size:24px ;color:DeepPink" aria-hidden="true"></i> @lang('lang_v1.documents_and_notes')</a>
-                    </li>
+                    </li> -->
                     <li class="
                             @if(!empty($view_type) &&  $view_type == 'payments')
                                 active
@@ -137,14 +137,14 @@
                         </li>
                     @endif
 
-                    <li class="
+                    <!--<li class="
                         @if(!empty($view_type) &&  $view_type == 'activities')
                             active
                         @else
                             ''
                         @endif">
                         <a href="#activities_tab" data-toggle="tab" aria-expanded="true"><i class="fas fa-pen-square" style="font-size:25px ;color:BlueViolet" aria-hidden="true"></i> @lang('lang_v1.activities')</a>
-                        </li>
+                        </li> -->
 
                     @if(!empty($contact_view_tabs))
                         @foreach($contact_view_tabs as $key => $tabs)
@@ -333,6 +333,26 @@
 @stop
 @section('javascript')
 <script type="text/javascript">
+$(document).on('click', 'a.pay_sale_due', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: $(this).attr('href'),
+            dataType: 'html',
+            success: function(result) {
+                $('.pay_contact_due_modal')
+                    .html(result)
+                    .modal('show');
+                __currency_convert_recursively($('.pay_contact_due_modal'));
+                $('#paid_on').datetimepicker({
+                    format: moment_date_format + ' ' + moment_time_format,
+                    ignoreReadonly: true,
+                });
+                $('.pay_contact_due_modal')
+                    .find('form#pay_contact_due_form')
+                    .validate();
+            },
+        });
+    });
 $(document).ready( function(){
     $('#ledger_date_range').daterangepicker(
         dateRangeSettings,
@@ -607,6 +627,19 @@ function get_contact_ledger() {
             $('#contact_ledger_div')
                 .html(result);
             __currency_convert_recursively($('#contact_ledger_div'));
+            
+            /////hhhh
+            
+            // Update header Balance due from hidden value in ledger HTML
+            var dueRaw = $('#contact_ledger_div').find('#balance_due_raw').data('balance');
+            if (typeof dueRaw !== 'undefined') {
+                try {
+                    var formatted = __currency_trans_from_en(dueRaw, true);
+                    $('.contact_balance_due_value').text(formatted);
+                } catch (e) {
+                    $('.contact_balance_due_value').text(dueRaw);
+                }
+            }
 
             $('#ledger_table').DataTable({
                 searching: false,

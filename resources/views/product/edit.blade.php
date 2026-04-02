@@ -271,14 +271,14 @@
             
              @component('components.widget', ['class' => 'box-primary'])
         <div class="row">
-            <div class="col-sm-4 @if(!session('business.enable_price_tax')) hide @endif">
+            <div class="col-sm-2 @if(!session('business.enable_price_tax')) hide @endif">
               <div class="form-group">
                 {!! Form::label('tax', __('product.applicable_tax') . ':') !!}
                   {!! Form::select('tax', $taxes, $product->tax, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2'], $tax_attributes); !!}
               </div>
             </div>
 
-            <div class="col-sm-4 @if(!session('business.enable_price_tax')) hide @endif">
+            <div class="col-sm-2 @if(!session('business.enable_price_tax')) hide @endif">
               <div class="form-group">
                 {!! Form::label('tax_type', __('product.selling_price_tax_type') . ':*') !!}
                   {!! Form::select('tax_type',['inclusive' => __('product.inclusive'), 'exclusive' => __('product.exclusive')], $product->tax_type,
@@ -370,16 +370,16 @@
                 
                   @if(!empty($rack_details[$id]))
                     @if(session('business.enable_racks'))
-                      {!! Form::text('product_racks_update[' . $id . '][rack]', $rack_details[$id]['rack'], ['class' => 'form-control', 'id' => 'rack_' . $id]); !!}
-                    @endif
-
+                      {!! Form::text('product_racks_update[' . $id . '][rack]', $rack_details[$id]['rack'], ['class' => 'form-control', 'id' => 'rack_' . $id,'placeholder' => __('lang_v1.rack')]); !!}
+                @endif
+ <br>
                     @if(session('business.enable_row'))
-                      {!! Form::text('product_racks_update[' . $id . '][row]', $rack_details[$id]['row'], ['class' => 'form-control']); !!}
-                    @endif
-
+                      {!! Form::text('product_racks_update[' . $id . '][row]', $rack_details[$id]['row'], ['class' => 'form-control','placeholder' => __('lang_v1.row')]); !!}
+                @endif
+ <br>
                     @if(session('business.enable_position'))
-                      {!! Form::text('product_racks_update[' . $id . '][position]', $rack_details[$id]['position'], ['class' => 'form-control']); !!}
-                    @endif
+                      {!! Form::text('product_racks_update[' . $id . '][position]', $rack_details[$id]['position'], ['class' => 'form-control','placeholder' => __('lang_v1.position')]); !!}
+                @endif
                   @else
                     {!! Form::text('product_racks[' . $id . '][rack]', null, ['class' => 'form-control', 'id' => 'rack_' . $id, 'placeholder' => __('lang_v1.rack')]); !!}
 
@@ -459,7 +459,7 @@
 
               <button type="submit" value="save_n_add_another" class="tw-dw-btn tw-text-white tw-dw-btn-lg bg-maroon submit_product_form">@lang('lang_v1.update_n_add_another')</button>
 
-              <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-lg submit_product_form">@lang('messages.update')</button>
+              <button type="submit" value="submit" class="tw-dw-btn bg-info tw-text-white tw-dw-btn-lg submit_product_form">@lang('messages.update')</button>
             </div>
           </div>
         </div>

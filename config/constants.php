@@ -33,6 +33,8 @@ return [
     'enable_sell_in_diff_currency' => false,
     'currency_exchange_rate' => 1,
     'orders_refresh_interval' => 600, //Auto refresh interval on Kitchen and Orders page in seconds,
+    
+    'pos_recent_transactions_display_limit' => env('POS_RECENT_TRANSACTIONS_DISPLAY_LIMIT', 20), //Controls how many recent transactions are shown in POS recent transactions list default is 10
 
     'default_date_format' => 'm/d/Y', //Default date format to be used if session is not set. All valid formats can be found on https://www.php.net/manual/en/function.date.php
 
@@ -58,6 +60,7 @@ return [
         'image/png' => '.png',
         'image/png' => '.webp',
         'image/png' => '.gif',
+        'image/jfif' => '.jfif',
 
     ], //List of MIME type: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
     'show_report_606' => false,

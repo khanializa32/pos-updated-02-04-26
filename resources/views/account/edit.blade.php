@@ -33,50 +33,32 @@
                     @endforeach
                 </select>
             </div>
-
-            <label>@lang('lang_v1.account_details'):</label>
-            <table class="table table-striped">
-                <tr>
-                    <th>
-                        @lang('lang_v1.label')
-                    </th>
-                    <th>
-                        @lang('product.value')
-                    </th>
-                </tr>
-                @if(!empty($account->account_details))
-                    @foreach($account->account_details as $key => $account_detail)
-                        <tr>
-                            <td>
-                                {!! Form::text('account_details['.$key.'][label]', !empty($account->account_details[$key]['label'])? $account->account_details[$key]['label'] : null, ['class' => 'form-control']); !!}
-                            </td>
-                            <td>
-                                {!! Form::text('account_details['.$key.'][value]', !empty($account->account_details[$key]['value'])?$account->account_details[$key]['value']:null, ['class' => 'form-control']); !!}      
-                            </td>
-                        </tr>
-                    @endforeach
-                @else
-                    @for ($i = 0; $i < 6; $i++)
-                        <tr>
-                            <td>
-                                {!! Form::text('account_details['.$i.'][label]', null, ['class' => 'form-control']); !!}
-                            </td>
-                            <td>
-                                {!! Form::text('account_details['.$i.'][value]', null, ['class' => 'form-control']); !!}      
-                            </td>
-                        </tr>
-                    @endfor
-                @endif
-            </table>
+            
+            <!--HERE THE ACCOUNT TYPE FIELD WAS DUPLICATED AS AN EXAMPLE, IT MUST BE CHANGED BY THE CALL TO AUTOMATICALLY MAP AN ACCOUNTING ACCOUNT WHEN USING THIS PAYMENT ACCOUNT -->
             
             <div class="form-group">
-                {!! Form::label('note', __( 'brand.note' )) !!}
-                {!! Form::textarea('note', $account->note, ['class' => 'form-control', 'placeholder' => __( 'brand.note' ), 'rows' => 4]); !!}
+                {!! Form::label('account_type_id', __( 'account.account' ) .":") !!}
+                <select name="account_type_id" class="form-control select2">\
+                    <option>@lang('messages.please_select')</option>
+                    @foreach($account_types as $account_type)
+                       
+                    @endforeach
+                </select>
+            </div>
+            
+        <!--END OF FIELD TO ADD ACCOUNTING ACCOUNT -->
+            
+
+            
+            
+            <div class="form-group">
+                {!! Form::label('note', __( 'account.description' )) !!}
+                {!! Form::textarea('note', $account->note, ['class' => 'form-control', 'placeholder' => __( 'account.description' ), 'rows' => 2]); !!}
             </div>
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'messages.update' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'messages.update' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

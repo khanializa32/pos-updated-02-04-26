@@ -126,13 +126,28 @@ $(document).ready(function() {
                 d.exp_date_filter = $('#stock_expiry_alert_days').val();
             },
         },
-        order: [[3, 'asc']],
+        order: [[4, 'asc']],
         columns: [
             { data: 'product', name: 'p.name' },
             { data: 'location', name: 'l.name' },
             { data: 'stock_left', name: 'stock_left' },
-            { data: 'exp_date', name: 'exp_date' },
-        ],
+            { data: 'lot_number', name: 'purchase_lines.lot_number' }, // Nueva columna insertada
+            { 
+        data: 'exp_date', 
+        name: 'exp_date',
+        render: function(data, type, row) {
+            if (data) {
+                var expDate = moment(data); // Usando moment.js que UltimatePOS trae por defecto
+                var today = moment().startOf('day');
+                
+                if (expDate.isBefore(today)) {
+                    return '<span class="tw-text-red-600 tw-font-bold">' + data + '⚠️</span>';
+                }
+            }
+            return data;
+        }
+    },
+],
         fnDrawCallback: function(oSettings) {
             __show_date_diff_for_human($('#stock_expiry_alert_table'));
             __currency_convert_recursively($('#stock_expiry_alert_table'));

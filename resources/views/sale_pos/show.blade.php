@@ -79,7 +79,7 @@
           {{-- {{explode("\n", $sell->qrstr)[9] }} --}}
         @endif
         @if($sell->qrstr != '')
-            <br/><a href="{{route('downloadPdfInvoiceFE', [$sell->id])}}" target="_blank" class="badge text-bg-success" style="background-color: #380aad; color: white;" rel="noopener noreferrer"><i class="fas fa-download"></i> Descargar PDF</a>
+            <br/><a href="{{route('downloadPdfInvoiceFE', [$sell->id])}}" target="_blank" class="badge text-bg-success" style="background-color: #E83B1A; color: white;" rel="noopener noreferrer"><i class="fas fa-download"></i> Descargar PDF</a>
         @endif
       </div>
       <div class="@if(!empty($export_custom_fields)) col-sm-3 @else col-sm-4 @endif">
@@ -249,8 +249,8 @@
       </div>
       <div class="col-md-6 col-sm-12 col-xs-12">
         <div class="table-responsive">
-          <table class="table bg-gray">
-            <tr class="bg-green">
+          <table class="table bg-white">
+            <tr class="">
               <th>#</th>
               <th>{{ __('messages.date') }}</th>
               <th>{{ __('purchase.ref_no') }}</th>
@@ -292,7 +292,7 @@
       @endif
       <div class="col-md-6 col-sm-12 col-xs-12 @if($sell->type == 'sales_order') col-md-offset-6 @endif">
         <div class="table-responsive">
-          <table class="table bg-gray">
+          <table class="table bg-white">
             <tr>
               <th>{{ __('sale.total') }}: </th>
               <td></td>
@@ -441,10 +441,10 @@
   </div>
   <div class="modal-footer">
     @if($sell->type != 'sales_order')
-    <a href="#" class="print-invoice tw-dw-btn tw-dw-btn-success tw-text-white" data-href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a>
+    <a href="#" class="print-invoice tw-dw-btn bg-info tw-text-white tw-text-white" data-href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a>
     @endif
     @can('print_invoice')
-      <a href="#" class="print-invoice tw-dw-btn tw-dw-btn-primary tw-text-white" data-href="{{route('sell.printInvoice', [$sell->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.print_invoice")</a>
+      <a href="#" class="print-invoice tw-dw-btn bg-info tw-text-white tw-text-white" data-href="{{route('sell.printInvoice', [$sell->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.print_invoice")</a>
     @endcan
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>

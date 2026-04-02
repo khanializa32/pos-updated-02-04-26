@@ -26,7 +26,7 @@
           @endif
         @endforeach
         <div class="col-sm-2">
-          <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white tw-dw-btn-sm" id="add_variation_values">+</button>
+          <button type="button" class="tw-dw-btn tw-dw-btn bg-info tw-text-white tw-dw-btn-sm" id="add_variation_values">+</button>
         </div>
       </div>
       <div id="variation_values">
@@ -43,7 +43,7 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white">@lang('messages.update')</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang('messages.update')</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
     </div>
 

@@ -17,6 +17,18 @@
         {!! Form::label('code', __( 'expense.category_code' ) . ':') !!}
           {!! Form::text('code', null, ['class' => 'form-control', 'placeholder' => __( 'expense.category_code' )]); !!}
       </div>
+      
+       <!-- DELIO NOTE: IT'S JUST THE VIEW; IT INDICATES THAT THE CHART OF ACCOUNTS MUST BE CALLED FROM THE DB -->
+        
+        <div class="col-md-6">
+                {!! Form::label('account_type_id', __( 'account.account' ) .":") !!}
+                <select name="account_type_id" class="form-control select2">\
+                    <option>@lang('2408101')</option>
+                    
+                </select>
+        </div>
+   
+        <!-- FIN DELIO NOTE:  -->
 
         <div class="form-group">
             <div class="checkbox">
@@ -32,7 +44,7 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'messages.save' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'messages.save' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

@@ -14,8 +14,8 @@
     }
 @endphp
 
-<table class="table @if(!empty($for_ledger)) table-slim mb-0 bg-light-gray @else bg-gray @endif" @if(!empty($for_pdf)) style="width: 100%;" @endif>
-        <tr @if(empty($for_ledger)) class="bg-green" @endif>
+<table class="table @if(!empty($for_ledger)) table-slim mb-0 bg-light-white @else bg-gray @endif" @if(!empty($for_pdf)) style="width: 100%;" @endif>
+        <tr @if(empty($for_ledger)) class="bg-info tw-text-white" @endif>
         <th>#</th>
         <th>{{ __('sale.product') }}</th>
         @if( session()->get('business.enable_lot_number') == 1 && empty($for_ledger))
@@ -30,7 +30,7 @@
                 @lang('restaurant.service_staff')
             </th>
         @endif
-        <th>{{ __('sale.unit_price') }}</th>
+        <th>{{ __('Base') }}</th>
         <th>{{ __('sale.discount') }}</th>
         <th>{{ __('sale.tax') }}</th>
         <th>{{ __('sale.price_inc_tax') }}</th>
@@ -49,12 +49,16 @@
                         ({{ $loc_code }})
                     @endif
                 @endif
+                
+                <!--hhhhh-->
+                <!-- echo("Good",$sell_line->product) -->
                 {{ $sell_line->product->name }}
+                
                 @if( $sell_line->product->type == 'variable')
                 - {{ $sell_line->variations->product_variation->name ?? ''}}
                 - {{ $sell_line->variations->name ?? ''}},
                 @endif
-                {{ $sell_line->variations->sub_sku ?? ''}}
+                <!--{{ $sell_line->variations->sub_sku ?? ''}}  -->
                 @php
                 $brand = $sell_line->product->brand;
                 @endphp

@@ -327,6 +327,20 @@
                 </div>
             </div>
         </div>
+        
+        <div class="col-sm-4">
+            <div class="form-group">
+                <div class="checkbox">
+                <br>
+                  <label>
+                    {!! Form::checkbox('pos_settings[activate_popup_agent_commission]', 1,  
+                        !empty($pos_settings['activate_popup_agent_commission']) , 
+                    [ 'class' => 'input-icheck']); !!} {{ __( 'lang_v1.activate_popup_agent_commission' ) }}
+                  </label>
+                </div>
+            </div>
+        </div>
+        
     </div>    
     <hr>
     @include('business.partials.settings_weighing_scale')

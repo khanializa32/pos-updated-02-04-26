@@ -2,12 +2,12 @@
 
  return [
      'supplier' => 'Proveedor',
-     'ref_no' => 'Numero de Factura',
+     'ref_no' => 'Numero',
      'business_location' => 'Sucursal',
      'purchases' => 'Compras',
      'add_payment' => 'Pagar',
      'edit_payment' => 'Editar Pago',
-     'view_payments' => 'Ver Pagos',
+     'view_payments' => 'Comprobante Egreso',
      'amount_already_paid' => 'Valor ya pagado',
      'payment_added_success' => 'Pago Realizado',
      'payment_updated_success' => 'Pago Actualizado',

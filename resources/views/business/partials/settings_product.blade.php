@@ -8,6 +8,7 @@
         </div>
         
         <div class="col-sm-4">
+            
             {!! Form::label('enable_product_expiry', __( 'product.enable_product_expiry' ) . ':') !!}
             @show_tooltip(__('lang_v1.tooltip_enable_expiry'))
 

@@ -7,11 +7,150 @@
     <section class="content-header">
         <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('sale.products')
                     
-      &nbsp;<button style='font-size:30px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
-					
+      &nbsp;
+      
+     
+     
+      <style>
+     {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f2f2f2;
+    }
 
-	    </h4>
-       
+    /* Botón */
+    .btn-youtube {
+      background-color: #DB2323;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-youtube:hover {
+      background-color: #2BB3B0;
+    }
+
+
+    /* Contenido del modal */
+    .modal-content {
+      position: relative;
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 0;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 720px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Botón cerrar */
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    /* Video */
+    iframe {
+      width: 120%;
+      height: 605px;
+      border: none;
+      border-radius: 0 0 8px 8px;
+    }
+    .btn-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(255, 75, 43, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(255, 75, 43, 0.45);
+}
+
+.btn-modern:active {
+    transform: scale(0.97);
+}
+
+  </style>
+
+<body>
+
+
+  <button id="openModalBtn" class="btn-modern">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M10.804 8 5.5 11.25V4.75L10.804 8z"/>
+        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4z"/>
+    </svg>
+    Ver Video
+</button>
+
+
+
+  <!-- Modal -->
+  <div id="youtubeModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <iframe id="youtubeVideo" src="" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById("youtubeModal");
+    const openBtn = document.getElementById("openModalBtn");
+    const closeBtn = document.getElementById("closeModalBtn");
+    const video = document.getElementById("youtubeVideo");
+
+    // URL del video
+    const youtubeURL = "https://www.youtube.com/embed/y6z9YBYc6I4?si=J9Up3DlF5JyC9-n_"; // reemplaza con tu video
+
+    openBtn.onclick = () => {
+      modal.style.display = "block";
+      video.src = youtubeURL + "?autoplay=1";
+    }
+
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+      video.src = ""; // Detener el video al cerrar
+    }
+
+    // Cerrar al hacer clic fuera del modal
+    window.onclick = (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+        video.src = "";
+      }
+    }
+  </script>
+
+</body>
+
+
+  
+
        
         <div class="tw-grid tw-grid-cols-1 tw-gap-4 tw-mt-6 sm:tw-grid-cols-2 xl:tw-grid-cols-4 sm:tw-gap-5">
                             
@@ -55,28 +194,12 @@
                                 </div>
        
        
-    <div data-width="500" tabindex="-1" class="modal fade" id="stack" style="display: none;">
-     <div class="modal-dialog">
-        <div class="modal-content" style="padding-bottom: 40px">
-               <div class="modal-header">
-                  <button type="button" id='close-modal' class="close" data-dismiss="modal" rel=0;aria-hidden="true"></button>
-                <div id="title-tutorial">
-                Modulo Grupo de Clientes               
-                </div>
-        </div>
-            <div class="modal-body">
-                <div id="video-tutorial">
-                    
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/HBV8Mn4lCyk?si=kYkTV6AbRGAX_cZd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                
-                </div>
-                <p id="description-tutorial">Cree Grupos de Clientes</p>
-
-                
-            </div>
-        </div>
-      </div>
-    </div>
+  
         </h1>
+        
+        
+        
+        
 
         <!-- <ol class="breadcrumb">
                     <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
@@ -186,11 +309,44 @@
                         @endforeach
                     @endif
 
+                <!-- Include filter for products according to rack -->
+                
+                                   @if($rack_enabled)
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {!! Form::label('rack_filter', __('Estante') . ':') !!}
+                            {!! Form::select(
+                                'rack_filter',
+                                $racks,
+                                null,
+                                [
+                                    'class' => 'form-control select2',
+                                    'id' => 'rack_filter',
+                                    'style' => 'width:100%; min-height: 38px;',
+                                    'placeholder' => __('lang_v1.all'),
+                                ]
+                            ) !!}
+                        </div>
+                    </div>
+                @endif
+                
+                <!-- End Include filter for products according to rack -->
+
+
+
                     <div class="col-md-3">
                         <div class="form-group">
                             <br>
                             <label>
                                 {!! Form::checkbox('not_for_selling', 1, false, ['class' => 'input-icheck', 'id' => 'not_for_selling']) !!} <strong>@lang('lang_v1.not_for_selling')</strong>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <br>
+                            <label>
+                                {!! Form::checkbox('nonzero_quantity', 1, false, ['class' => 'input-icheck', 'id' => 'nonzero_quantity']) !!} <strong>No Mostrar Cantidades 0</strong>
                             </label>
                         </div>
                     </div>
@@ -257,8 +413,8 @@
 									
                                     <a class="tw-dw-btn tw-bg--to-r tw-from-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-full pull-right tw-m-2"
                                         href="{{ action([\App\Http\Controllers\ProductController::class, 'create']) }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-                                        viewBox="0 0 20 20" fill="none" stroke="red" stroke-width="2" stroke-linecap="round"
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" 
+                                        viewBox="0 0 20 20" fill="none" stroke="teal" stroke-width="3" stroke-linecap="round"
                                             stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M12 5l0 14" />
@@ -289,6 +445,10 @@
         </div>
 
         <div class="modal fade" id="opening_stock_modal" tabindex="-1" role="dialog"
+            aria-labelledby="gridSystemModalLabel">
+        </div>
+
+        <div class="modal fade" id="edit_rack_details_modal" tabindex="-1" role="dialog"
             aria-labelledby="gridSystemModalLabel">
         </div>
 
@@ -328,7 +488,10 @@
                         d.tax_id = $('#product_list_filter_tax_id').val();
                         d.active_state = $('#active_state').val();
                         d.not_for_selling = $('#not_for_selling').is(':checked');
+                        d.nonzero_quantity = $('#nonzero_quantity').is(':checked');
+
                         d.location_id = $('#location_id').val();
+                        d.rack = $('#rack_filter').val();
                         if ($('#repair_model_id').length == 1) {
                             d.repair_model_id = $('#repair_model_id').val();
                         }
@@ -361,6 +524,12 @@
                         data: 'product',
                         name: 'products.name'
                     },
+                    
+                    {
+                        data: 'weight',
+                        name: 'products.weight'
+                    },
+                    
                     {
                         data: 'product_locations',
                         name: 'product_locations'
@@ -489,6 +658,42 @@
                 product_table.ajax.reload();
             });
 
+            // Edit rack details
+            $(document).on('click', 'a.edit-rack-details', function(e) {
+                e.preventDefault();
+                var url = $(this).data('href');
+                $.ajax({
+                    url: url,
+                    dataType: 'html',
+                    success: function(result) {
+                        $('#edit_rack_details_modal').html(result).modal('show');
+                    }
+                });
+            });
+
+            // Submit rack details form
+            $(document).on('submit', '#edit_rack_details_form', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                var data = form.serialize();
+                $.ajax({
+                    method: 'POST',
+                    url: url,
+                    data: data,
+                    dataType: 'json',
+                    success: function(result) {
+                        if (result.success) {
+                            toastr.success(result.msg);
+                            $('#edit_rack_details_modal').modal('hide');
+                            product_table.ajax.reload();
+                        } else {
+                            toastr.error(result.msg);
+                        }
+                    }
+                });
+            });
+
             $('table#product_table tbody').on('click', 'a.delete-product', function(e) {
                 e.preventDefault();
                 swal({
@@ -611,7 +816,7 @@
             });
 
             $(document).on('change',
-                '#product_list_filter_type, #product_list_filter_category_id, #product_list_filter_brand_id, #product_list_filter_unit_id, #product_list_filter_tax_id, #location_id, #active_state, #repair_model_id',
+                '#product_list_filter_type, #product_list_filter_category_id, #product_list_filter_brand_id, #product_list_filter_unit_id, #product_list_filter_tax_id, #location_id, #active_state, #repair_model_id, #rack_filter',
                 function() {
                     if ($("#product_list_tab").hasClass('active')) {
                         product_table.ajax.reload();
@@ -622,7 +827,7 @@
                     }
                 });
 
-            $(document).on('ifChanged', '#not_for_selling, #woocommerce_enabled', function() {
+            $(document).on('ifChanged', '#not_for_selling, #nonzero_quantity, #woocommerce_enabled', function() {
                 if ($("#product_list_tab").hasClass('active')) {
                     product_table.ajax.reload();
                 }

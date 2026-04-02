@@ -573,6 +573,7 @@ $(document).ready(function() {
             { data: 'ref_no', name: 'ref_no' },
             { data: 'location_name', name: 'BS.name' },
             { data: 'name', name: 'contacts.name' },
+            { data: 'is_valid', name: 'is_valid' },
             { data: 'status', name: 'status' },
             { data: 'payment_status', name: 'payment_status' },
             { data: 'final_total', name: 'final_total' },
@@ -1011,6 +1012,10 @@ function update_grand_total() {
 
     //__currency_convert_recursively($(document));
 }
+$(document).on('keyup', 'input.payment-amount', function() {
+    __write_number($(this), $(this).val(), true);
+});
+
 $(document).on('change', 'input.payment-amount', function() {
     var payment = __read_number($(this), true);
     var grand_total = __read_number($('input#grand_total_hidden'), true);

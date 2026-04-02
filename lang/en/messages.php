@@ -12,6 +12,7 @@ return [
     */
 
     'add' => 'Add',
+    'add_transfer' => 'Add_Transfer',
     'edit' => 'Edit',
     'save' => 'Save',
     'update' => 'Update',
@@ -44,6 +45,7 @@ return [
     'price' => 'Price',
     'activate' => 'Activate',
     'deactivate' => 'Deactivate',
+    'ref_no' => 'Transfer No.',
     'print_detailed' => 'Print Detailed',
     'print_mini' => 'Print Mini',
     'opening' => 'opening',

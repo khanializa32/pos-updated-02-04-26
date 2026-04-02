@@ -74,7 +74,7 @@
                   <!-- INICIO CAMPOS AGREGADO SOLO EN LA VISTA NO TIENE RELACION EN LA BASE DE DATOS -->
       
         <div class="form-group col-md-3">
-				<label for="fec_ingreso">FECHA INGRESO:</label>
+				<label for="fec_ingreso">Inicio del Contrato:</label>
 				<input class="form-control" placeholder="Fecha de nacimiento" name="fec_ingreso" type="date">
 		</div>
       
@@ -438,7 +438,7 @@
     
     <div class="row">
         <div class="col-md-12 text-center">
-            <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white" id="submit_user_button">@lang( 'messages.update' )</button>
+            <button type="submit" class="tw-dw-btn bg-info tw-text-white" id="submit_user_button">@lang( 'messages.update' )</button>
         </div>
     </div>
     {!! Form::close() !!}

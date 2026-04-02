@@ -6,6 +6,7 @@ use App\BusinessLocation;
 use App\Contact;
 use App\Events\TransactionPaymentDeleted;
 use App\InvoiceScheme;
+use App\Business;
 use App\Transaction;
 use App\TransactionSellLine;
 use App\User;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\Models\Activity;
 use Yajra\DataTables\Facades\DataTables;
 use App\Services\DianService as UtilsDianService;
+use Illuminate\Support\Facades\Http;
 
 class SellReturnController extends Controller
 {
@@ -242,7 +244,7 @@ class SellReturnController extends Controller
         // dd($invoice_parent);
 
         $invoice_scheme_parent = InvoiceScheme::where('business_id',$business_id)->find($invoice_parent->invoice_scheme_id);
-        // dd($invoice_scheme_parent);
+        $response_invoice = [];	
         if($invoice_scheme_parent->type_document_id == 1)
         {
             $response_invoice = UtilsDianService::send_credit_note(
@@ -259,13 +261,15 @@ class SellReturnController extends Controller
                 $invoice_parent,
                 $sell
             );
+            // dd($response_invoice);
         }
 
+
         
-        $output = ['success' => 1,
+        $output = ['success' => $response_invoice['success'],
                     'msg' =>$response_invoice['msg'],
-                    'redirect' =>action([\App\Http\Controllers\SellReturnController::class, 'index'])
-                    // 'data' => $response_invoice
+                    'redirect' =>action([\App\Http\Controllers\SellReturnController::class, 'index']),
+                     'data' => $response_invoice
                 ];
         // dd($response_invoice['msg']);
         // dd($response_invoice);
@@ -273,7 +277,54 @@ class SellReturnController extends Controller
         return $output;
       
     }
+    
+    public function downloadPdfCreditNoteFE($id)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $business = Business::findOrFail($business_id);
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sell = $query->firstOrFail();
 
+            // dd($sell);
+
+            $invoice_scheme = InvoiceScheme::find($sell->invoice_scheme_id);
+            if($invoice_scheme->type_document_id == 4)//factura electronica
+            {
+                $url = getenv('APP_API_FE').'/api/invoice/'.$business->nit.'/NCS-'.$sell->invoice_no.'.pdf';
+            }elseif($invoice_scheme->type_document_id == 26)//pos electronico
+            {
+                $url = getenv('APP_API_FE').'/api/invoice/'.$business->nit.'/NCQS-'.$sell->invoice_no.'.pdf';
+            }
+            // return $url;
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer '.$business->dian_token
+            ])->get($url, [
+            ]);
+            if($response->ok())
+            {
+                return response()->streamDownload(function () use ($response) {
+                    echo $response->body();
+                }, $sell->invoice_no.'.pdf');
+            }else{
+                return $response->body();
+            }
+            
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -372,6 +423,20 @@ class SellReturnController extends Controller
                     throw new \Exception('Invoice scheme parent not found');
                 }
                 
+                $count_products = 0;
+                foreach($input['products'] as $product)
+                {
+                    if($product['quantity'] != 0)
+                    {
+                        $count_products++;
+                    }
+                }
+
+                if($count_products == 0)
+                {
+                    throw new \Exception('Tienes lineas de productos sin cantidad');
+                }
+                
                 $invoice_scheme = null;
 
                 DB::beginTransaction();
@@ -404,9 +469,13 @@ class SellReturnController extends Controller
 
             if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
                 $msg = $e->getMessage();
+            }else if($e->getMessage() == 'Tienes lineas de productos sin cantidad')
+            {
+                $msg = 'Tienes lineas de productos sin cantidad';
+            
             } else {
                 \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
-                $msg = __('messages.something_went_wrong');
+                $msg = 'Error al intentar generar la nota credito';
             }
 
             $output = ['success' => 0,
@@ -520,6 +589,9 @@ class SellReturnController extends Controller
                 }
                 $sell_return = $query->first();
 
+                 // Get the parent sale transaction for fallback location
+                $parent_sale = Transaction::find($sell_return->return_parent_id);
+
                 $sell_lines = TransactionSellLine::where('transaction_id',
                                             $sell_return->return_parent_id)
                                     ->get();
@@ -538,8 +610,9 @@ class SellReturnController extends Controller
                             //update quantity sold in corresponding purchase lines
                             $this->transactionUtil->updateQuantitySoldFromSellLine($sell_line, 0, $quantity_before);
 
-                            // Update quantity in variation location details
-                            $this->productUtil->updateProductQuantity($sell_return->location_id, $sell_line->product_id, $sell_line->variation_id, 0, $quantity_before);
+                            // Update quantity in variation location details - use sell_line location_id if available, otherwise use parent sale's location
+                            $line_location_id = $sell_line->location_id ?? $parent_sale->location_id;
+                            $this->productUtil->updateProductQuantity($line_location_id, $sell_line->product_id, $sell_line->variation_id, 0, $quantity_before, null, true);
                         }
                     }
 

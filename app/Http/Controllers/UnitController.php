@@ -6,6 +6,8 @@ use App\Product;
 use App\Unit;
 use App\Utils\Util;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class UnitController extends Controller
@@ -49,6 +51,7 @@ class UnitController extends Controller
                 ->addColumn(
                     'action',
                     '@can("unit.update")
+                    <button data-href="{{action(\'App\Http\Controllers\UnitController@getDiscount\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-success add_discount_button">$ @lang("lang_v1.add_discount")</button>
                     <button data-href="{{action(\'App\Http\Controllers\UnitController@edit\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-primary edit_unit_button"><i class="glyphicon glyphicon-edit"></i> @lang("messages.edit")</button>
                         &nbsp;
                     @endcan
@@ -275,4 +278,120 @@ class UnitController extends Controller
             return $output;
         }
     }
+
+    public function getDiscount($id)
+    {
+        if (! auth()->user()->can('unit.update')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (! request()->ajax()) {
+            abort(404);
+        }
+
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $unit = Unit::where('business_id', $business_id)
+                ->with(['base_unit'])
+                ->findOrFail($id);
+
+            $base_unit_name = ! empty($unit->base_unit) ? $unit->base_unit->actual_name : $unit->actual_name;
+
+            return [
+                'success' => true,
+                'data' => [
+                    'id' => $unit->id,
+                    'base_unit_name' => $base_unit_name,
+                    'discount' => $unit->discount,
+                ],
+            ];
+        } catch (\Exception $e) {
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
+            return [
+                'success' => false,
+                'msg' => __('messages.something_went_wrong'),
+            ];
+        }
+    }
+
+    public function postDiscount(Request $request, $id)
+    {
+        if (! auth()->user()->can('unit.update')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (! request()->ajax()) {
+            abort(404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'discount' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'msg' => $validator->errors()->first('discount'),
+                'errors' => $validator->errors(),
+            ];
+        }
+
+        try {
+            $business_id = $request->session()->get('user.business_id');
+            $discount = $this->commonUtil->num_uf($request->input('discount'));
+
+            DB::transaction(function () use ($business_id, $id, $discount) {
+                $unit = Unit::where('business_id', $business_id)->findOrFail($id);
+                $unit->discount = $discount;
+                $unit->save();
+            });
+
+            return [
+                'success' => true,
+                'msg' => __('lang_v1.updated_success'),
+            ];
+        } catch (\Exception $e) {
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
+            return [
+                'success' => false,
+                'msg' => __('messages.something_went_wrong'),
+            ];
+        }
+    }
+
+    public function deleteDiscount($id)
+    {
+        if (! auth()->user()->can('unit.update')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if (! request()->ajax()) {
+            abort(404);
+        }
+
+        try {
+            $business_id = request()->session()->get('user.business_id');
+
+            DB::transaction(function () use ($business_id, $id) {
+                $unit = Unit::where('business_id', $business_id)->findOrFail($id);
+                $unit->discount = null;
+                $unit->save();
+            });
+
+            return [
+                'success' => true,
+                'msg' => __('lang_v1.deleted_success'),
+            ];
+        } catch (\Exception $e) {
+            \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
+            return [
+                'success' => false,
+                'msg' => __('messages.something_went_wrong'),
+            ];
+        }
+    }
+
 }

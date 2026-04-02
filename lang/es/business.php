@@ -4,6 +4,7 @@
      'register_and_get_started_in_minutes' => 'Registrarse y Comience en Minutos',
      'business_name' => 'Razón Social', /* modified */
      'start_date' => 'Fecha de Inicio',
+     'enterprise' => 'Empresa',
      'currency' => 'Moneda',
      'currency_placeholder' => 'Seleccione el tipo de moneda',
      'upload_logo' => 'Subir Logo',
@@ -96,6 +97,7 @@
      'tax_number1' => 'Número fiscal 1',
      'tax_number2' => 'Número fiscal 2',
      'is_active' => 'Activo',
+     'status' => 'Estado de la Caja',
      'social_security' => 'Seguridad Social',
      'dian_configurations' => 'Software DIAN',
      'created_by' => 'Creado por',

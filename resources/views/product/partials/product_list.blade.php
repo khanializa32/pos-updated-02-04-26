@@ -6,9 +6,10 @@
     <thead>
         <tr>
             <th><input type="checkbox" id="select-all-row" data-table-id="product_table"></th>
-            <th class="tw-w-full">{{__('lang_v1.product_image')}} </th>
+            <th class="tw-w-">{{__('lang_v1.product_image')}} </th>
             <th>@lang('messages.action')</th>
             <th>@lang('sale.product')</th>
+            <th>@lang('lang_v1.weight')</th>
             <th>@lang('purchase.business_location') @show_tooltip(__('lang_v1.product_business_location_tooltip'))</th>
             @can('view_purchase_price')
                 @php 

@@ -38,7 +38,7 @@
 				<div class="col-sm-4">
 					<div class="form-group">
 						{!! Form::label('invoice_no', __('sale.invoice_no').':') !!}
-						{!! Form::text('invoice_no', !empty($sell->return_parent->invoice_no) ? $sell->return_parent->invoice_no : null, ['class' => 'form-control']); !!}
+						{!! Form::text('invoice_no', !empty($sell->return_parent->invoice_no) ? $sell->return_parent->invoice_no : null, ['class' => 'form-control','readonly']); !!}
 					</div>
 				</div>
 				<div class="col-sm-3">
@@ -147,7 +147,7 @@
 				</div>
 				<div class="col-sm-3">
 					<div class="form-group">
-						{!! Form::label('discrepancyresponsedescription', __( 'Descripción del Rechazo' ) . ':') !!}
+						{!! Form::label('discrepancyresponsedescription', __( 'Descripción del Rechazo' ) . ':*') !!}
 						{!! Form::text('discrepancyresponsedescription', $sell->discrepancyresponsedescription, ['class' => 'form-control','required']); !!}
 					</div>
 				</div>

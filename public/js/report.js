@@ -1,4 +1,8 @@
 $(document).ready(function() {
+    $('#stock_date').datepicker({
+        autoclose: true,
+        format: datepicker_date_format,
+    });
     //Purchase & Sell report
     //Date range as a button
     if ($('#purchase_sell_date_filter').length == 1) {
@@ -143,6 +147,7 @@ $(document).ready(function() {
                 d.sub_category_id = $('#sub_category_id').val();
                 d.brand_id = $('#brand').val();
                 d.unit_id = $('#unit').val();
+                d.stock_date = $('#stock_date').val();
 
                 d.only_mfg_products = $('#only_mfg_products').length && $('#only_mfg_products').is(':checked') ? 1 : 0;
             },
@@ -224,7 +229,7 @@ $(document).ready(function() {
         });
     }
 
-    $('#stock_report_filter_form #location_id, #stock_report_filter_form #category_id, #stock_report_filter_form #sub_category_id, #stock_report_filter_form #brand, #stock_report_filter_form #unit,#stock_report_filter_form #view_stock_filter'
+    $('#stock_report_filter_form #location_id, #stock_report_filter_form #category_id, #stock_report_filter_form #sub_category_id, #stock_report_filter_form #brand, #stock_report_filter_form #unit,#stock_report_filter_form #view_stock_filter, #stock_report_filter_form #stock_date'
     ).change(function() {
         stock_report_table.ajax.reload();
         stock_expiry_report_table.ajax.reload();
@@ -918,6 +923,7 @@ $(document).ready(function() {
                     d.variation_id = $('#variation_id').val();
                     d.customer_id = $('select#customer_id').val();
                     d.location_id = $('select#location_id').val();
+                    d.invoice_scheme_id = $('select#invoice_scheme_id').val();
                     d.category_id = $('select#psr_filter_category_id').val();
                     d.brand_id = $('select#psr_filter_brand_id').val();
                     d.customer_group_id = $('#psr_customer_group_id').val();
@@ -981,6 +987,7 @@ $(document).ready(function() {
                 d.variation_id = $('#variation_id').val();
                 d.customer_id = $('select#customer_id').val();
                 d.location_id = $('select#location_id').val();
+                d.invoice_scheme_id = $('select#invoice_scheme_id').val();
                 d.category_id = $('select#psr_filter_category_id').val();
                 d.brand_id = $('select#psr_filter_brand_id').val();
                 d.customer_group_id = $('#psr_customer_group_id').val();
@@ -1031,6 +1038,7 @@ $(document).ready(function() {
                 d.variation_id = $('#variation_id').val();
                 d.customer_id = $('select#customer_id').val();
                 d.location_id = $('select#location_id').val();
+                d.invoice_scheme_id = $('select#invoice_scheme_id').val();
                 d.category_id = $('select#psr_filter_category_id').val();
                 d.brand_id = $('select#psr_filter_brand_id').val();
                 d.customer_group_id = $('#psr_customer_group_id').val();
@@ -1056,7 +1064,7 @@ $(document).ready(function() {
     });
 
     $(
-        '#psr_customer_group_id, #psr_filter_category_id, #psr_filter_brand_id, #product_sell_report_form #variation_id, #product_sell_report_form #location_id, #product_sell_report_form #customer_id'
+        '#psr_customer_group_id, #psr_filter_category_id, #psr_filter_brand_id, #product_sell_report_form #variation_id, #product_sell_report_form #location_id, #product_sell_report_form #customer_id, #invoice_scheme_id'
     ).change(function() {
         product_sell_report.ajax.reload();
         product_sell_grouped_report.ajax.reload();
@@ -1776,6 +1784,7 @@ function get_stock_value() {
         sub_category_id: $('#sub_category_id').val(),
         brand_id: $('#brand').val(),
         unit_id: $('#unit').val(),
+        stock_date: $('#stock_date').val(),
     }
     $.ajax({
         url: '/reports/get-stock-value',

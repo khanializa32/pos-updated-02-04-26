@@ -9,7 +9,7 @@
 				<div class="col-md-12">
 					<div class="table-responsive">
 						<table class="table bg-white">
-							<tr class="bg-purple">
+							<tr class="bg-info">
 								@if($product->type == 'variable')
 									<th>@lang('product.variations')</th>
 								@endif

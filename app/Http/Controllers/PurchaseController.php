@@ -12,6 +12,7 @@ use App\Product;
 use App\PurchaseLine;
 use App\TaxRate;
 use App\Transaction;
+use App\InvoiceScheme;
 use App\User;
 use App\Utils\BusinessUtil;
 use App\Utils\ModuleUtil;
@@ -28,6 +29,8 @@ use App\Municipality;
 use App\TypeDocumentIdentification;
 use App\TypeLiability;
 use App\TypeRegime;
+use App\Services\DianService as UtilsDianService;
+use Illuminate\Support\Facades\Http;
 
 class PurchaseController extends Controller
 {
@@ -128,6 +131,10 @@ class PurchaseController extends Controller
                     if (auth()->user()->can('purchase.update')) {
                         $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit" style="font-size:20px;color:chocolate"></i>'.__('messages.edit').'</a></li>';
                     }
+                    if (auth()->user()->can('purchase.update') && $row->cufe == '') {//se agrega el icono de estado de envio
+                        $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseController::class, 'ConvertToDS'], [$row->id]).'">
+                        <i class="fas fa-edit" style="font-size:20px;color:chocolate"></i>Convertir a Documento Soporte</a></li>';
+                    }
                     if (auth()->user()->can('purchase.delete')) {
                         $html .= '<li><a href="'.action([\App\Http\Controllers\PurchaseController::class, 'destroy'], [$row->id]).'" class="delete-purchase"><i class="fas fa-trash"style="font-size:20px;color:red"></i>'.__('messages.delete').'</a></li>';
                     }
@@ -189,6 +196,18 @@ class PurchaseController extends Controller
                 ->editColumn('transaction_date', '{{@format_datetime($transaction_date)}}')
                 ->editColumn('name', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br> @endif {{$name}}')
                 ->editColumn(
+                    'is_valid',
+                    function ($row) {
+                        if($row->is_valid == 1 && $row->e_invoice == 'si')
+                        {
+                            return '<span style="color:#009166;background-color:#98D973 !important;font-weight:bolder;" class="label is_valid-label" data-is_valid-name="{{ $is_valid}}" data-orig-value="{{$is_valid}}"><i class="fas fa-shield-alt"></i> enviado</span>';
+                        }else if(($row->is_valid == '0' || $row->is_valid == null || $row->is_valid == '') && $row->e_invoice == 'si'){
+                            return '<span style="color:#ffffff;background-color:#ffad46 !important;font-weight:bolder;" class="label is_valid-label" data-is_valid-name="{{ $is_valid}}" data-orig-value="{{$is_valid}}"><i class="fas fa-exclamation-triangle"></i> pendiente</span>';
+                        }else{
+                            return '';
+                        }
+                    })
+                ->editColumn(
                     'status',
                     '<a href="#" @if(auth()->user()->can("purchase.update") || auth()->user()->can("purchase.update_status")) class="update_status no-print" data-purchase_id="{{$id}}" data-status="{{$status}}" @endif><span class="label @transaction_status($status) status-label" data-status-name="{{__(\'lang_v1.\' . $status)}}" data-orig-value="{{$status}}">{{__(\'lang_v1.\' . $status)}}
                         </span></a>'
@@ -220,7 +239,7 @@ class PurchaseController extends Controller
                             return '';
                         }
                     }, ])
-                ->rawColumns(['final_total', 'action', 'payment_due', 'payment_status', 'status', 'ref_no', 'name'])
+                ->rawColumns(['final_total', 'action', 'is_valid','payment_due', 'payment_status', 'status', 'ref_no', 'name'])
                 ->make(true);
         }
 
@@ -464,6 +483,137 @@ class PurchaseController extends Controller
 
         return redirect('purchases')->with('status', $output);
     }
+    
+    public function ConvertToDS($id)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $taxes = TaxRate::where('business_id', $business_id)
+                                ->pluck('name', 'id');
+            $purchase = Transaction::where('business_id', $business_id)
+                                    ->where('id', $id)
+                                    ->with(
+                                        'contact',
+                                        'purchase_lines',
+                                        'purchase_lines.product',
+                                        'purchase_lines.product.unit',
+                                        'purchase_lines.product.second_unit',
+                                        'purchase_lines.variations',
+                                        'purchase_lines.variations.product_variation',
+                                        'purchase_lines.sub_unit',
+                                        'location',
+                                        'payment_lines',
+                                        'tax'
+                                    )
+                                    ->firstOrFail();
+
+            foreach ($purchase->purchase_lines as $key => $value) {
+                if (! empty($value->sub_unit_id)) {
+                    $formated_purchase_line = $this->productUtil->changePurchaseLineUnit($value, $business_id);
+                    $purchase->purchase_lines[$key] = $formated_purchase_line;
+                }
+            }
+
+            $payment_methods = $this->productUtil->payment_types($purchase->location_id, true);
+
+            $purchase_taxes = [];
+            if (! empty($purchase->tax)) {
+                if ($purchase->tax->is_tax_group) {
+                    $purchase_taxes = $this->transactionUtil->sumGroupTaxDetails($this->transactionUtil->groupTaxDetails($purchase->tax, $purchase->tax_amount));
+                } else {
+                    $purchase_taxes[$purchase->tax->name] = $purchase->tax_amount;
+                }
+            }
+
+            $invoice_schemes = InvoiceScheme::where('business_id', $business_id)
+                                            ->where('type_document_id', 11)
+                                    ->pluck('name', 'id');
+            $default_invoice_scheme = InvoiceScheme::getDefault($business_id);
+
+            return view('purchase.convert_to_ds_dian',compact('purchase', 'invoice_schemes', 'default_invoice_scheme'));
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('success', "Error: ".$th->getMessage());
+        }
+    }
+    
+    public function ConvertToInvoiceDianStore(Request $request)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $request->purchase_id)
+                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sell = $query->firstOrFail();
+
+            $is_invoice_scheme_fe = InvoiceScheme::find($request->invoice_scheme_id);
+            if($sell->e_invoice == 'no' && $is_invoice_scheme_fe->is_fe == 'si')
+            {
+                if($is_invoice_scheme_fe->type_document_id == 11)
+                {
+                    $invoice_no = $this->transactionUtil->getInvoiceNumber(
+                        $business_id, 
+                        'final', 
+                        $sell->location_id, 
+                        $request->invoice_scheme_id, 
+                        'sell'
+                    );
+    
+                    $sell->invoice_no = $invoice_no['invoice_no'];
+                    $sell->prefix = $invoice_no['prefix'];
+                    $sell->number_invoice = $invoice_no['count'];
+                    $sell->resolution = $invoice_no['resolution'];
+                    $sell->invoice_scheme_id = $request->invoice_scheme_id;
+                    $sell->e_invoice = 'si';
+                    $sell->save();
+                }else{
+                    return redirect()->back()->with('error', "La resolución no es de documento soporte");
+                }
+                
+            }
+
+            return redirect()->back()->with('success', "Factura convertida a documento soporte correctamente");
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('success', $th->getMessage());
+        }
+
+    }
+
+    public function sendToDian(Request $request)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $query = Transaction::where('business_id', $business_id)
+            ->where('id', $request->purchase_id)
+            ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                $q->whereNull('parent_sell_line_id');
+            }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties']);
+            $purchase = $query->firstOrFail();
+
+            $DianService = new UtilsDianService();
+            $response = $DianService->resend_support_document(
+                $purchase, 
+                $business_id, 
+                $purchase->contact_id, 
+                $purchase->purchase_lines, 
+                $purchase->prefix, 
+                $purchase->number_invoice, 
+                $purchase->resolution
+            );
+            return redirect()->back()->with('success', $response['msg']);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('success', 'Error: '.$th->getMessage());
+        }
+    }
+
 
     /**
      * Display the specified resource.
@@ -602,16 +752,102 @@ class PurchaseController extends Controller
         $statuses = $this->productUtil->orderStatuses();
 
         $list = [
-            '1' => 'Acuse de recibo de Factura Electrónica de Venta',
-            '2' => 'Reclamo de la Factura Electrónica de Venta',
-            '3' => 'Recibo del bien y/o prestación del servicio',
-            '4' => 'Aceptación expresa',
-            '5' => 'Aceptación Tácita'
+            '1' => '030 - Acuse de Recibo de Factura Electrónica de Venta',
+            '2' => '031 - Reclamo de la Factura Electrónica de Venta',
+            '3' => '032 - Recibo del bien y/o prestación del servicio',
+            '4' => '033 - Aceptación Expresa',
+            '5' => '034 - Aceptación Tácita'
         ];
 
         return view('purchase.radian')
                 ->with(compact('taxes', 'purchase', 'payment_methods', 'purchase_taxes', 'activities', 'statuses', 'purchase_order_nos', 'purchase_order_dates', 'list'));
     }
+    
+    public function sendRadianEvent(Request $request)
+    {
+
+        $business_id = request()->session()->get('user.business_id');
+
+        try {
+            $DianService = new UtilsDianService();
+            $response_invoice = $DianService->send_radian(
+                $business_id, 
+                $request->input('cufe'),
+                $request->input('event_type'),
+                $request->input('purchase_id')
+            );
+
+            // dd($response_invoice);
+
+            if ($response_invoice['success'] == 0) {
+                $output = ['success' => false,
+                    'msg' => $response_invoice['msg']];
+            }else{
+                $output = ['success' => true,
+                    'msg' => $response_invoice['msg'],
+                ];
+            }
+
+                return $output;
+        } catch (\Exception $e) {
+            $output = ['success' => false,
+                    'msg' => 'Error al enviar el evento radian: '.$e->getMessage(),
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'code' => $e->getCode(),
+                ];
+                return $output;
+        }
+
+    }
+    
+    public function downloadPdfSupportDocument($id)
+    {
+        try {
+            $business_id = request()->session()->get('user.business_id');
+            $business = Business::findOrFail($business_id);
+            $query = Transaction::where('business_id', $business_id)
+                        ->where('id', $id)
+                        ->with(['contact', 'delivery_person_user', 'sell_lines' => function ($q) {
+                            $q->whereNull('parent_sell_line_id');
+                        }, 'sell_lines.product', 'sell_lines.product.unit', 'sell_lines.product.second_unit', 'sell_lines.variations', 'sell_lines.variations.product_variation', 'payment_lines', 'sell_lines.modifiers', 'sell_lines.lot_details', 'tax', 'sell_lines.sub_unit', 'table', 'service_staff', 'sell_lines.service_staff', 'types_of_service', 'sell_lines.warranties', 'media']);
+    
+            if (! auth()->user()->can('sell.view') && ! auth()->user()->can('direct_sell.access') && auth()->user()->can('view_own_sell_only')) {
+                $query->where('transactions.created_by', request()->session()->get('user.id'));
+            }
+    
+            $sell = $query->firstOrFail();
+
+            // dd($sell);
+
+            $invoice_scheme = InvoiceScheme::find($sell->invoice_scheme_id);
+            if($invoice_scheme->type_document_id == 11)//documento soporte 
+            {
+                $url = getenv('APP_API_FE').'/api/invoice/'.$business->nit.'/DSS-'.$sell->invoice_no.'.pdf';
+            }
+            // return $url;
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer '.$business->dian_token
+            ])->get($url, [
+            ]);
+            if($response->ok())
+            {
+                return response()->streamDownload(function () use ($response) {
+                    echo $response->body();
+                }, $sell->invoice_no.'.pdf');
+            }else{
+                return $response->body();
+            }
+            
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+        }
+    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -1463,7 +1699,9 @@ class PurchaseController extends Controller
             }
 
             $output = ['success' => 1, 'receipt' => [], 'print_title' => $purchase->ref_no];
-            $output['receipt']['html_content'] = view('purchase.partials.show_details', compact('taxes', 'purchase', 'payment_methods', 'purchase_order_nos', 'purchase_order_dates'))->render();
+            $is_print = true;
+
+            $output['receipt']['html_content'] = view('purchase.partials.show_details', compact('taxes', 'purchase', 'payment_methods', 'purchase_order_nos', 'purchase_order_dates', 'is_print'))->render();
         } catch (\Exception $e) {
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
 

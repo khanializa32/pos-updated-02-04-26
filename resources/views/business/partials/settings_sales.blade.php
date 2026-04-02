@@ -196,6 +196,15 @@
     </div>
     <hr>
     <div class="row">
+                
+        <div class="col-md-12"><h4>@lang('lang_v1.sale_delete_pin') @show_tooltip(__('lang_v1.sale_delete_pin_link_help_text')):</h4></div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                    {!! Form::label('PIN DE SEGURIDAD') !!}
+                    {!! Form::text('sale_delete_pin', $business->sale_delete_pin , [ 'class' => 'form-control', 'id' => 'sale-delete-pin', 'required', 'minlength' => 4, 'maxlength' => 4,]); !!}
+            </div>
+        </div>
+
         <div class="col-md-12"><h4>@lang('lang_v1.payment_link') @show_tooltip(__('lang_v1.payment_link_help_text')):</h4></div>
         <div class="col-sm-4">
             <div class="form-group">

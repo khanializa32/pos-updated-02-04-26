@@ -15,9 +15,9 @@
      'edit_expense_category' => 'Editar Tipo de Gastos',
      'all_expenses' => 'Todos los Gastos',
      'expense_status' => 'Estado del Gasto',
-     'add_expense' => 'Salidas de Caja',
+     'add_expense' => 'Gastos',
      'edit_expense' => 'Editar Gasto',
-     'expense_note' => 'Nota del Gasto o Salida',
+     'expense_note' => 'Nota del Gasto',
      'expense_add_success' => 'Gasto Creado', /* modified */
      'expense_update_success' => 'Gasto Actualizado',
      'expense_delete_success' => 'Gasto Eliminado',

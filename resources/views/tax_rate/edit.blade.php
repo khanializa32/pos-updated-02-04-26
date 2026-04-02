@@ -36,6 +36,56 @@
           </div>
         </div>
         
+           <!-- DELIO NOTE: IT'S JUST THE VIEW; IT INDICATES THAT THE CHART OF ACCOUNTS MUST BE CALLED FROM THE DB -->
+        
+        <div class="col-md-6">
+    <div class="form-group">
+        {!! Form::label('sales_account_id', 'Cuenta contable IVA ventas:') !!}
+        <select name="sales_account_id" class="form-control select2-account">
+
+<option value="">Seleccione cuenta</option>
+
+@foreach($accounts as $account)
+
+<option value="{{$account->id}}"
+data-code="{{$account->gl_code}}"
+@if($tax_rate->sales_account_id == $account->id) selected @endif>
+
+{{$account->gl_code}} - {{$account->name}}
+
+</option>
+
+@endforeach
+
+</select>
+    </div>
+</div>
+
+<div class="col-md-6">
+    <div class="form-group">
+        {!! Form::label('purchase_account_id', 'Cuenta contable IVA compras:') !!}
+        <select name="purchase_account_id" class="form-control select2-account">
+
+<option value="">Seleccione cuenta</option>
+
+@foreach($accounts as $account)
+
+<option value="{{$account->id}}"
+data-code="{{$account->gl_code}}"
+@if($tax_rate->purchase_account_id == $account->id) selected @endif>
+
+{{$account->gl_code}} - {{$account->name}}
+
+</option>
+
+@endforeach
+
+</select>
+    </div>
+</div>
+        
+        <!-- FIN DELIO NOTE:  -->
+        
       </div>
 
       <div class="form-group">
@@ -49,7 +99,7 @@
     </div>
 
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'messages.update' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'messages.update' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

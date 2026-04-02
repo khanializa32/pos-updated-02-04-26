@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-10 col-md-offset-1 col-xs-12">
     <div class="table-responsive">
-      <table class="table table-condensed bg-gray">
+      <table class="table table-condensed bg-info">
         <tr>
           <th>@lang('business.location')</th>
           <th>@lang('lang_v1.rack')</th>

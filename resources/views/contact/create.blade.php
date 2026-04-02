@@ -63,11 +63,11 @@
                     data-content="Digite el Numero de Identificacion, Persona natural o Juridica" data-html="true" data-trigger="hover"></i> 
                     <div class="input-group">
                         
-                        {!! Form::text('contact_id', null, ['class' => 'form-control','placeholder' => __('lang_v1.contact_id'), 'required']); !!}
+                        {!! Form::text('contact_id', null, ['class' => 'form-control','placeholder' => __('lang_v1.contact_id')]); !!}
                         <span class="input-group-addon" >
                             <b id="dv">0</b>
                         </span>
-                        <span class="input-group-addon" style="cursor: pointer; background-color: #590c94; color: white;" id="search_contact_id">
+                        <span class="input-group-addon" style="cursor: pointer; background-color: #2BB3B0; color: white;" id="search_contact_id">
                             <button class="" type="button">Consultar</button>
                         </span>
                     </div>
@@ -78,7 +78,10 @@
 
             
             <div class="col-md-4 customer_fields">
-                <div class="form-group">
+                
+               <!-- MOSTRAR / OCULTAR GRUPO DE CLIENTES PARA LISTA DE PRECIOS -->
+               
+            <div class="form-group">
                   {!! Form::label('customer_group_id', __('lang_v1.customer_group') . ':') !!}
                   <div class="input-group">
                       <span class="input-group-addon">
@@ -86,7 +89,9 @@
                       </span>
                       {!! Form::select('customer_group_id', $customer_groups, '', ['class' => 'form-control']); !!}
                   </div>
-                </div>
+                </div> 
+                
+                
             </div>
             {{-- <div class="clearfix customer_fields"></div> --}}
             <div class="col-md-8 business" style="display: none;">
@@ -134,23 +139,36 @@
                     {!! Form::label('mobile', __('contact.mobile') . ':') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
-                            <i class="fa fa-mobile"style='font-size:20px;color:green'></i>
+                            <i class="fas fa-mobile-alt"style='font-size:20px;color:green'></i>
                         </span>
-                       <!-- {!! Form::text('mobile', null, ['class' => 'form-control', 'required', 'placeholder' => __('contact.mobile')]); !!}  -->
-                        <input class="form-control" placeholder="Celular"   type="text" id="registration_number" value="00000">
+                        {!! Form::text('mobile', 00000, ['class' => 'form-control', 'placeholder' => __('contact.mobile')]); !!} 
+                        
                     </div>
+                </div>
+            </div>
+            
+            
+             <div class="col-md-5">
+                <div class="form-group">
+                <label for="address_line_1">Dirección:</label>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fas fa-home" style='font-size:20px;color:brown'></i>
+                    </span>
+                    <input class="form-control" placeholder="Direccion"  name="address_line_1" type="text" id="address_line_1">
+                </div>
                 </div>
             </div>
 
             
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('email', __('business.email') . ':*') !!}
+                    {!! Form::label('email', __('business.email') . ':') !!}
                     <div class="input-group">
                         <span class="input-group-addon">
                             <i class="fa fa-envelope" style='font-size:20px;color:orange'></i>
                         </span>
-                        {!! Form::email('email', null, ['class' => 'form-control', 'id' => 'email','placeholder' => __('business.email'), 'required']); !!}
+                        {!! Form::email('email', null, ['class' => 'form-control', 'id' => 'email','placeholder' => __('business.email'),]); !!}
                     </div>
                 </div>
             </div>
@@ -183,7 +201,7 @@
             <div class="col-md-4">
                 <div class="form-group">
                     {!! Form::label('department_id', __('Departamento') . ':*') !!}
-                    {!! Form::select('department_id', $departments,'', ['class' => 'form-control department_id','id'=>'department_id','placeholder' => __('Seleccione un departamento')]); !!}
+                    {!! Form::select('department_id', $departments,5, ['class' => 'form-control department_id','id'=>'department_id','placeholder' => __('Seleccione un departamento')]); !!}
                 </div>
             </div>
             <div class="col-md-4">
@@ -194,7 +212,7 @@
             </div>
     
 
-            <div class="col-md-3">
+            {{-- <div class="col-md-3">
                 <div class="form-group">
                 <label for="zip_code">Código Postal:</label>
                 <div class="input-group">
@@ -204,19 +222,9 @@
                     <input class="form-control" placeholder="Código Postal"  name="zip_code" type="text" value="" id="zip_code">
                 </div>
                 </div>
-            </div>
+            </div> --}}
     {{-- <div class="clearfix"></div> --}}
-            <div class="col-md-5">
-                <div class="form-group">
-                <label for="address_line_1">Dirección:*</label>
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <i class="fa fa-map-marker" style='font-size:20px;color:brown'></i>
-                    </span>
-                    <input class="form-control" placeholder="Direccion"  name="address_line_1" type="text" id="address_line_1">
-                </div>
-                </div>
-            </div>
+           
             
             <div class="clearfix"></div>
             
@@ -265,7 +273,7 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white tw-dw-btn-sm center-block more_btn" data-target="#more_div">Más Datos <i class="fa fa-chevron-down"></i></button>
+                <button type="button" class="btn btn-light tw-text-black tw-dw-btn-sm center-block more_btn" data-target="#more_div">Más Datos <i class="fa fa-chevron-down"></i></button>
             </div>
 
             <div id="more_div" class="hide">
@@ -605,7 +613,7 @@
     </div>
     
     <div class="modal-footer">
-      <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'Crear Tercero' )</button>
+      <button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang( 'Crear Tercero' )</button>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
 

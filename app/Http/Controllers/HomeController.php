@@ -325,10 +325,11 @@ class HomeController extends Controller
             return Datatables::of($products)
                 ->editColumn('product', function ($row) {
                     if ($row->type == 'single') {
-                        return $row->product.' ('.$row->sku.')';
+                        return $row->product;
                     } else {
-                        return $row->product.' - '.$row->product_variation.' - '.$row->variation.' ('.$row->sub_sku.')';
+                        return $row->product.' - '.$row->product_variation.' - '.$row->variation;
                     }
+                    
                 })
                 ->editColumn('stock', function ($row) {
                     $stock = $row->stock ? $row->stock : 0;
@@ -341,7 +342,7 @@ class HomeController extends Controller
                 ->removeColumn('type')
                 ->removeColumn('product_variation')
                 ->removeColumn('variation')
-                ->rawColumns([2])
+                ->rawColumns([4])
                 ->make(false);
         }
     }

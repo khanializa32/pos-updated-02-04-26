@@ -112,7 +112,7 @@
     </div>
     <div class="row no-print">
         <div class="col-sm-12">
-            <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right" 
+            <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white pull-right" 
             aria-label="Print" onclick="window.print();"
             ><i class="fa fa-print"></i> @lang( 'messages.print' )</button>
         </div>

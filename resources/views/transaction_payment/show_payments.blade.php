@@ -236,7 +236,7 @@
                 onclick="$(this).closest('div.modal').printThis();">
                 <i class="fa fa-print"></i> @lang( 'messages.print' )
             </button>
-            <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
+            <button type="button" class="tw-dw-btn bg-info tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
         </div>
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->

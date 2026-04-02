@@ -96,6 +96,16 @@ class SalesCommissionAgentController extends Controller
             $input['business_id'] = $business_id;
             $input['allow_login'] = 0;
             $input['is_cmmsn_agnt'] = 1;
+            
+            // Handle is_default
+            $input['is_default'] = $request->has('is_default') ? 1 : 0;
+
+            // If setting as default, unset all other agents for this business
+            if ($input['is_default'] == 1) {
+                User::where('business_id', $business_id)
+                    ->where('is_cmmsn_agnt', 1)
+                    ->update(['is_default' => 0]);
+            }
 
             $user = User::create($input);
 
@@ -150,6 +160,17 @@ class SalesCommissionAgentController extends Controller
                 $input['cmmsn_percent'] = $this->commonUtil->num_uf($input['cmmsn_percent']);
                 $business_id = $request->session()->get('user.business_id');
 
+                // Handle is_default
+                $input['is_default'] = $request->has('is_default') ? 1 : 0;
+
+                // If setting as default, unset all other agents for this business
+                if ($input['is_default'] == 1) {
+                    User::where('business_id', $business_id)
+                        ->where('is_cmmsn_agnt', 1)
+                        ->where('id', '!=', $id)
+                        ->update(['is_default' => 0]);
+                }
+                
                 $user = User::where('id', $id)
                             ->where('business_id', $business_id)
                             ->where('is_cmmsn_agnt', 1)
@@ -206,4 +227,57 @@ class SalesCommissionAgentController extends Controller
             return $output;
         }
     }
+
+    
+    /**
+     * Set commission agent as default.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function setDefault($id)
+    {
+        // if (! auth()->user()->can('user.update')) {
+        //     abort(403, 'Unauthorized action.');
+        // }
+
+        if (request()->ajax()) {
+            try {
+                $business_id = request()->session()->get('user.business_id');
+
+                // Verify the agent exists and belongs to the business
+                $agent = User::where('id', $id)
+                    ->where('business_id', $business_id)
+                    ->where('is_cmmsn_agnt', 1)
+                    ->first();
+
+                if (! $agent) {
+                    return ['success' => false,
+                        'msg' => __('messages.something_went_wrong'),
+                    ];
+                }
+
+                // Unset all other agents as default
+                User::where('business_id', $business_id)
+                    ->where('is_cmmsn_agnt', 1)
+                    ->update(['is_default' => 0]);
+
+                // Set this agent as default
+                $agent->update(['is_default' => 1]);
+
+                $output = ['success' => true,
+                    'msg' => __('lang_v1.default_commission_agent_updated'),
+                ];
+            } catch (\Exception $e) {
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+
+                $output = ['success' => false,
+                    'msg' => __('messages.something_went_wrong'),
+                ];
+            }
+
+            return $output;
+        }
+    }
+
 }

@@ -395,7 +395,7 @@ class BusinessController extends Controller
                 'redeem_amount_per_unit_rp', 'min_order_total_for_redeem',
                 'min_redeem_point', 'max_redeem_point', 'rp_expiry_period',
                 'rp_expiry_type', 'custom_labels', 'weighing_scale_setting',
-                'code_label_1', 'code_1', 'code_label_2', 'code_2', 'currency_precision', 'quantity_precision', ]);
+                'code_label_1', 'code_1', 'code_label_2', 'code_2', 'currency_precision', 'quantity_precision',  'sale_delete_pin']);
 
             if (! empty($request->input('enable_rp')) && $request->input('enable_rp') == 1) {
                 $business_details['enable_rp'] = 1;
@@ -469,7 +469,20 @@ class BusinessController extends Controller
             $business_details['keyboard_shortcuts'] = json_encode($shortcuts);
 
             //pos_settings
-            $pos_settings = $request->input('pos_settings');
+            $pos_settings = $request->input('pos_settings', []);
+
+            $pre_busines_detail = $this->businessUtil->getDetails($business_id);
+            $pre_pos_setting = json_decode($pre_busines_detail->pos_settings, true) ?? [];
+            for ($i = 1; $i <= 10; $i++) {
+                $inputName = "carousel_image_$i"; // Image field names should be like carousel_image_1, carousel_image_2, etc.
+
+                if ($request->hasFile($inputName)) {
+                    $image_name = $this->businessUtil->uploadFile($request, $inputName, 'carousel_images', 'image');
+                    $pos_settings[$inputName] = $image_name; // Store image URL inside pos_settings
+                }else if (isset($pre_pos_setting[$inputName])){
+                    $pos_settings[$inputName] = $pre_pos_setting[$inputName] ?? null;
+                }
+            }
             $default_pos_settings = $this->businessUtil->defaultPosSettings();
             foreach ($default_pos_settings as $key => $value) {
                 if (! isset($pos_settings[$key])) {
@@ -633,5 +646,17 @@ class BusinessController extends Controller
         }
 
         return $output;
+    }
+    
+    public function verifyPin(Request $request)
+    {
+        $business_id = request()->session()->get('user.business_id');
+        $business = Business::where('id', $business_id)->first();
+        $pin = $request->input('pin');
+
+        if ($business->sale_delete_pin == $pin) {
+            return response()->json(['success' => true, 'mws' => 'Pin verified successfully']);
+        }
+        return response()->json(['success' => false, 'mws' => 'Invalid Pin']);
     }
 }

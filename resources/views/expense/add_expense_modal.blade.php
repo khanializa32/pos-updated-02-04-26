@@ -68,6 +68,31 @@
                         </div>
                     </div>
                 </div>
+                
+                
+                
+         <!-- DELIO NOTE: IT'S JUST THE VIEW; IT INDICATES THAT THE CHART OF ACCOUNTS MUST BE CALLED FROM THE DB -->
+        
+        <div class="col-md-6">
+                {!! Form::label('account_type_id', __( 'account.account' ) .":") !!}
+                <select name="account_type_id" class="form-control select2">\
+                    <option>@lang('messages.please_select')</option>
+                    
+                </select>
+        </div>
+        <!-- FIN DELIO NOTE:  -->
+        
+          <div class="col-md-6">
+          <div class="form-group">
+            {!! Form::label('payment_account', __('account.retention') . ':' ) !!}
+              {!! Form::text('base', null, ['class' => 'form-control', 'placeholder' => __( 'account.retention' )]); !!}
+          </div>
+        </div>
+                
+                
+                
+                
+                
                 <div class="clearfix"></div>
                 <div class="col-sm-6">
                     <div class="form-group">
@@ -98,7 +123,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">Crear Gasto</button>
+            <button type="submit" class="tw-dw-btn tw-dw-btn-success tw-text-white">Crear Gasto</button>
             <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.close' )</button>
         </div>
         {!! Form::close() !!}

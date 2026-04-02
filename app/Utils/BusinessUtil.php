@@ -66,7 +66,7 @@ class BusinessUtil extends Util
         Contact::create($customer);
 
         //create default invoice setting for new business
-        InvoiceScheme::create(['name' => 'Default',
+        InvoiceScheme::create(['name' => 'Documentos',
             'scheme_type' => 'blank',
             'prefix' => 'FV',
             'start_number' => 1,
@@ -75,13 +75,13 @@ class BusinessUtil extends Util
             'business_id' => $business_id,
         ]);
         //create default invoice layour for new business
-        InvoiceLayout::create(['name' => 'Default',
+        InvoiceLayout::create(['name' => 'FE',
             'header_text' => null,
-            'invoice_no_prefix' => 'Factura No.',
-            'invoice_heading' => 'Factura',
+            'invoice_no_prefix' => '',
+            'invoice_heading' => '',
             'sub_total_label' => 'Subtotal',
             'discount_label' => 'Descuento',
-            'tax_label' => 'Impuesto',
+            'tax_label' => '',
             'total_label' => 'Total',
             'show_landmark' => 1,
             'show_city' => 1,
@@ -94,16 +94,16 @@ class BusinessUtil extends Util
             'business_id' => $business_id,
             'invoice_heading_not_paid' => '',
             'invoice_heading_paid' => '',
-            'total_due_label' => 'Total Deuda',
-            'paid_label' => 'Total Pagado',
+            'total_due_label' => 'Crédito',
+            'paid_label' => 'Pagado',
             'show_payments' => 1,
             'show_customer' => 1,
-            'customer_label' => 'Cliente',
-            'table_product_label' => 'Producto',
-            'table_qty_label' => 'Cantidad',
-            'table_unit_price_label' => 'Precio Unit',
+            'customer_label' => '',
+            'table_product_label' => '',
+            'table_qty_label' => '',
+            'table_unit_price_label' => '',
             'table_subtotal_label' => 'Subtotal',
-            'date_label' => 'Fecha',
+            'date_label' => '',
         ]);
 
         //create default barcode setting for new business
@@ -127,8 +127,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Levantar',
-                'short_name' => 'Lv',
+                'actual_name' => 'Six Pack',
+                'short_name' => 'Six',
                 'allow_decimal' => 0,
                 'code_dian' => "2",
                 'created_by' => $user_id,
@@ -143,31 +143,31 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Grupo',
-                'short_name' => '10',
+                'actual_name' => 'Caja X 30',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "4",
                 'created_by' => $user_id,
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Equipar',
-                'short_name' => '11',
+                'actual_name' => 'Caja X 24',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "5",
                 'created_by' => $user_id,
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Ración',
-                'short_name' => '13',
+                'actual_name' => 'Caja X 12',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "6",
                 'created_by' => $user_id,
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Disparo',
+                'actual_name' => 'Caja x 6',
                 'short_name' => '14',
                 'allow_decimal' => 0,
                 'code_dian' => "7",
@@ -175,8 +175,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Palo',
-                'short_name' => '15',
+                'actual_name' => 'Caja X 15',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "8",
                 'created_by' => $user_id,
@@ -303,8 +303,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'coger peso',
-                'short_name' => '31',
+                'actual_name' => 'Caja x 38',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "24",
                 'created_by' => $user_id,
@@ -447,8 +447,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Sitas',
-                'short_name' => '56',
+                'actual_name' => 'Caja X 15',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "42",
                 'created_by' => $user_id,
@@ -463,8 +463,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Kilogramo neto',
-                'short_name' => '58',
+                'actual_name' => 'Kilo',
+                'short_name' => 'Kg',
                 'allow_decimal' => 0,
                 'code_dian' => "44",
                 'created_by' => $user_id,
@@ -519,8 +519,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Oersted',
-                'short_name' => '66',
+                'actual_name' => 'Caja 24 F',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "51",
                 'created_by' => $user_id,
@@ -567,8 +567,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Gauss',
-                'short_name' => '76',
+                'actual_name' => 'Caja X 50',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "57",
                 'created_by' => $user_id,
@@ -599,8 +599,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Enrique',
-                'short_name' => '81',
+                'actual_name' => 'Caja X 10',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "61",
                 'created_by' => $user_id,
@@ -631,8 +631,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Equilibrio',
-                'short_name' => '89',
+                'actual_name' => 'Caja x 13',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "65",
                 'created_by' => $user_id,
@@ -647,8 +647,8 @@ class BusinessUtil extends Util
             ],
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Alimenta',
-                'short_name' => '91',
+                'actual_name' => 'Caja X 100',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "67",
                 'created_by' => $user_id,
@@ -672,7 +672,7 @@ class BusinessUtil extends Util
             [
                 'business_id' => $business_id,
                 'actual_name' => 'Unidad',
-                'short_name' => '94',
+                'short_name' => 'Und',
                 'allow_decimal' => 0,
                 'code_dian' => "70",
                 'created_by' => $user_id,
@@ -941,8 +941,8 @@ class BusinessUtil extends Util
             //Caja - 381
             [
                 'business_id' => $business_id,
-                'actual_name' => 'Caja',
-                'short_name' => 'BX',
+                'actual_name' => 'Caja 30 F',
+                'short_name' => 'Caja',
                 'allow_decimal' => 0,
                 'code_dian' => "381",
                 'created_by' => $user_id,
@@ -951,7 +951,7 @@ class BusinessUtil extends Util
             [
                 'business_id' => $business_id,
                 'actual_name' => 'Centímetro',
-                'short_name' => 'CMT',
+                'short_name' => 'CM',
                 'allow_decimal' => 0,
                 'code_dian' => "495",
                 'created_by' => $user_id,
@@ -1131,21 +1131,21 @@ class BusinessUtil extends Util
     {
         $business_details['sell_price_tax'] = 'includes';
 
-        $business_details['default_profit_percent'] = 25;
+        $business_details['default_profit_percent'] = 0;
 
         //Add POS shortcuts
         $business_details['keyboard_shortcuts'] = '{"pos":{"express_checkout":"shift+e","pay_n_ckeckout":"shift+p","draft":"shift+d","cancel":"shift+c","edit_discount":"shift+i","edit_order_tax":"shift+t","add_payment_row":"shift+r","finalize_payment":"shift+f","recent_product_quantity":"f2","add_new_product":"f4"}}';
 
         //Add prefixes
         $business_details['ref_no_prefixes'] = [
-            'purchase' => 'PO',
-            'stock_transfer' => 'ST',
-            'stock_adjustment' => 'SA',
+            'purchase' => 'FC',
+            'stock_transfer' => 'TR',
+            'stock_adjustment' => 'AJ',
             'sell_return' => 'CN',
-            'expense' => 'EP',
+            'expense' => 'FG',
             'contacts' => 'CO',
-            'purchase_payment' => 'PP',
-            'sell_payment' => 'SP',
+            'purchase_payment' => 'CE',
+            'sell_payment' => 'CI',
             'business_location' => 'BL',
         ];
 
@@ -1354,9 +1354,14 @@ class BusinessUtil extends Util
      *
      * @return array
      */
-    public function defaultPosSettings()
+    // public function defaultPosSettings()
+    // {
+    //     return ['disable_pay_checkout' => 0, 'disable_draft' => 0, 'disable_express_checkout' => 0, 'hide_product_suggestion' => 0, 'hide_recent_trans' => 0, 'disable_discount' => 0, 'disable_order_tax' => 0, 'is_pos_subtotal_editable' => 0];
+    // }
+    
+        public function defaultPosSettings()
     {
-        return ['disable_pay_checkout' => 0, 'disable_draft' => 0, 'disable_express_checkout' => 0, 'hide_product_suggestion' => 0, 'hide_recent_trans' => 0, 'disable_discount' => 0, 'disable_order_tax' => 0, 'is_pos_subtotal_editable' => 0];
+        return ['disable_pay_checkout' => 0, 'disable_draft' => 0, 'disable_express_checkout' => 0, 'hide_product_suggestion' => 0, 'hide_recent_trans' => 0, 'disable_discount' => 0, 'disable_order_tax' => 0, 'is_pos_subtotal_editable' => 0, 'activate_popup_agent_commission' => 0];
     }
 
     /**

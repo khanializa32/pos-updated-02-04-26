@@ -102,6 +102,7 @@
 				<td class="align-right">@format_currency($ledger_details['all_balance_due'])</td>
 			</tr>
 		</table>
+	<span id="balance_due_raw" data-balance="{{$ledger_details['all_balance_due']}}" style="display:none"></span>
 	</div>
 </div>
 

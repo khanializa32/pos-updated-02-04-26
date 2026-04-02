@@ -143,7 +143,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-3 @if(!session('business.enable_category')) hide @endif">
+        <div class="col-sm-2 @if(!session('business.enable_category')) hide @endif">
             <div class="form-group">
                 {!! Form::label('category_id', __('product.category') . ':') !!}
                 {!! Form::select('category_id', $categories, !empty($duplicate_product->category_id) ? $duplicate_product->category_id : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2']); !!}
@@ -204,7 +204,7 @@
                 {!! Form::file('image', ['id' => 'upload_image', 'accept' => 'image/*',
                 'required' => $is_image_required, 'class' => 'upload-element']); !!}
                 <small>
-                    <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1')  @includeIf('components.document_help_text')</p>
+                    <p class="help-block">@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) <br> @lang('lang_v1.aspect_ratio_should_be_1_1') .jpeg, .jpg, .gif, .png</p>
                 </small>
             </div>
         </div>
@@ -284,14 +284,14 @@
     @component('components.widget', ['class' => 'box-primary'])
     <div class="row">
 
-        <div class="col-sm-4 @if(!session('business.enable_price_tax')) hide @endif">
+        <div class="col-sm-2 @if(!session('business.enable_price_tax')) hide @endif">
             <div class="form-group">
                 {!! Form::label('tax', __('product.applicable_tax') . ':') !!}
                 {!! Form::select('tax', $taxes, !empty($duplicate_product->tax) ? $duplicate_product->tax : null, ['placeholder' => __('messages.please_select'), 'class' => 'form-control select2'], $tax_attributes); !!}
             </div>
         </div>
 
-        <div class="col-sm-4 @if(!session('business.enable_price_tax')) hide @endif">
+        <div class="col-sm-2 @if(!session('business.enable_price_tax')) hide @endif">
             <div class="form-group">
                 {!! Form::label('tax_type', __('product.selling_price_tax_type') . ':*') !!}
                 {!! Form::select('tax_type', ['inclusive' => __('product.inclusive'), 'inclusive' => __('product.inclusive')], !empty($duplicate_product->tax_type) ? $duplicate_product->tax_type : 'inclusive',
@@ -374,11 +374,11 @@
                 {!! Form::text('product_racks[' . $id . '][rack]', !empty($rack_details[$id]['rack']) ? $rack_details[$id]['rack'] : null, ['class' => 'form-control', 'id' => 'rack_' . $id,
                 'placeholder' => __('lang_v1.rack')]); !!}
                 @endif
-
+ <br>
                 @if(session('business.enable_row'))
                 {!! Form::text('product_racks[' . $id . '][row]', !empty($rack_details[$id]['row']) ? $rack_details[$id]['row'] : null, ['class' => 'form-control', 'placeholder' => __('lang_v1.row')]); !!}
                 @endif
-
+ <br>
                 @if(session('business.enable_position'))
                 {!! Form::text('product_racks[' . $id . '][position]', !empty($rack_details[$id]['position']) ? $rack_details[$id]['position'] : null, ['class' => 'form-control', 'placeholder' => __('lang_v1.position')]); !!}
                 @endif
@@ -387,12 +387,12 @@
         @endforeach
         @endif
 
-        <!-- <div class="col-sm-4">
+         <div class="col-sm-4">
             <div class="form-group">
                 {!! Form::label('weight', __('lang_v1.weight') . ':') !!}
                 {!! Form::text('weight', !empty($duplicate_product->weight) ? $duplicate_product->weight : null, ['class' => 'form-control', 'placeholder' => __('lang_v1.weight')]); !!}
             </div>
-        </div -->
+        </div>
         @php
         $custom_labels = json_decode(session('business.custom_labels'), true);
         $product_custom_fields = !empty($custom_labels['product']) ? $custom_labels['product'] : [];
@@ -445,16 +445,16 @@
             <div class="text-center">
                 <div class="btn-group">
                     @if($selling_price_group_count)
-                    <button type="submit" value="submit_n_add_selling_prices" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-white submit_product_form">@lang('lang_v1.save_n_add_selling_price_group_prices')</button>
+                    <button type="submit" value="submit_n_add_selling_prices" class="tw-dw-btn tw-dw-btn-primary tw-dw-btn-lg tw-text-white submit_product_form">@lang('lang_v1.save_n_add_selling_price_group_prices')</button>
                     @endif
 
                     @can('product.opening_stock')
                     <button id="opening_stock_button" @if(!empty($duplicate_product) && $duplicate_product->enable_stock == 0) disabled @endif type="submit" value="submit_n_add_opening_stock" class="tw-dw-btn tw-dw-btn-lg tw-text-white bg-purple submit_product_form">@lang('lang_v1.save_n_add_opening_stock')</button>
                     @endcan
 
-                    <button type="submit" value="save_n_add_another" class="tw-dw-btn tw-dw-btn-lg bg-maroon submit_product_form">@lang('lang_v1.save_n_add_another')</button>
+                    <button type="submit" value="save_n_add_another" class="tw-dw-btn tw-dw-btn-lg bg-warning submit_product_form">@lang('lang_v1.save_n_add_another')</button>
 
-                    <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black submit_product_form">@lang('Crear Producto')</button>
+                    <button type="submit" value="submit" class="tw-dw-btn tw-dw-btn-lg bg-info submit_product_form">@lang('Crear Producto')</button>
                 </div>
 
             </div>

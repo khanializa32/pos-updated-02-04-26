@@ -18,7 +18,7 @@
     <section class="content-header">
         <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black"> @lang('lang_v1.' . $type . 's')
             <small class="tw-text-sm md:tw-text-base tw-text-gray-700 tw-font-semibold">  <h4>
-		 &nbsp; <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
+		 
 					
 
 	    </h4>
@@ -168,8 +168,8 @@
                         <a class="tw-dw-btn tw-bg--to-r tw-from-indigo-600 tw-to-blue-500 tw-font-bold tw-text-black tw-border-none tw-rounded-full btn-modal"
                                 data-href="{{ action([\App\Http\Controllers\ContactController::class, 'create'], ['type' => $type]) }}"
                                 data-container=".contact_modal">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-                                        viewBox="0 0 20 20" fill="none" stroke="red" stroke-width="2" stroke-linecap="round"
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" 
+                                        viewBox="0 0 20 20" fill="none" stroke="teal" stroke-width="3" stroke-linecap="round"
                                             stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M12 5l0 14" />
@@ -404,4 +404,5 @@
             });
         </script>
     @endif
+    <script src="{{ asset('js/payment.js?v=' . $asset_v) }}"></script>
 @endsection

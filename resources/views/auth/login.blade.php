@@ -11,7 +11,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-image: url('../img/login-bg.gif') !important;
+        background-image: url('../img/login-bg19.png') !important;
         background-size: cover !important;
         background-position: center !important;
         background-repeat: no-repeat !important;

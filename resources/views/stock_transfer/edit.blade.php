@@ -142,7 +142,7 @@
 				<br>
 				<br>
 				<div class="col-sm-12 text-center">
-					<button type="submit" id="save_stock_transfer" class="btn btn-warning btn-big">@lang('messages.save')</button>
+					<button type="submit" id="save_stock_transfer" class="btn btn bg-info btn-big">@lang('messages.save')</button>
 				</div>
 			</div>
 		@endcomponent

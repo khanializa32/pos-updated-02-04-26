@@ -71,7 +71,7 @@
 				  <div class="col-xs-12">
 				    <div class="table-responsive">
 				      <table class="table bg-gray">
-				        <tr class="bg-green">
+				        <tr class="bg-info tw-text-white">
 				          <th>#</th>
 				          <th>@lang('sale.product')</th>
 				          <th>@lang('sale.qty')</th>
@@ -166,7 +166,7 @@
 				</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white no-print" aria-label="Print" 
+			<button type="button" class="tw-dw-btn bg-info tw-text-white no-print" aria-label="Print" 
 			onclick="$(this).closest('div.modal-content').printThis();"><i class="fa fa-print"></i> @lang( 'messages.print' )
 			</button>
 			<button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>

@@ -61,7 +61,7 @@
             <div class="row">
                 <div class="col-sm-3">
                     <div class="form-group">
-                        {!! Form::label('location_id', __('purchase.business_location') . ':*') !!}
+                        {!! Form::label('location_id', __('Bodega / Sucursal') . ':*') !!}
                         {!! Form::select('location_id', $business_locations, null, [
                             'class' => 'form-control select2',
                             'placeholder' => __('messages.please_select'),
@@ -69,6 +69,19 @@
                         ]) !!}
                     </div>
                 </div>
+                
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        {!! Form::label('adjustment_type', __('stock_adjustment.adjustment_type') . ':*') !!} @show_tooltip(__('tooltip.adjustment_type'))
+                        {!! Form::select(
+                            'adjustment_type',
+                            ['normal' => __('stock_adjustment.normal'), 'abnormal' => __('stock_adjustment.abnormal')],
+                            null,
+                            ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'],
+                        ) !!}
+                    </div>
+                </div>
+                
                 <div class="col-sm-3">
                     <div class="form-group">
                         {!! Form::label('ref_no', __('purchase.ref_no') . ':') !!}
@@ -86,17 +99,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        {!! Form::label('adjustment_type', __('stock_adjustment.adjustment_type') . ':*') !!} @show_tooltip(__('tooltip.adjustment_type'))
-                        {!! Form::select(
-                            'adjustment_type',
-                            ['normal' => __('stock_adjustment.normal'), 'abnormal' => __('stock_adjustment.abnormal')],
-                            null,
-                            ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'],
-                        ) !!}
-                    </div>
-                </div>
+                
             </div>
         @endcomponent
 
@@ -129,6 +132,10 @@
                                     <th class="col-sm-4 text-center">
                                         @lang('sale.product')
                                     </th>
+                                    <div class="col-sm-3">
+                                    <th class="col-sm-2 text-center">
+                                            Operación
+                                        </th>
                                     <th class="col-sm-2 text-center">
                                         @lang('sale.qty')
                                     </th>
@@ -171,7 +178,7 @@
                 </div>
                 <div class="col-sm-4">
                     <div class="form-group">
-                        {!! Form::label('additional_notes', __('stock_adjustment.reason_for_stock_adjustment') . ':') !!}
+                        {!! Form::label('additional_notes', __('Razon / Motivo del Ajuste') . ':') !!}
                         {!! Form::textarea('additional_notes', null, [
                             'class' => 'form-control',
                             'placeholder' => __('stock_adjustment.reason_for_stock_adjustment'),
@@ -182,7 +189,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-12 text-center">
-                    <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
+                    <button type="submit" class="tw-dw-btn tw-dw-btn bg-info tw-dw-btn-lg tw-text-white">@lang('Ajustar Cantidades')</button>
                 </div>
             </div>
         @endcomponent

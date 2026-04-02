@@ -25,12 +25,12 @@
 
 					<div class="tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-rounded-2xl tw-bg-white tw-p-2">
 						<div class="box-body pb-0">
-							{!! Form::hidden('location_id', $transaction->location_id, [
+							{!! Form::hidden('location_id', !empty($default_location->id) ? $default_location->id : $transaction->location_id, [
 								'id' => 'location_id', 
 								'data-receipt_printer_type' => !empty
 								($location_printer_type) ? $location_printer_type 
 									: 'browser', 
-									'data-default_payment_accounts' => $transaction->location->default_payment_accounts]); 
+									'data-default_payment_accounts' => !empty($default_location) ? $default_location->default_payment_accounts : $transaction->location->default_payment_accounts]); 
 							!!}
 							<!-- sub_type -->
 							{!! Form::hidden('sub_type', isset($sub_type) ? $sub_type : null) !!}

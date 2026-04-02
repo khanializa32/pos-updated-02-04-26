@@ -15,7 +15,15 @@
     "Superadmin": true,
     "Woocommerce": true,
     "AiAssistance": true,
+    "Document": true,
+    "Installment": true,
+    "Subdomain": true,
     "Hms": true,
-    "InboxReport": true,
-    "CustomDashboard": true
+    "EmployeeLoan":true,
+    "Loan":true,
+    "Shop":true,
+    "ElectronicWallets":true,
+    "InventoryManagement":true,
+    "InventoryReset":true
+    
 }

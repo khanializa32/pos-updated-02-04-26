@@ -3,6 +3,7 @@
 use App\CashRegister;
 use App\CashRegisterInformation;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\WhatsAppController;
 use App\Http\Controllers\AccountReportsController;
 use App\Http\Controllers\AccountTypeController;
 // use App\Http\Controllers\Auth;
@@ -13,6 +14,7 @@ use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\BusinessLocationController;
 use App\Http\Controllers\CashRegisterController;
 use App\Http\Controllers\CashRegisterInformationController;
+use App\Http\Controllers\CashWithdrawalController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CombinedPurchaseReturnController;
 use App\Http\Controllers\ContactController;
@@ -66,6 +68,7 @@ use App\Http\Controllers\VariationTemplateController;
 use App\Http\Controllers\WarrantyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +87,9 @@ Route::middleware(['setData'])->group(function () {
     Route::get('/', function () {
         return view('welcome');
     });
+    
+    
+
 
     Route::get('/data', function (Request $request) {
         return session()->all();
@@ -107,10 +113,34 @@ Route::middleware(['setData'])->group(function () {
         ->name('invoice_payment');
     Route::post('/confirm-payment/{id}', [SellPosController::class, 'confirmPayment'])
         ->name('confirm_payment');
+        
+    //hhhhh
+    // Route::get('/send-whatsapp', [WhatsAppController::class, 'send']);
+    Route::post('/send-whatsapp', [WhatsAppController::class, 'send']);
+    
 });
 
 //Routes for authenticated users only
 Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 'AdminSidebarMenu', 'CheckUserLogin'])->group(function () {
+    
+   Route::get('clear', function () {
+        $results = [];
+        foreach (['optimize:clear', 'view:clear', 'route:clear', 'config:clear', 'permission:cache-reset'] as $cmd) {
+            try {
+                Artisan::call($cmd);
+                $results[$cmd] = trim(Artisan::output());
+            } catch (\Throwable $e) {
+                $results[$cmd] = 'ERROR: ' . $e->getMessage();
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cache clear commands executed.',
+            'results' => $results,
+        ]);
+    });
+    
     Route::get('pos/payment/{id}', [SellPosController::class, 'edit'])->name('edit-pos-payment');
     Route::get('service-staff-availability', [SellPosController::class, 'showServiceStaffAvailibility']);
     Route::get('pause-resume-service-staff-timer/{user_id}', [SellPosController::class, 'pauseResumeServiceStaffTimer']);
@@ -146,6 +176,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::resource('tax-rates', TaxRateController::class);
 
     Route::resource('units', UnitController::class);
+    Route::get('units/{id}/discount', [UnitController::class, 'getDiscount']);
+    Route::post('units/{id}/discount', [UnitController::class, 'postDiscount']);
+    Route::delete('units/{id}/discount', [UnitController::class, 'deleteDiscount']);
 
     Route::resource('ledger-discount', LedgerDiscountController::class)->only('edit', 'destroy', 'store', 'update');
 
@@ -183,6 +216,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/products/save-selling-prices', [ProductController::class, 'saveSellingPrices']);
     Route::post('/products/mass-delete', [ProductController::class, 'massDestroy']);
     Route::get('/products/view/{id}', [ProductController::class, 'view']);
+    Route::get('/products/edit-rack-details/{id}', [ProductController::class, 'editRackDetails']);
+    Route::post('/products/update-rack-details/{id}', [ProductController::class, 'updateRackDetails']);
     Route::get('/products/list', [ProductController::class, 'getProducts']);
     Route::get('/products/list-no-variation', [ProductController::class, 'getProductsWithoutVariations']);
     Route::post('/products/bulk-edit', [ProductController::class, 'bulkEdit']);
@@ -215,6 +250,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
     Route::resource('sells', 'SellController')->except(['show']);
     Route::get('/sells/copy-quotation/{id}', [SellPosController::class, 'copyQuotation']);
+    
+    Route::post('verify-pin', [BusinessController::class, 'verifyPin'])->name('business.verifyPin');
 
     Route::post('/import-purchase-products', [PurchaseController::class, 'importPurchaseProducts']);
     Route::post('/purchases/update-status', [PurchaseController::class, 'updateStatus']);
@@ -222,7 +259,13 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/purchases/get_suppliers', [PurchaseController::class, 'getSuppliers']);
     Route::post('/purchases/get_purchase_entry_row', [PurchaseController::class, 'getPurchaseEntryRow']);
     Route::post('/purchases/check_ref_number', [PurchaseController::class, 'checkRefNumber']);
+    Route::post('/purchases/send_radian', [PurchaseController::class, 'sendRadianEvent'])->name('sendRadianEvent');//agregamos la ruta para enviar el evento radian
+    Route::get('/purchases/downloadPdfSupportDocument/{id}', [PurchaseController::class, 'downloadPdfSupportDocument'])->name('downloadPdfSupportDocument');//agregamos el metodo para descargar el pdf del DS
     Route::resource('purchases', PurchaseController::class)->except(['show']);
+    
+    Route::get('/purchases/convert-to-ds/{id}', [PurchaseController::class, 'ConvertToDS']);
+    Route::post('/purchases/convert-to-ds-store', [PurchaseController::class, 'ConvertToInvoiceDianStore']);
+    Route::post('/purchases/send-to-dian', [PurchaseController::class, 'sendToDian']);
 
     Route::get('/toggle-subscription/{id}', [SellPosController::class, 'toggleRecurringInvoices']);
     Route::post('/sells/pos/get-types-of-service-details', [SellPosController::class, 'getTypesOfServiceDetails']);
@@ -245,8 +288,16 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/sells/pos/get-reward-details', [SellPosController::class, 'getRewardDetails']);
     Route::get('/sells/pos/get-recent-transactions', [SellPosController::class, 'getRecentTransactions']);
     Route::get('/sells/pos/get-product-suggestion', [SellPosController::class, 'getProductSuggestion']);
+    Route::get('/product-lookup', [SellPosController::class, 'productLookupPage'])->name('product.lookup');
     Route::get('/sells/pos/get-featured-products/{location_id}', [SellPosController::class, 'getFeaturedProducts']);
     Route::get('/reset-mapping', [SellController::class, 'resetMapping']);
+    
+    // pos display screen route
+    Route::get('/customer-display', [SellPosController::class, 'posDisplay'])->name('pos_display');
+    // Route::get('/pos/variation/{variation_id}/{location_id}', [ProductController::class, 'getVarationDetail']);
+    Route::get('/sells/pos_show/{variation_id}/{location_id}', [SellPosController::class, 'getVarationDetail']);
+    
+    // end pos display screen route
 
     Route::get('/sells/resend/{id}', [SellController::class, 'resend'])->name('resend');
     Route::post('/sells/send_invoice', [SellController::class, 'send_invoice'])->name('send_invoice');
@@ -254,7 +305,8 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/resend_invoice/{id}', [SellPosController::class, 'resend_invoice'])->name('resend_invoice');
     Route::post('/sells/resend_invoice_dian/{id}', [SellPosController::class, 'resend_invoice_data'])->name('resend_invoice_data');
     Route::get('/sells/downloadPdfInvoiceFE/{id}', [SellPosController::class, 'downloadPdfInvoiceFE'])->name('downloadPdfInvoiceFE');
-
+    Route::get('/sells/ConvertToInvoiceDian/{id}', [SellPosController::class, 'ConvertToInvoiceDian'])->name('ConvertToInvoiceDian');
+    Route::post('/sells/ConvertToInvoiceDianStore', [SellPosController::class, 'ConvertToInvoiceDianStore'])->name('ConvertToInvoiceDianStore');
     Route::resource('pos', SellPosController::class);
 
     Route::resource('roles', RoleController::class);
@@ -296,6 +348,10 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/reports/expense-report', [ReportController::class, 'getExpenseReport']);
     Route::get('/reports/stock-adjustment-report', [ReportController::class, 'getStockAdjustmentReport']);
     Route::get('/reports/register-report', [ReportController::class, 'getRegisterReport']);
+    Route::get('/reports/non-pos-closing', [ReportController::class, 'getNonPosClosing']);
+    Route::get('/reports/non-pos-closing/data', [ReportController::class, 'getNonPosClosingData']);
+    Route::post('/reports/non-pos-closing/open', [ReportController::class, 'openGeneralClosing']);
+    Route::post('/reports/non-pos-closing/close', [ReportController::class, 'closeGeneralClosing']);
     Route::get('/reports/sales-representative-report', [ReportController::class, 'getSalesRepresentativeReport']);
     Route::get('/reports/sales-representative-total-expense', [ReportController::class, 'getSalesRepresentativeTotalExpense']);
     Route::get('/reports/sales-representative-total-sell', [ReportController::class, 'getSalesRepresentativeTotalSell']);
@@ -341,6 +397,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     //Expenses...
     Route::resource('expenses', ExpenseController::class);
 
+    //Cash withdrawals (manual cash out from register)
+    Route::resource('cash-withdrawals', CashWithdrawalController::class);
+
     //Transaction payments...
     // Route::get('/payments/opening-balance/{contact_id}', 'TransactionPaymentController@getOpeningBalancePayments');
     Route::get('/payments/show-child-payments/{payment_id}', [TransactionPaymentController::class, 'showChildPayments']);
@@ -371,6 +430,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::post('/import-products/store', [ImportProductsController::class, 'store']);
 
     //Sales Commission Agent
+    Route::post('sales-commission-agents/set-default/{id}', [SalesCommissionAgentController::class, 'setDefault']);
     Route::resource('sales-commission-agents', SalesCommissionAgentController::class);
 
     //Stock Transfer
@@ -399,6 +459,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sell-return/print/{id}', [SellReturnController::class, 'printInvoice']);
     Route::get('/sell-return/add/{id}', [SellReturnController::class, 'add']);
     Route::get('/sell-return/send_credit_note_dian/{id}', [SellReturnController::class, 'send_dian'])->name('send_credit_note_dian');
+    Route::get('/sell-return/download-credit-note-pdf/{id}', [SellReturnController::class, 'downloadPdfCreditNoteFE'])->name('downloadPdfCreditNoteFE');
 
     //Backup
     Route::get('backup/download/{file_name}', [BackUpController::class, 'download']);
@@ -553,4 +614,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone'])
         ->name('packing.downloadPdf');
     Route::get('/sells/invoice-url/{id}', [SellPosController::class, 'showInvoiceUrl']);
     Route::get('/show-notification/{id}', [HomeController::class, 'showNotification']);
+    Route::get('/popup', function () {
+    return view('home');
+});
+
+    Route::get('/reports/cash-diff-report', [\App\Http\Controllers\CashRegisterController::class, 'getDiffReport']);
 });

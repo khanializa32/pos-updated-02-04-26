@@ -15,14 +15,14 @@
      'enable_stock' => 'Habilitar o deshabilitar la gestión de stocks para un producto.',
      'alert_quantity' => "Manténgase alerta cuando el stock del producto llegue o baje de la cantidad especificada. <br> <br> <small class='text-muted'> Los productos con poco stock se mostrarán en el panel de control - Sección de alerta de stock del producto. </small>", /* modified */
      'product_type' => '<b> Producto Inventariable </ b>: Producto sin Variantes. <br> <b> Producto Variable </ b>: Producto con variaciones como tamaño, color, etc.',
-     'profit_percent' => "Margen de beneficio predeterminado para el producto. <br> <small class='text-muted'> (<i> Puede administrar el margen de beneficio predeterminado en Configuración comercial. </i>) </small>",
+     'profit_percent' => "Margen de utilidad predeterminada para el producto. <br> <small class='text-muted'> (<i> Puede administrar el margen de utilidad predeterminada en Configuración comercial. </i>) </small>",
      'pay_term' => "Pagos pendientes por compras dentro del período de tiempo determinado. <br/> <small class='text-muted'> Todos los pagos vencidos o adeudados se mostrarán en el panel de control - Sección de pago vencido </small>", /* modified */
      'order_status' => 'Los productos en esta compra estarán disponibles para la venta solo si el <b> Estado del pedido </ b> es <b> Elementos recibidos </ b>.',
      'purchase_location' => 'sucursal donde el producto comprado estará disponible para la venta.',
      'sale_location' => 'sucursal desde donde desea vender',
      'sale_discount' => "Establecer 'Descuento de venta predeterminado' para todas las ventas en Configuración comercial. Haga clic en el icono de editar a continuación para agregar / actualizar el descuento.",
      'sale_tax' => "Establezca 'Impuesto a la venta predeterminado' para todas las ventas en Configuración comercial. Haga clic en el icono de editar a continuación para agregar / actualizar el impuesto a la orden.",
-     'default_profit_percent' => "Margen de beneficio predeterminado de un producto. <br> <small class='text-muted'> Se usa para calcular el precio de venta en función del precio de compra ingresado. <br/> Puede modificar este valor para productos individuales al tiempo que agrega </small> ",
+     'default_profit_percent' => "Margen de utilidad predeterminada de un producto. <br> <small class='text-muted'> Se usa para calcular el precio de venta en función del precio de compra ingresado. <br/> Puede modificar este valor para productos individuales al tiempo que agrega </small> ",
      'fy_start_month' => 'Mes de inicio del año fiscal para su empresa', /* modified */
      'business_tax' => 'Número de NIT de su empresa.', /* modified */
      'invoice_scheme' => "Esquema de factura significa formato de numeración de factura. Seleccione el esquema que se utilizará para esta sucursal <small class='text-muted'> <i> Puede agregar un nuevo esquema de factura </ b> en configuración de factura </ i > </small> ",
@@ -41,11 +41,11 @@
      'access_locations_permission' => 'Elija todas las sucursales a las que pueda acceder esta función. Todos los datos de la sucursal seleccionada solo se mostrarán al usuario. <br/> <br/> <small> Por ejemplo: puede usar esto para definir <i> Administrador / Cajero / Gestionar stock / Gestionar marcas, </i> de una sucursal particular. </small> ', /* modified */
      'print_receipt_on_invoice' => 'Habilitar o deshabilitar la impresión automática de la factura al finalizar',
      'receipt_printer_type' => '<i> Impresión basada en navegador </i>: mostrar el cuadro de diálogo Imprimir en el navegador con una vista previa de la factura <br/> <br/> <i> Usar impresora de recibos configurada </i>: seleccione una impresora térmica / recibo configurada para impresión',
-     'adjustment_type' => '<i> Normal </i>: Ajuste por razones normales, como fugas, daños, etc. <br/> <br/> <i> Anormal </i>: ajuste por motivos como Incendio, Accidente, etc.',
+     'adjustment_type' => '<i> Normal </i>: razones normales, como pérdidas, fugas, daños etc. <br/> <br/> <i> Anormal </i>: ajuste por motivos como Incendio, Accidente, etc.',
      'total_amount_recovered' => 'Importe recuperado del seguro o venta de desechos u otros', /* modified */
      'express_checkout' => 'Marcar el pago en efectivo completo y pagar',
      'total_card_slips' => 'Número total de pagos con tarjeta usados ​​en este registro',
-     'total_cheques' => 'Número total de cheques utilizados en este registro',
+     'total_cheques' => 'Número total de Nequi utilizados en este registro',
      'capability_profile' => 'La compatibilidad con los comandos y las páginas de códigos varía entre los proveedores de impresoras y los modelos. Si no está seguro, es una buena idea usar el perfil de capacidad simple ',
      'purchase_different_currency' => 'Seleccione esta opción si compra en una moneda diferente a la moneda de su empresa',
      'currency_exchange_factor' => "1 Moneda de compra =? moneda base<br> <small class='text-muted'> Puede activar / desactivar 'Comprar en otra moneda' desde la configuración comercial. </small> '",

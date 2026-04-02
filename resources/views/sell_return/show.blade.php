@@ -20,6 +20,19 @@
         <strong>@lang('messages.date'):</strong> {{@format_date($sell->transaction_date)}}<br>
         <strong>Cude:</strong> {{$sell->cufe}}
       </div>
+      @if($sell->qrstr != '')
+          @if(isset(explode("\n", $sell->qrstr)[9]) && explode("\n", $sell->qrstr)[9] != '')
+            <a href="{{explode("\n", $sell->qrstr)[9] }}" target="_blank" class="badge text-bg-success" style="background-color: #41D78C; color: black;" rel="noopener noreferrer">Ver en la DIAN</a>
+          @else
+          <a href="{{$sell->qrstr }}" target="_blank" class="badge text-bg-success" style="background-color: #41D78C; color: black;" rel="noopener noreferrer">Ver en la DIAN</a>
+          @endif
+          {{-- {{explode("\n", $sell->qrstr)[9] }} --}}
+          {{-- NCS-NC56.pdf
+NCQS-NCP2.zip --}}
+        @endif
+        @if($sell->return_parent->qrstr != '')
+            <br/><a href="{{route('downloadPdfCreditNoteFE', [$sell->return_parent->id])}}" target="_blank" class="badge text-bg-success" style="background-color: #E83B1A; color: white;" rel="noopener noreferrer"><i class="fas fa-download"></i> Descargar PDF</a>
+        @endif
     </div>
     <br>
     <div class="row">
@@ -27,7 +40,7 @@
         <br>
         <table class="table bg-gray">
           <thead>
-            <tr class="bg-green">
+            <tr class="bg-info">
                 <th>#</th>
                 <th>@lang('product.product_name')</th>
                 <th>@lang('sale.unit_price')</th>
@@ -124,7 +137,7 @@
   </div>
 </div>
 <div class="modal-footer">
-    <a href="#" class="print-invoice tw-dw-btn tw-dw-btn-primary tw-text-white" data-href="{{action([\App\Http\Controllers\SellReturnController::class, 'printInvoice'], [$sell->return_parent->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a>
+    <a href="#" class="print-invoice tw-dw-btn bg-info tw-text-white" data-href="{{action([\App\Http\Controllers\SellReturnController::class, 'printInvoice'], [$sell->return_parent->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("messages.print")</a>
       <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white no-print" data-dismiss="modal">@lang( 'messages.close' )</button>
     </div>
   </div>

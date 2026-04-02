@@ -22,7 +22,7 @@
      'stock_report' => 'Informe de Inventario',
      'products' => 'Productos',
      'current_stock' => 'Inventario Actual',
-     'total_unit_sold' => 'Total Unidad Vendida',
+     'total_unit_sold' => 'Vendido',
      'tax_report' => 'Informe de Impuestos',
      'tax_report_msg' => 'Detalles de impuestos para el intervalo de fechas seleccionado',
      'input_tax' => 'Impuesto de Ventas',

@@ -32,7 +32,7 @@
       @if($purchase->document_path)
         
         <a href="{{$purchase->document_path}}" 
-        download="{{$purchase->document_name}}" class="tw-dw-btn tw-dw-btn-success tw-text-white tw-dw-btn-sm pull-left no-print">
+        download="{{$purchase->document_name}}" class="tw-dw-btn bg-info tw-text-white tw-dw-btn-sm pull-left no-print">
           <i class="fa fa-download"></i> 
             &nbsp;{{ __('purchase.download_document') }}
         </a>
@@ -139,28 +139,50 @@
     </div>
   </div>
 
-  <form action="{{ route('purchase.send_radian', $purchase->id) }}" method="POST">
-    @csrf
+  <div class="row">
+    <div class="col-sm-12">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Evento</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">{{ $list[$purchase->radian_event_id]?? '' }}</th>
+            <td>{{ $purchase->radian_event_status }}</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {{-- <form action="{{ route('sendRadianEvent', $purchase->id) }}" method="POST"> --}}
+    {!! Form::open(['url' => action([\App\Http\Controllers\PurchaseController::class, 'sendRadianEvent']), 'method' => 'post', 'id' => 'radian_form']) !!}
+    {{-- @csrf --}}
     <input type="hidden" name="purchase_id" value="{{ $purchase->id }}">
+    <input type="hidden" name="cufe" value="{{ $purchase->cufe }}">
     {!! Form::select(
       'event_type', $list, '', [
         'class' => 'form-control form-control-sm mb-2',
         'placeholder' => 'Selecciona un evento',
         'required' => true
       ]) !!}
-    {{-- <button type="submit" class="tw-dw-btn tw-dw-btn-primary tw-text-white no-print mt-2"> --}}
-    <button type="submit" class="btn btn-primary mb-2">
+    {{-- <button type="submit" class="tw-dw-btn tw-dw-btn bg-info tw-text-white no-print mt-2"> --}}
+    <button type="submit" class="btn bg-info tw-text-white mt-2">
       <i class="fa fa-arrow-alt-circle-up"></i> Emitir evento
     </button>
-  </form>
+    {!! Form::close() !!}
 
 
  
 
   {{-- Barcode --}}
-  <div class="row print_section">
+  {{-- <div class="row print_section">
     <div class="col-xs-12">
       <img class="center-block" src="data:image/png;base64,{{DNS1D::getBarcodePNG($purchase->ref_no, 'C128', 2,30,array(39, 48, 54), true)}}">
     </div>
-  </div>
+  </div> --}}
 </div>

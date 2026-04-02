@@ -58,7 +58,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black pull-right">Cambiar Contraseña</button>
+                <button type="submit" class="tw-dw-btn tw-dw-btn bg-info tw-text-white pull-right">Cambiar Contraseña</button>
             </div>
         </div>
     </div>
@@ -142,7 +142,7 @@
 @include('user.edit_profile_form_part', ['bank_details' => !empty($user->bank_details) ? json_decode($user->bank_details, true) : null])
 <div class="row">
     <div class="col-md-12 text-center">
-        <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black tw-dw-btn-lg">Actualizar Mi Perfil</button>
+        <button type="submit" class="tw-dw-btn bg-info tw-text-white tw-dw-btn-lg">Actualizar Mi Perfil</button>
     </div>
 </div>
 {!! Form::close() !!}

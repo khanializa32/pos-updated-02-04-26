@@ -19,17 +19,24 @@
         <div class="col-md-12">
             @component('components.filters', ['title' => __('report.filters')])
 
-                <div class="col-md-3">
+               <!-- <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('cg_customer_group_id', __( 'lang_v1.customer_group_name' ) . ':') !!}
                         {!! Form::select('cnt_customer_group_id', $customer_group, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'cnt_customer_group_id']); !!}
                     </div>
-                </div>
+                </div> -->
 
                 <div class="col-md-3">
                     <div class="form-group">
-                        {!! Form::label('type', __( 'lang_v1.type' ) . ':') !!}
+                        {!! Form::label('type', __( 'lang_v1.Type' ) . ':') !!}
                         {!! Form::select('contact_type', $types, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'contact_type']); !!}
+                    </div>
+                </div>
+                
+                 <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('scr_contact_id', __( 'report.contact' ) . ':') !!}
+                        {!! Form::select('scr_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'id' => 'scr_contact_id', 'placeholder' => __('lang_v1.all'), 'style' => 'width:100%']); !!}
                     </div>
                 </div>
 
@@ -40,12 +47,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="form-group">
-                        {!! Form::label('scr_contact_id', __( 'report.contact' ) . ':') !!}
-                        {!! Form::select('scr_contact_id', $contact_dropdown, null , ['class' => 'form-control select2', 'id' => 'scr_contact_id', 'placeholder' => __('lang_v1.all')]); !!}
-                    </div>
-                </div>
+               
 
                 <div class="col-md-3">
                     <div class="form-group">

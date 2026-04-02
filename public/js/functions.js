@@ -1,4 +1,3 @@
-//This file contains all functions used in the app.
 
 function __calculate_amount(calculation_type, calculation_amount, amount) {
     var calculation_amount = parseFloat(calculation_amount);
@@ -190,6 +189,7 @@ function __write_number(
     use_page_currency = false,
     precision = __currency_precision
 ) {
+    
     if(input_element.hasClass('input_quantity')) {
         precision = __quantity_precision;
     }

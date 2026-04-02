@@ -44,6 +44,42 @@
         <div class="col-md-12">
             @component('components.filters', ['title' => __('report.filters')])
               {!! Form::open(['url' => action([\App\Http\Controllers\ReportController::class, 'getStockReport']), 'method' => 'get', 'id' => 'product_sell_report_form' ]) !!}
+              
+              <div class="col-md-4">
+                    <div class="form-group">
+                        {!! Form::label('invoice_scheme_id', __('Tipo de Factura').':') !!}
+                        <div class="input-group">
+                            {!! Form::select('invoice_scheme_id', $invoice_schemes, null, ['class' => 'form-control select2', 'id' => 'invoice_scheme_id', 'placeholder' => __('Selecionar Tipo'), 'required']); !!}
+                        </div>
+                    </div>
+                </div>
+              
+              <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('customer_id', __('contact.customer') . ':') !!}
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-user"></i>
+                            </span>
+                            {!! Form::select('customer_id', $customers, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+                        </div>
+                    </div>
+                </div>
+              
+              
+              <div class="col-md-3">
+                    <div class="form-group">
+                        {!! Form::label('location_id', __('purchase.business_location').':') !!}
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="fa fa-map-marker"></i>
+                            </span>
+                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
+                        </div>
+                    </div>
+                </div>
+              
+              
                 <div class="col-md-3">
                     <div class="form-group">
                     {!! Form::label('search_product', __('lang_v1.search_product') . ':') !!}
@@ -56,34 +92,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        {!! Form::label('customer_id', __('contact.customer') . ':') !!}
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-user"></i>
-                            </span>
-                            {!! Form::select('customer_id', $customers, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
-                        </div>
-                    </div>
-                </div>
+                
                 <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('psr_customer_group_id', __( 'lang_v1.customer_group_name' ) . ':') !!}
                         {!! Form::select('psr_customer_group_id', $customer_group, null, ['class' => 'form-control select2', 'style' => 'width:100%', 'id' => 'psr_customer_group_id']); !!}
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        {!! Form::label('location_id', __('purchase.business_location').':') !!}
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-map-marker"></i>
-                            </span>
-                            {!! Form::select('location_id', $business_locations, null, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
-                        </div>
-                    </div>
-                </div>
+                
+                
                 <div class="col-md-3">
                     <div class="form-group">
                         {!! Form::label('category_id', __('product.category') . ':') !!}
@@ -243,7 +260,7 @@
     <script src="{{ asset('js/report.js?v=' . $asset_v) }}"></script>
     <script type="text/javascript">
         $(
-        '#product_sell_report_form #location_id, #product_sell_report_form #customer_id, #psr_filter_brand_id, #psr_filter_category_id, #psr_customer_group_id'
+        '#product_sell_report_form #location_id, #product_sell_report_form #customer_id, #psr_filter_brand_id, #psr_filter_category_id, #psr_customer_group_id, #invoice_scheme_id'
     ).change(function() {
         $('.nav-tabs li.active').find('a[data-toggle="tab"]').trigger('shown.bs.tab');
     });
@@ -281,6 +298,7 @@
                                         d.brand_id = $('select#psr_filter_brand_id').val();
                                         d.customer_id = $('select#customer_id').val();
                                         d.location_id = $('select#location_id').val();
+                                        d.invoice_scheme_id = $('select#invoice_scheme_id').val();
                                         d.customer_group_id = $('#psr_customer_group_id').val();
                                     },
                                 },
@@ -338,6 +356,7 @@
                                         d.brand_id = $('select#psr_filter_brand_id').val();
                                         d.customer_id = $('select#customer_id').val();
                                         d.location_id = $('select#location_id').val();
+                                        d.invoice_scheme_id = $('select#invoice_scheme_id').val();
                                         d.customer_group_id = $('#psr_customer_group_id').val();
                                     },
                                 },

@@ -138,6 +138,35 @@
 						{!! Form::text('final_total', null, ['class' => 'form-control input_number', 'placeholder' => __('sale.total_amount'), 'required']); !!}
 					</div>
 				</div>
+				
+				
+
+				
+		 <!-- DELIO NOTE: IT'S JUST THE VIEW; IT INDICATES THAT THE CHART OF ACCOUNTS MUST BE CALLED FROM THE DB -->
+        
+        <div class="col-md-4">
+                {!! Form::label('account_type_id', __( 'account.account' ) .":") !!}
+                <select name="account_type_id" class="form-control select2">\
+                    <option>@lang('messages.please_select')</option>
+                    
+                </select>
+        </div>
+        <!-- FIN DELIO NOTE:  -->
+        
+          <div class="col-md-4">
+          <div class="form-group">
+            {!! Form::label('payment_account', __('account.retention') . ':' ) !!}
+              {!! Form::text('base', null, ['class' => 'form-control', 'placeholder' => __( 'account.retention' )]); !!}
+          </div>
+        </div>
+				
+				
+				
+				
+				
+				
+				
+				
 				<div class="clearfix"></div>
 				<div class="col-sm-4">
 					<div class="form-group">
@@ -170,7 +199,7 @@
 	</div>
 	@endcomponent
 	<div class="col-sm-12 text-center">
-		<button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
+		<button type="submit" class="tw-dw-btn bg-info tw-text-white">@lang('Crear Gasto')</button>
 	</div>
 {!! Form::close() !!}
 </section>
@@ -187,6 +216,10 @@
 	__page_leave_confirmation('#add_expense_form');
 	$(document).on('change', 'input#final_total, input.payment-amount', function() {
 		calculateExpensePaymentDue();
+	});
+	
+	$(document).on('keyup', 'input.payment-amount', function() {
+		$(this).val(__currency_trans_from_en($(this).val(), false, false));
 	});
 
 	function calculateExpensePaymentDue() {

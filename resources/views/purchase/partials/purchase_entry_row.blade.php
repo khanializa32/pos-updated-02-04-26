@@ -17,7 +17,7 @@
                                         <div class="total-stock-badge" 
                                              data-current-stock="{{$current_stock}}"
                                              data-row-count="{{$row_count}}"
-                                             style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; background-color: #28a745; color: white; border-radius: 50%; font-weight: bold; font-size: 18px; min-width: 60px; max-width: 60px; text-align: center; line-height: 1;">
+                                             style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; background-color: #2BB3B0; color: white; border-radius: 50%; font-weight: bold; font-size: 18px; min-width: 60px; max-width: 60px; text-align: center; line-height: 1;">
                                             <span class="total-quantity" style="display: block; width: 100%; text-align: center; word-wrap: break-word; hyphens: auto;">{{@num_format($current_stock)}}</span>
                                         </div>
                                     </div>

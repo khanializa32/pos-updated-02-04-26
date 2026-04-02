@@ -10,35 +10,161 @@
 <section class="content-header">
     <h1 class="tw-text-xl md:tw-text-3xl tw-font-bold tw-text-black">@lang('purchase.add_purchase') <i class="fa fa-keyboard-o hover-q text-muted" aria-hidden="true" data-container="body" data-toggle="popover" data-placement="bottom" data-content="@include('purchase.partials.keyboard_shortcuts_details')" data-html="true" data-trigger="hover" data-original-title="" title=""></i>
     
-      <button style='font-size:36px;color:red'><i class='fab fa-youtube id='modal-video-tutorial' data-toggle="modal" data-target="#stack"></i></button>
+         
+     &nbsp;
+     <title>Modal YouTube</title>
+     
+      <style>
+     {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f2f2f2;
+    }
+
+    /* Botón */
+    .btn-youtube {
+      background-color: #DB2323;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-youtube:hover {
+      background-color: #2BB3B0;
+    }
+
+
+    /* Contenido del modal */
+    .modal-content {
+      position: relative;
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 0;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 720px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Botón cerrar */
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    /* Video */
+    iframe {
+      width: 120%;
+      height: 605px;
+      border: none;
+      border-radius: 0 0 8px 8px;
+    }
+    .btn-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(255, 75, 43, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(255, 75, 43, 0.45);
+}
+
+.btn-modern:active {
+    transform: scale(0.97);
+}
+
+  </style>
+
+<body>
+
+
+  <button id="openModalBtn" class="btn-modern">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M10.804 8 5.5 11.25V4.75L10.804 8z"/>
+        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4z"/>
+    </svg>
+    Ver Video
+</button>
+
+
+
+  <!-- Modal -->
+  <div id="youtubeModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <iframe id="youtubeVideo" src="" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById("youtubeModal");
+    const openBtn = document.getElementById("openModalBtn");
+    const closeBtn = document.getElementById("closeModalBtn");
+    const video = document.getElementById("youtubeVideo");
+
+    // URL del video
+    const youtubeURL = "https://www.youtube.com/embed/9o_BFlXOOe0?si=JIiskfVMazljDJzu"; // reemplaza con tu video
+
+    openBtn.onclick = () => {
+      modal.style.display = "block";
+      video.src = youtubeURL + "?autoplay=1";
+    }
+
+    closeBtn.onclick = () => {
+      modal.style.display = "none";
+      video.src = ""; // Detener el video al cerrar
+    }
+
+    // Cerrar al hacer clic fuera del modal
+    window.onclick = (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none";
+        video.src = "";
+      }
+    }
+  </script>
+
+</body>
+
+     
+ 
+
+
+	    </h4>
+
+    
+    </h1>
+</section>
 					
 
 	    </h4>
        
-       
-    <div data-width="500" tabindex="-1" class="modal fade" id="stack" style="display: none;">
-     <div class="modal-dialog">
-        <div class="modal-content" style="padding-bottom: 40px">
-               <div class="modal-header">
-                  <button type="button" id='close-modal' class="close" data-dismiss="modal" rel=0;aria-hidden="true"></button>
-                <div id="title-tutorial">
-                Modulo Crear Compras           
-                </div>
-        </div>
-            <div class="modal-body">
-                <div id="video-tutorial">
-                    
-                <iframe width="560" height="315" src="https://www.youtube.com/embed/HBV8Mn4lCyk?si=kYkTV6AbRGAX_cZd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                
-                </div>
-                <p id="description-tutorial">Realice compras a sus prpveedores y administrelas</p>
-
-                
-            </div>
-        </div>
-      </div>
-    
-    </h1>
-</section>
+ 
 
 <!-- Main content -->
 <section class="content">
@@ -63,7 +189,7 @@
 						</span>
 						{!! Form::select('contact_id', [], null, ['class' => 'form-control', 'placeholder' => __('messages.please_select'), 'required', 'id' => 'supplier_id']); !!}
 						<span class="input-group-btn">
-							<button type="button" class="btn btn-default bg-white btn-flat add_new_supplier" data-name=""><i class="fa fa-plus-circle text-warning fa-lg"></i></button>
+							<button type="button" class="btn btn-default bg-white btn-flat add_new_supplier" data-name=""><i class="fa fa-plus-circle text-teal fa-lg"></i></button>
 						</span>
 					</div>
 				</div>
@@ -72,6 +198,26 @@
 				</strong>
 				<div id="supplier_address_div"></div>
 			</div>
+			
+			
+				@if(count($business_locations) == 1)
+				@php 
+					$default_location = current(array_keys($business_locations->toArray()));
+					$search_disable = false; 
+				@endphp
+			@else
+				@php $default_location = null;
+				$search_disable = true;
+				@endphp
+			@endif
+			<div class="col-sm-2">
+				<div class="form-group">
+					{!! Form::label('location_id', __('Bodega / Sucursal').':*') !!}
+					@show_tooltip(__('tooltip.purchase_location'))
+					{!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'], $bl_attributes); !!}
+				</div>
+			</div>
+			
 			<div class="@if(!empty($default_purchase_status)) col-sm-2 @else col-sm-3 @endif">
 				<div class="form-group">
 					{!! Form::label('ref_no', __('purchase.ref_no').':') !!}
@@ -96,23 +242,7 @@
 					{!! Form::select('status', $orderStatuses, $default_purchase_status, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required']); !!}
 				</div>
 			</div>			
-			@if(count($business_locations) == 1)
-				@php 
-					$default_location = current(array_keys($business_locations->toArray()));
-					$search_disable = false; 
-				@endphp
-			@else
-				@php $default_location = null;
-				$search_disable = true;
-				@endphp
-			@endif
-			<div class="col-sm-2">
-				<div class="form-group">
-					{!! Form::label('location_id', __('purchase.business_location').':*') !!}
-					@show_tooltip(__('tooltip.purchase_location'))
-					{!! Form::select('location_id', $business_locations, $default_location, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select'), 'required'], $bl_attributes); !!}
-				</div>
-			</div>
+		
 
 			<!-- Currency Exchange Rate -->
 			<div class="col-sm-3 @if(!$currency_details->purchase_in_diff_currency) hide @endif">
@@ -152,8 +282,8 @@
                     {!! Form::label('document', __('purchase.attach_document') . ':') !!}
                     {!! Form::file('document', ['id' => 'upload_document', 'accept' => implode(',', array_keys(config('constants.document_upload_mimes_types')))]); !!}
                     <p class="help-block">
-                    	@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)])
-                    	@includeIf('components.document_help_text')
+                    	@lang('purchase.max_file_size', ['size' => (config('constants.document_size_limit') / 1000000)]) pdf, .csv, .zip, .doc,  .jpg
+                    <!--	@includeIf('components.document_help_text') -->
                     </p>
                 </div>
             </div>
@@ -259,7 +389,7 @@
 	@component('components.widget', ['class' => 'box-info'])
 		<div class="row">
 			<div class="col-sm-2 text-center">
-				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-sm" data-toggle="modal" data-target="#import_purchase_products_modal">@lang('product.import_products')</button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-purple tw-text-black tw-dw-btn-sm" data-toggle="modal" data-target="#import_purchase_products_modal">@lang('product.import_products')</button>
 			</div>
 			<div class="col-sm-8">
 				<div class="form-group">
@@ -273,7 +403,7 @@
 			</div>
 			<div class="col-sm-2">
 				<div class="form-group">
-					<button tabindex="-1" type="button" class="btn btn-link btn-modal"data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" 
+					<button tabindex="-1" type="button" class="tw-dw-btn bg-info tw-text-white btn-modal"data-href="{{action([\App\Http\Controllers\ProductController::class, 'quickAdd'])}}" 
             	data-container=".quick_add_product_modal"><i class="fa fa-plus"></i> @lang( 'product.add_new_product' ) </button>
 				</div>
 			</div>
@@ -411,12 +541,14 @@
 				</tr>
 
 			</table>
+			
+			
 			</div>
 		</div>
 		
 		<div class="row">
 				<div class="col-sm-12 text-center">
-					<button type="button" id="submit_purchase_form" class="tw-dw-btn tw-dw-btn-success tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
+					<button type="button" id="submit_purchase_form" class="tw-dw-btn bg-info tw-text-white">@lang('Guardar Compra')</button>
 				</div>
 			</div>
 			
@@ -538,7 +670,7 @@
 		</div>
 		<div class="row">
 			<div class="col-md-12 text-center">
-				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-white tw-dw-btn-sm" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
+				<button type="button" class="tw-dw-btn tw-dw-btn-ligth tw-text-black tw-dw-btn-sm" id="toggle_additional_expense"> <i class="fas fa-plus"></i> @lang('lang_v1.add_additional_expenses') <i class="fas fa-chevron-down"></i></button>
 			</div>
 			<div class="col-md-8 col-md-offset-4" id="additional_expenses_div" style="display: none;">
 				<table class="table table-condensed">
@@ -608,9 +740,10 @@
 				</div>
 			</div>
 			<br>
+			
 			<div class="row">
 				<div class="col-sm-12 text-center">
-					<button type="button" id="submit_purchase_form" class="tw-dw-btn tw-dw-btn-warning tw-dw-btn-lg tw-text-black">@lang('messages.save')</button>
+					<button type="button" id="submit_purchase_form" class="tw-dw-btn bg-info tw-text-white">@lang('Guardar Compra')</button>
 				</div>
 			</div>
 		</div>
@@ -705,3 +838,5 @@
 	</script>
 	@include('purchase.partials.keyboard_shortcuts')
 @endsection
+
+

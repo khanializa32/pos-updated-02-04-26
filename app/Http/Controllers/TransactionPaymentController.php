@@ -524,8 +524,13 @@ class TransactionPaymentController extends Controller
             //Accounts
             $accounts = $this->moduleUtil->accountsDropdown($business_id, true);
 
+            $default_location = \App\BusinessLocation::where('business_id', $business_id)
+                                ->where('is_active', 1)
+                                ->first();
+            $default_payment_accounts = !empty($default_location->default_payment_accounts) ? $default_location->default_payment_accounts : '[]';
+
             return view('transaction_payment.pay_supplier_due_modal')
-                        ->with(compact('contact_details', 'payment_types', 'payment_line', 'due_payment_type', 'ob_due', 'amount_formated', 'accounts'));
+                        ->with(compact('contact_details', 'payment_types', 'payment_line', 'due_payment_type', 'ob_due', 'amount_formated', 'accounts', 'default_payment_accounts'));
         }
     }
 

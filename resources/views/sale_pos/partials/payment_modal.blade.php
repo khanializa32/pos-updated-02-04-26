@@ -50,7 +50,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-black tw-dw-btn-sm tw-w-full"
+                                <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white tw-dw-btn-sm tw-w-full"
                                     id="add-payment-row">@lang('sale.add_payment_row')</button>
                             </div>
                         </div>
@@ -201,8 +201,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">Ir a la Venta</button>
-                <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-white" id="pos-save">@lang('sale.finalize_payment')</button>
+                <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">Regresar</button>
+                <button type="submit" class="tw-dw-btn bg-info tw-text-white tw-text-white" id="pos-save">@lang('Cobrar Venta')</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -292,7 +292,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="tw-dw-btn tw-dw-btn-primary tw-text-white" id="pos-save-card">@lang('sale.finalize_payment')</button>
+                <button type="button" class="tw-dw-btn bg-info tw-text-white tw-text-white" id="pos-save-card">@lang('sale.finalize_payment')</button>
             </div>
         </div>
     </div>

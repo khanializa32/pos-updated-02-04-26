@@ -8,3 +8,7 @@
 }
 @layer utilities {
 }
+
+*{
+    font-family: 'Space Grotesk', sans-serif !important;
+}

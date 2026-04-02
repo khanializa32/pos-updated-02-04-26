@@ -17,7 +17,7 @@
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="tw-dw-btn tw-dw-btn-warning tw-text-black" id="pos-suspend">@lang('Suspender')</button>
+				<button type="button" class="tw-dw-btn bg-info tw-text-white tw-text-white" id="pos-suspend">@lang('Suspender')</button>
 			    <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang('messages.close')</button>
 			</div>
 		</div><!-- /.modal-content -->

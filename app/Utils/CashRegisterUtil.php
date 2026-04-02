@@ -20,6 +20,11 @@ class CashRegisterUtil extends Util
         $user_id = auth()->user()->id;
         $count = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
+                                 // Exclude Non-POS general closings
+                                ->where(function ($q) {
+                                    $q->whereNull('closing_type')
+                                      ->orWhere('closing_type', '!=', 'general');
+                                })
                                 ->count();
 
         return $count;
@@ -37,6 +42,12 @@ class CashRegisterUtil extends Util
         $user_id = auth()->user()->id;
         $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
+                                 // Exclude Non-POS general closings
+                                ->where(function ($q) {
+                                    $q->whereNull('closing_type')
+                                      ->orWhere('closing_type', '!=', 'general');
+                                })
+                                ->latest('id')
                                 ->first();
         $payments_formatted = [];
         foreach ($payments as $payment) {
@@ -57,7 +68,7 @@ class CashRegisterUtil extends Util
             }
         }
 
-        if (! empty($payments_formatted)) {
+        if (!empty($payments_formatted)) {
             $register->cash_register_transactions()->saveMany($payments_formatted);
         }
 
@@ -76,6 +87,12 @@ class CashRegisterUtil extends Util
         $user_id = auth()->user()->id;
         $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
+                                  // Exclude Non-POS general closings
+                                ->where(function ($q) {
+                                    $q->whereNull('closing_type')
+                                      ->orWhere('closing_type', '!=', 'general');
+                                })
+                                ->latest('id')
                                 ->first();
         //If draft -> final then add all
         //If final -> draft then refund all
@@ -165,6 +182,7 @@ class CashRegisterUtil extends Util
         $user_id = auth()->user()->id;
         $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
+                                ->latest('id')
                                 ->first();
 
         $total_payment = CashRegisterTransaction::where('transaction_id', $transaction->id)
@@ -250,7 +268,12 @@ class CashRegisterUtil extends Util
         if (empty($register_id)) {
             $user_id = auth()->user()->id;
             $query->where('user_id', $user_id)
-                ->where('cash_registers.status', 'open');
+         ->where('cash_registers.status', 'open')
+                // Exclude Non-POS general closings
+                ->where(function ($q) {
+                    $q->whereNull('cash_registers.closing_type')
+                      ->orWhere('cash_registers.closing_type', '!=', 'general');
+                });
         } else {
             $query->where('cash_registers.id', $register_id);
         }
@@ -379,6 +402,7 @@ class CashRegisterUtil extends Util
                 ->groupBy('tos.id')
                 ->select(
                     'tos.name as types_of_service_name',
+                    DB::raw('SUM(transactions.packing_charge) as packing_charge'),
                     DB::raw('SUM(final_total) as total_sales')
                 )
                 ->orderBy('total_sales', 'desc')
@@ -416,8 +440,159 @@ class CashRegisterUtil extends Util
     {
         $register = CashRegister::where('user_id', $user_id)
                                 ->where('status', 'open')
+                                 // Exclude Non-POS general closings
+                                ->where(function ($q) {
+                                    $q->whereNull('closing_type')
+                                      ->orWhere('closing_type', '!=', 'general');
+                                })
+                                ->latest('id')
                                 ->first();
 
         return $register;
+    }
+
+    
+    /**
+     * Get credit sales with customer details for a register
+     *
+     * @param $user_id int
+     * @param $open_time datetime
+     * @param $close_time datetime
+     * @return array
+     */
+    public function getCreditSalesDetails($user_id, $open_time, $close_time)
+    {
+        $credit_sales = Transaction::where('transactions.created_by', $user_id)
+            ->where('transactions.type', 'sell')
+            ->where('transactions.status', 'final')
+            // ->where('transactions.payment_status', 'due')
+            ->whereBetween('transactions.created_at', [$open_time, $close_time])
+             ->where(function ($q) {
+                $q->whereDoesntHave('cash_register_payments')
+                ->orWhereRaw("(SELECT SUM(IF(pay_method='cash', amount, 0)) FROM cash_register_transactions WHERE cash_register_transactions.transaction_id = transactions.id) <= 0");
+            })
+            ->leftJoin('contacts', 'contacts.id', '=', 'transactions.contact_id')
+            ->where('contacts.is_default', 0)
+            ->select(
+                'transactions.id',
+                'transactions.invoice_no as invoice_number',
+                'contacts.name as customer_name',
+                'contacts.supplier_business_name as business_name',
+                'transactions.final_total as amount'
+            )
+        ->get();
+
+
+        return $credit_sales;
+    }
+
+    /**
+     * Get backend payments (cash payments) with customer details for a register
+     *
+     * @param $user_id int
+     * @param $open_time datetime
+     * @param $close_time datetime
+     * @return array
+     */
+    public function getBackendPaymentsDetails($user_id, $open_time, $close_time, $cashRegisterId)
+    {
+        
+       $backend_payments = \App\TransactionPayment::with('child_payments.transaction.contact')
+       ->where('transaction_payments.created_by', $user_id) 
+        ->where('transaction_payments.method', 'cash')
+        ->whereNull('transaction_payments.parent_id')
+        ->where(function ($q) use($cashRegisterId) {
+                // Include sell transaction payments OR customer payments
+                $q->where(function ($query) {
+                    $query->whereHas('transaction', function ($q) {
+                        $q->where('type', 'sell');
+                    })
+                   ->orWhere(function ($query) {
+                        $query->where('payment_type', 'credit')->whereNull('transaction_id');
+                    });
+                })
+                // Exclude payments already recorded in cash register
+                ->where(function ($query) use($cashRegisterId) {
+                    $query->whereDoesntHave('transaction', function ($q) use($cashRegisterId) {
+                        $q->whereHas('cash_register_payments', function ($q) use($cashRegisterId) {
+                            $q->where('cash_register_id', $cashRegisterId);
+                        });
+                    })
+                    ->orWhereNull('transaction_id');
+                });
+            })
+
+        ->whereBetween('transaction_payments.created_at', [$open_time, $close_time])
+        ->leftJoin('transactions', 'transactions.id', '=', 'transaction_payments.transaction_id')
+        ->leftJoin('contacts', 'contacts.id', '=', 'transactions.contact_id')
+        ->select( 'transaction_payments.id', 'transaction_payments.parent_id', 'contacts.name as customer_name', 'contacts.supplier_business_name as business_name', 'transaction_payments.amount as paid_amount' ) 
+        ->get();
+
+       return $backend_payments;
+
+    }
+    
+    // public function getCustomerPaymentsByAccount($user_id, $open_time, $close_time)
+    // {
+    //     $payments = \App\TransactionPayment::leftJoin('accounts', 'accounts.id', '=', 'transaction_payments.account_id')
+    //         ->where('transaction_payments.created_by', $user_id)
+    //         ->whereBetween('transaction_payments.created_at', [$open_time, $close_time])
+    //         ->whereNull('transaction_payments.parent_id')
+    //         ->where(function ($q) {
+    //             // Include customer payments AND sell payments IF they have an account assigned
+    //             $q->where(function ($query) {
+    //                 $query->where('payment_type', 'credit')->whereNull('transaction_id');
+    //             })->orWhereHas('transaction', function ($query) {
+    //                 $query->where('type', 'sell');
+    //             });
+    //         })
+    //         ->whereNotNull('transaction_payments.account_id')
+    //         ->where('transaction_payments.method', '!=', 'cash')
+    //         ->select(
+    //             \DB::raw("COALESCE(accounts.name, CONCAT('(', transaction_payments.method, ')')) as account_name"),
+    //             \DB::raw("SUM(IF(transaction_payments.is_return = 0, transaction_payments.amount, transaction_payments.amount * -1)) as total_amount"),
+    //             \DB::raw("COUNT(transaction_payments.id) as payment_count")
+    //         )
+    //         ->groupBy('transaction_payments.account_id', 'transaction_payments.method', 'accounts.name')
+    //         ->get();
+
+    //     return $payments;
+    // }
+    
+        public function getCustomerPaymentsByAccount($user_id, $open_time, $close_time, $cashRegisterId)
+    {
+        $payments = \App\TransactionPayment::leftJoin('accounts', 'accounts.id', '=', 'transaction_payments.account_id')
+            ->where('transaction_payments.created_by', $user_id)
+            ->whereBetween('transaction_payments.created_at', [$open_time, $close_time])
+            ->whereNull('transaction_payments.parent_id')
+            ->where(function ($q) use($cashRegisterId) {
+                // Include customer payments AND sell payments IF they have an account assigned
+                $q->where(function ($query) {
+                    $query->where('payment_type', 'credit')->whereNull('transaction_id');
+                })->orWhereHas('transaction', function ($query) {
+                    $query->where('type', 'sell');
+                });
+
+                // Exclude payments already recorded in cash register (POS sales)
+                $q->where(function ($query) use($cashRegisterId) {
+                    $query->whereDoesntHave('transaction', function ($q) use($cashRegisterId) {
+                        $q->whereHas('cash_register_payments', function ($q) use($cashRegisterId) {
+                            $q->where('cash_register_id', $cashRegisterId);
+                        });
+                    })
+                    ->orWhereNull('transaction_id');
+                });
+            })
+            ->whereNotNull('transaction_payments.account_id')
+            ->where('transaction_payments.method', '!=', 'cash')
+            ->select(
+                \DB::raw("COALESCE(accounts.name, CONCAT('(', transaction_payments.method, ')')) as account_name"),
+                \DB::raw("SUM(IF(transaction_payments.is_return = 0, transaction_payments.amount, transaction_payments.amount * -1)) as total_amount"),
+                \DB::raw("COUNT(transaction_payments.id) as payment_count")
+            )
+            ->groupBy('transaction_payments.account_id', 'transaction_payments.method', 'accounts.name')
+            ->get();
+
+        return $payments;
     }
 }
