@@ -33,6 +33,7 @@
                 
                 
                 
+                
                 <div class="tw-flex tw-items-center tw-gap-1">
                     <p style="height: 20px; width: auto; font-size:10px"><strong>@lang('sale.location'): &nbsp;</strong></p>
 
