@@ -2071,7 +2071,7 @@ $(document).ready(function () {
 
     $("input#tax_rate_id").val(tax_id);
 
-    __write_number($("input#tax_calculation_amount"), tax_rate);
+   __write_number($("input#tax_calculation_amount"), tax_rate, false, 2);
     pos_total_row();
   });
 
@@ -2170,7 +2170,7 @@ $(document).ready(function () {
   });
   $("select#tax_rate_id").change(function () {
     var tax_rate = $(this).find(":selected").data("rate");
-    __write_number($("input#tax_calculation_amount"), tax_rate);
+    __write_number($("input#tax_calculation_amount"), tax_rate, false, 2);
     pos_total_row();
   });
   //Datetime picker
@@ -4192,7 +4192,9 @@ function reset_pos_form() {
   $("input#tax_rate_id").val($("input#tax_rate_id").data("default"));
   __write_number(
     $("input#tax_calculation_amount"),
-    $("input#tax_calculation_amount").data("default")
+    $("input#tax_calculation_amount").data("default"),
+    false,
+    2
   );
 
   $("select.payment_types_dropdown").val("cash").trigger("change");

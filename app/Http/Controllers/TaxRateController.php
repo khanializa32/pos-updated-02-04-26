@@ -58,7 +58,17 @@ class TaxRateController extends Controller
                     @endcan'
                 )
                 ->editColumn('name', '@if($for_tax_group == 1) {{$name}} <small>(@lang("lang_v1.for_tax_group_only"))</small> @else {{$name}} @endif')
-                ->editColumn('amount', '{{@num_format($amount)}}')
+                ->editColumn('amount', function ($row) {
+                    if ($row->amount === null) {
+                        return '';
+                    }
+
+                    $decimal_separator = session('currency')['decimal_separator'];
+                    $thousand_separator = session('currency')['thousand_separator'];
+                    $formatted_amount = number_format($row->amount, 2, $decimal_separator, $thousand_separator);
+
+                    return rtrim(rtrim($formatted_amount, '0'), $decimal_separator);
+                })
                 ->editColumn('code', '{{$code}}')
                 ->removeColumn('for_tax_group')
                 ->removeColumn('id')

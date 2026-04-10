@@ -33,6 +33,7 @@
                 
                 
                 
+                
                 <div class="tw-flex tw-items-center tw-gap-1">
                     <p style="height: 20px; width: auto; font-size:10px"><strong><?php echo app('translator')->get('sale.location'); ?>: &nbsp;</strong></p>
 
@@ -45,7 +46,7 @@
                                     $locOptions[$id] = ['value' => $id, 'label' => $name, 'code' => $location->location_id, 'pgId' => $location->selling_price_group_id];
                                }
                             ?>
-                            <select name="select_location_id" id="select_location_id" class="control input-sm" required autofocus style="background:white;  width: 120px;" <?php if(!empty($pos_lock_location)): ?> disabled <?php endif; ?>>
+                            <select name="select_location_id" id="select_location_id" class="control input-sm" required autofocus style="background:white;  width: 120px;">
                                 <?php $__currentLoopData = $locOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $id => $opt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($opt['value'], false); ?>" data-location-code="<?php echo e($opt['code'], false); ?>" data-default_price_group="<?php echo e($opt['pgId'], false); ?>" <?php if(($default_location->id ?? null) == $opt['value']): ?> selected <?php endif; ?>><?php echo e($opt['label'], false); ?></option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

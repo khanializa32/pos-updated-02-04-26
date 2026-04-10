@@ -29,7 +29,17 @@ class GroupTaxController extends Controller
                         &nbsp;
                         <button data-href="{{action(\'App\Http\Controllers\GroupTaxController@destroy\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error delete_tax_group_button"><i class="glyphicon glyphicon-trash"></i> @lang("messages.delete")</button>'
                 )
-                ->editColumn('amount', '{{@num_format($amount)}}')
+                ->editColumn('amount', function ($row) {
+                    if ($row->amount === null) {
+                        return '';
+                    }
+
+                    $decimal_separator = session('currency')['decimal_separator'];
+                    $thousand_separator = session('currency')['thousand_separator'];
+                    $formatted_amount = number_format($row->amount, 2, $decimal_separator, $thousand_separator);
+
+                    return rtrim(rtrim($formatted_amount, '0'), $decimal_separator);
+                })
                 ->editColumn('sub_taxes', function ($row) {
                     $sub_taxes = [];
                     foreach ($row->sub_taxes as $sub_tax) {
