@@ -22,7 +22,7 @@ class GroupTaxController extends Controller
                         ->where('is_tax_group', '1')
                         ->with(['sub_taxes']);
 
-                        
+                        // 
             return Datatables::of($tax_rates)
                 ->addColumn(
                     'action',
