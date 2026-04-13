@@ -1,12 +1,22 @@
 <h3 class="text-muted mb-0">
     @lang('lang_v1.cogs2') 
     <span class="display_currency" data-currency_symbol="true"> 
-        {{ ($data['total_sell'] - $data['gross_profit']) }}
+        {{ $data['cogs'] ?? ($data['total_sell'] - $data['gross_profit']) }}
     </span>
 </h3>
 <small class="help-block">
        Costo de Ventas
     </small>
+
+<h4 class="text-muted mb-0">
+    Average Cost / Unit:
+    <span class="display_currency" data-currency_symbol="true">
+        {{ $data['avg_cost_per_unit'] ?? 0 }}
+    </span>
+</h4>
+<small class="help-block">
+    Calculated as total COGS / total sold quantity for the selected period.
+</small>
 
 
 <h3 class="text-muted mb-0">

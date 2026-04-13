@@ -5022,6 +5022,66 @@ class TransactionUtil extends Util
 
         return $total_profit;
     }
+
+    /**
+     * Calculates gross profit and COGS together using sub-unit aware per-transaction utility.
+     * COGS here represents sold cost for the selected period and is not inventory-formula based.
+     */
+    public function getGrossProfitAndCogsUsingSubUnits(
+        $business_id,
+        $start_date = null,
+        $end_date = null,
+        $location_id = null,
+        $user_id = null,
+        $permitted_locations = null
+    ) {
+        $query = \App\Transaction::where('type', 'sell')
+            ->where('is_suspend', 0)
+            ->where('status', 'final')
+            ->where('business_id', $business_id);
+
+        if (!empty($permitted_locations) && $permitted_locations != 'all') {
+            $query->whereIn('location_id', $permitted_locations);
+        }
+
+        if (!empty($location_id)) {
+            $query->where('location_id', $location_id);
+        }
+
+        if (!empty($user_id)) {
+            $query->where('created_by', $user_id);
+        }
+
+        if (!empty($start_date) && !empty($end_date) && $start_date != $end_date) {
+            $query->whereDate('transaction_date', '>=', $start_date)
+                ->whereDate('transaction_date', '<=', $end_date);
+        }
+        if (!empty($start_date) && !empty($end_date) && $start_date == $end_date) {
+            $query->whereDate('transaction_date', $end_date);
+        }
+
+        $transactions = $query->select('id')->get();
+
+        $total_profit = 0.0;
+        $total_cogs = 0.0;
+        $total_sold_qty = 0.0;
+        foreach ($transactions as $t) {
+            try {
+                $breakdown = $this->calculateTransactionProfitBreakdownUsingSubUnits($t->id);
+                $total_profit += (float) $breakdown['profit'];
+                $total_cogs += (float) $breakdown['cogs'];
+                $total_sold_qty += (float) $breakdown['sold_qty'];
+            } catch (\Throwable $e) {
+                \Log::warning('Profit/COGS calc (subunit) failed for transaction ' . $t->id . ' error: ' . $e->getMessage());
+            }
+        }
+
+        return [
+            'gross_profit' => $total_profit,
+            'cogs' => $total_cogs,
+            'sold_qty' => $total_sold_qty,
+        ];
+    }
     /**
      * Calculates reward points to be earned from an order
      *
@@ -5610,21 +5670,61 @@ class TransactionUtil extends Util
      */
     public function calculateTransactionProfitUsingSubUnits(int $transaction_id): float
     {
-        $lines = \App\TransactionSellLine::with(['product', 'sub_unit', 'variations'])
+        $breakdown = $this->calculateTransactionProfitBreakdownUsingSubUnits($transaction_id);
+
+        return (float) $breakdown['profit'];
+    }
+
+    /**
+     * Returns line-cost aware profit and COGS for one transaction.
+     */
+    private function calculateTransactionProfitBreakdownUsingSubUnits(int $transaction_id): array
+    {
+        $lines = \App\TransactionSellLine::with(['product', 'sub_unit', 'variations', 'sell_line_purchase_lines.purchase_line'])
             ->where('transaction_id', $transaction_id)
             ->where('children_type', '!=', 'combo')
             ->get();
 
         $total_profit = 0.0;
+        $total_cogs = 0.0;
+        $total_sold_qty = 0.0;
 
         foreach ($lines as $line) {
             $qty_sold = (float) ($line->quantity - $line->quantity_returned);
+            if ($qty_sold <= 0) {
+                continue;
+            }
+            $total_sold_qty += $qty_sold;
 
             // Sale price per unit (from transaction) = unit_price + item_tax
             $sale_price_per_unit = (float) $line->unit_price + (float) $line->item_tax;
+            $line_revenue = $sale_price_per_unit * $qty_sold;
 
-            // Purchase price per unit (from product variation)
-            $purchase_price_per_unit = 0.0;
+            // Prefer the actual mapped purchase cost for the sell line.
+            $line_cost = 0.0;
+            $sell_line_purchase_lines = $line->sell_line_purchase_lines ?? collect();
+            if ($sell_line_purchase_lines->isNotEmpty()) {
+                foreach ($sell_line_purchase_lines as $sell_line_purchase_line) {
+                    $mapped_quantity = (float) $sell_line_purchase_line->quantity - (float) $sell_line_purchase_line->qty_returned;
+                    if ($mapped_quantity <= 0) {
+                        continue;
+                    }
+
+                    $purchase_price_per_unit = (float) optional($sell_line_purchase_line->purchase_line)->purchase_price_inc_tax;
+                    if ($purchase_price_per_unit <= 0) {
+                        continue;
+                    }
+
+                    $line_cost += $mapped_quantity * $purchase_price_per_unit;
+                }
+            }
+
+            if ($line_cost > 0) {
+                $line_profit = $line_revenue - $line_cost;
+                $total_profit += $line_profit;
+                $total_cogs += $line_cost;
+                continue;
+            }
 
             $product = $line->product;
             $sub_unit_id = $line->sub_unit_id;
@@ -5650,16 +5750,25 @@ class TransactionUtil extends Util
                     }
                 }
             } else {
-                // Use default purchase price from variation (dpp_inc_tax)
+                // Use default purchase price from variation (dpp_inc_tax), with a fallback
+                // to the base purchase price so a missing inc-tax value does not zero out COGS.
                 $purchase_price_per_unit = (float) optional($line->variations)->dpp_inc_tax;
+                if ($purchase_price_per_unit <= 0) {
+                    $purchase_price_per_unit = (float) optional($line->variations)->default_purchase_price;
+                }
             }
 
             // Calculate profit for this line: (Sale Price - Purchase Price) × Quantity
             $line_profit = ($sale_price_per_unit - $purchase_price_per_unit) * $qty_sold;
             $total_profit += $line_profit;
+            $total_cogs += $purchase_price_per_unit * $qty_sold;
         }
 
-        return $total_profit;
+        return [
+            'profit' => $total_profit,
+            'cogs' => $total_cogs,
+            'sold_qty' => $total_sold_qty,
+        ];
     }
 
     /**
@@ -6163,8 +6272,8 @@ class TransactionUtil extends Util
             $permitted_locations
         );
 
-        // Use sub-unit aware gross profit to align with per-invoice utility
-        $gross_profit = $this->getGrossProfitUsingSubUnits(
+        // Use sub-unit aware gross profit and sold-cost (COGS) to align with per-invoice utility.
+        $profit_breakdown = $this->getGrossProfitAndCogsUsingSubUnits(
             $business_id,
             $start_date,
             $end_date,
@@ -6172,6 +6281,7 @@ class TransactionUtil extends Util
             $user_id,
             $permitted_locations
         );
+        $gross_profit = $profit_breakdown['gross_profit'];
 
         $data['total_purchase_shipping_charge'] = !empty($purchase_details['total_shipping_charges']) ? $purchase_details['total_shipping_charges'] : 0;
         $data['total_sell_shipping_charge'] = !empty($sell_details['total_shipping_charges']) ? $sell_details['total_shipping_charges'] : 0;
@@ -6198,6 +6308,9 @@ class TransactionUtil extends Util
 
         //Sales
         $data['total_sell'] = !empty($sell_details['total_sell_exc_tax']) ? $sell_details['total_sell_exc_tax'] : 0;
+        $data['cogs'] = !empty($profit_breakdown['cogs']) ? $profit_breakdown['cogs'] : 0;
+        $data['sold_qty_for_cogs'] = !empty($profit_breakdown['sold_qty']) ? $profit_breakdown['sold_qty'] : 0;
+        $data['avg_cost_per_unit'] = $data['sold_qty_for_cogs'] > 0 ? ($data['cogs'] / $data['sold_qty_for_cogs']) : 0;
         $data['total_sell_discount'] = !empty($total_sell_discount) ? $total_sell_discount : 0;
         $data['total_sell_return_discount'] = !empty($total_sell_return_discount) ? $total_sell_return_discount : 0;
         $data['total_sell_return'] = $transaction_totals['total_sell_return_exc_tax'];
