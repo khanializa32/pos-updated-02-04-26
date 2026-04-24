@@ -76,12 +76,6 @@
     <?php echo $__env->renderComponent(); ?>
 </section>
 <!-- /.content -->
-<div class="view_modal modal fade" id="view_modal" tabindex="-1" role="dialog" 
-    aria-labelledby="viewModalLabel">
-</div>
-<div class="modal fade" id="recipe_modal" tabindex="-1" role="dialog" 
-    aria-labelledby="gridSystemModalLabel">
-</div>
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('javascript'); ?>
     <?php echo $__env->make('manufacturing::layouts.partials.common_script', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
