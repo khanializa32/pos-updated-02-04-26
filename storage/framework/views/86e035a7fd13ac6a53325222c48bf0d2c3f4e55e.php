@@ -50,6 +50,17 @@
                     </button>
                 <?php endif; ?>
 
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
+                    <?php if(empty($edit)): ?>
+                        <button type="button" 
+                            style="flex: 1; margin-right: 12px; font-size: 15px; background-color: #8e44ad !important; color: white !important; border: none;"
+                            class="tw-cursor-pointer tw-text-xs md:tw-text-sm tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-1 no-print pos-self-consumption col-xs-6"
+                            title="Self-consumption">
+                            <?php echo app('translator')->get('lang_v1.self_consumption'); ?>
+                        </button>
+                    <?php endif; ?>
+                <?php endif; ?>
+
 
                     </div>
                 </div>

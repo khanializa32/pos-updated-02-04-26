@@ -1,32 +1,36 @@
 <div class="modal-dialog" role="document">
   <div class="modal-content">
-    {!! Form::open(['url' => action([\App\Http\Controllers\CashRegisterController::class, 'postCloseRegister']), 'method' => 'post' ]) !!}
+    <?php echo Form::open(['url' => action([\App\Http\Controllers\CashRegisterController::class, 'postCloseRegister']), 'method' => 'post' ]); ?>
 
-    {!! Form::hidden('user_id', $register_details->user_id); !!}
+
+    <?php echo Form::hidden('user_id', $register_details->user_id); ?>
+
     
     
     <div class="modal-header">
         
       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <h5 class="modal-title"><h5>@lang( 'cash_register.current_register' )</h5>
-      <b>@lang('business.enterprise'):</b> {{ $register_details->location_name}}
+      <h5 class="modal-title"><h5><?php echo app('translator')->get( 'cash_register.current_register' ); ?></h5>
+      <b><?php echo app('translator')->get('business.enterprise'); ?>:</b> <?php echo e($register_details->location_name, false); ?>
+
           </br>
-        @if($register_details->open_time)
-          Apertura:  {{ \Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A') }} </br>
-          @if($register_details->closed_at)
-    Cierre: {{ \Carbon::parse($register_details->closed_at)->format('jS M, Y h:i A') }}
-@endif
+        <?php if($register_details->open_time): ?>
+          Apertura:  <?php echo e(\Carbon::createFromFormat('Y-m-d H:i:s', $register_details->open_time)->format('jS M, Y h:i A'), false); ?> </br>
+          <?php if($register_details->closed_at): ?>
+    Cierre: <?php echo e(\Carbon::parse($register_details->closed_at)->format('jS M, Y h:i A'), false); ?>
+
+<?php endif; ?>
 
           
-        @else
-          ( @lang('cash_register.register_not_opened') )
-        @endif
+        <?php else: ?>
+          ( <?php echo app('translator')->get('cash_register.register_not_opened'); ?> )
+        <?php endif; ?>
       </h5>
     
     <div class="modal-header">
    
     
-    <b>@lang('report.user'):</b> {{ $register_details->user_name}}<br>
+    <b><?php echo app('translator')->get('report.user'); ?>:</b> <?php echo e($register_details->user_name, false); ?><br>
 
     
     
@@ -37,7 +41,7 @@
       </div>
       
     <div class="modal-body">
-        @include('cash_register.payment_details')
+        <?php echo $__env->make('cash_register.payment_details', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
         <hr>
     
         
@@ -46,8 +50,10 @@
     <div class="row">
         <div class="col-sm-4">
         <div class="form-group" style="font-size:18px; color:orange">
-            {!! Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*') !!}
-            {!! Form::text('closing_amount', @num_format($register_details->cash_in_hand + $backendPaymentAmount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_cash_expense - ($modalCashSellReturnRefund ?? 0 ) - $cashWithdrawalAmount), ['class' => 'form-control input_number', 'id' => 'system_amount', 'readonly']); !!}
+            <?php echo Form::label('closing_amount', __( 'cash_register.total_cash' ) . ':*'); ?>
+
+            <?php echo Form::text('closing_amount', number_format($register_details->cash_in_hand + $backendPaymentAmount + $register_details->total_cash - $register_details->total_cash_refund - $register_details->total_cash_expense - ($modalCashSellReturnRefund ?? 0 ) - $cashWithdrawalAmount, session('business.currency_precision', 2), session('currency')['decimal_separator'], session('currency')['thousand_separator']), ['class' => 'form-control input_number', 'id' => 'system_amount', 'readonly']); ?>
+
         </div>
     </div>
     
@@ -76,59 +82,75 @@
 
         <!-- <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('total_card_slips', __( 'cash_register.total_card_slips' ) . ':*') !!} @show_tooltip(__('tooltip.total_card_slips'))
-              {!! Form::number('total_card_slips', $register_details->total_card_slips, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_card_slips' ), 'min' => 0 ]); !!}
+            <?php echo Form::label('total_card_slips', __( 'cash_register.total_card_slips' ) . ':*'); ?> <?php
+                if(session('business.enable_tooltip')){
+                    echo '<i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
+                    data-container="body" data-toggle="popover" data-placement="auto bottom" 
+                    data-content="' . __('tooltip.total_card_slips') . '" data-html="true" data-trigger="hover"></i>';
+                }
+                ?>
+              <?php echo Form::number('total_card_slips', $register_details->total_card_slips, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_card_slips' ), 'min' => 0 ]); ?>
+
           </div>
         </div> 
         <div class="col-sm-4">
           <div class="form-group">
-            {!! Form::label('total_cheques', __( 'cash_register.total_cheques' ) . ':*') !!} @show_tooltip(__('tooltip.total_cheques'))
-              {!! Form::number('total_cheques', $register_details->total_cheques, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_cheques' ), 'min' => 0 ]); !!}
+            <?php echo Form::label('total_cheques', __( 'cash_register.total_cheques' ) . ':*'); ?> <?php
+                if(session('business.enable_tooltip')){
+                    echo '<i class="fa fa-info-circle text-info hover-q no-print " aria-hidden="true" 
+                    data-container="body" data-toggle="popover" data-placement="auto bottom" 
+                    data-content="' . __('tooltip.total_cheques') . '" data-html="true" data-trigger="hover"></i>';
+                }
+                ?>
+              <?php echo Form::number('total_cheques', $register_details->total_cheques, ['class' => 'form-control', 'required', 'placeholder' => __( 'cash_register.total_cheques' ), 'min' => 0 ]); ?>
+
           </div>
         </div> 
         <hr> -->
         <div class="col-md-8 col-sm-12">
-          <h3>@lang( 'lang_v1.cash_denominations' )</h3>
-          @if(!empty($pos_settings['cash_denominations']))
+          <h3><?php echo app('translator')->get( 'lang_v1.cash_denominations' ); ?></h3>
+          <?php if(!empty($pos_settings['cash_denominations'])): ?>
             <table class="table table-slim">
               <thead>
                 <tr>
-                  <th width="20%" class="text-right">@lang('lang_v1.denomination')</th>
+                  <th width="20%" class="text-right"><?php echo app('translator')->get('lang_v1.denomination'); ?></th>
                   <th width="20%">&nbsp;</th>
-                  <th width="20%" class="text-center">@lang('lang_v1.count')</th>
+                  <th width="20%" class="text-center"><?php echo app('translator')->get('lang_v1.count'); ?></th>
                   <th width="20%">&nbsp;</th>
-                  <th width="20%" class="text-left">@lang('sale.subtotal')</th>
+                  <th width="20%" class="text-left"><?php echo app('translator')->get('sale.subtotal'); ?></th>
                 </tr>
               </thead>
               <tbody>
-                @foreach(explode(',', $pos_settings['cash_denominations']) as $dnm)
+                <?php $__currentLoopData = explode(',', $pos_settings['cash_denominations']); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $dnm): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <tr>
-                  <td class="text-right">{{$dnm}}</td>
+                  <td class="text-right"><?php echo e($dnm, false); ?></td>
                   <td class="text-center" >X</td>
-                  <td>{!! Form::number("denominations[$dnm]", null, ['class' => 'form-control cash_denomination input-sm', 'min' => 0, 'data-denomination' => $dnm, 'style' => 'width: 100px; margin:auto;' ]); !!}</td>
+                  <td><?php echo Form::number("denominations[$dnm]", null, ['class' => 'form-control cash_denomination input-sm', 'min' => 0, 'data-denomination' => $dnm, 'style' => 'width: 100px; margin:auto;' ]); ?></td>
                   <td class="text-center">=</td>
                   <td class="text-left">
                     <span class="denomination_subtotal">0</span>
                   </td>
                 </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
               </tbody>
               <tfoot>
                 <tr>
-                  <th colspan="4" class="text-center">@lang('sale.total')</th>
+                  <th colspan="4" class="text-center"><?php echo app('translator')->get('sale.total'); ?></th>
                   <td><span class="denomination_total">0</span></td>
                 </tr>
               </tfoot>
             </table>
-          @else
-            <p class="help-block">@lang('lang_v1.denomination_add_help_text')</p>
-          @endif
+          <?php else: ?>
+            <p class="help-block"><?php echo app('translator')->get('lang_v1.denomination_add_help_text'); ?></p>
+          <?php endif; ?>
         </div>  
         <hr>
          <div class="col-sm-12">
           <div class="form-group">
-            {!! Form::label('closing_note', __( 'cash_register.closing_note' ) . ':') !!}
-              {!! Form::textarea('closing_note', null, ['class' => 'form-control', 'placeholder' => __( 'cash_register.closing_note' ), 'rows' => 3 ]); !!}
+            <?php echo Form::label('closing_note', __( 'cash_register.closing_note' ) . ':'); ?>
+
+              <?php echo Form::textarea('closing_note', null, ['class' => 'form-control', 'placeholder' => __( 'cash_register.closing_note' ), 'rows' => 3 ]); ?>
+
           </div>
         </div>
       </div> 
@@ -136,29 +158,31 @@
 
       <div class="row">
         <div class="col-xs-6">
-          <!--<b>@lang('report.user'):</b> {{ $register_details->user_name}}<br> -->
-          <!--<b>@lang('business.email'):</b> {{ $register_details->email}}<br>-->
-          <!--<b>@lang('business.business_location'):</b> {{ $register_details->location_name}}<br> -->
+          <!--<b><?php echo app('translator')->get('report.user'); ?>:</b> <?php echo e($register_details->user_name, false); ?><br> -->
+          <!--<b><?php echo app('translator')->get('business.email'); ?>:</b> <?php echo e($register_details->email, false); ?><br>-->
+          <!--<b><?php echo app('translator')->get('business.business_location'); ?>:</b> <?php echo e($register_details->location_name, false); ?><br> -->
         </div>
-        @if(!empty($register_details->closing_note))
+        <?php if(!empty($register_details->closing_note)): ?>
           <div class="col-xs-6">
-            <strong>@lang('cash_register.closing_note'):</strong><br>
-            {{$register_details->closing_note}}
+            <strong><?php echo app('translator')->get('cash_register.closing_note'); ?>:</strong><br>
+            <?php echo e($register_details->closing_note, false); ?>
+
           </div>
-        @endif
+        <?php endif; ?>
       </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black">@lang( 'cash_register.close_register' )</button>
+        <button type="submit" class="tw-dw-btn tw-dw-btn-warning tw-text-black"><?php echo app('translator')->get( 'cash_register.close_register' ); ?></button>
          <button type="button" class="tw-dw-btn tw-dw-btn-success tw-text-white no-print" 
         aria-label="Print" 
           onclick="$(this).closest('div.modal').printThis();">
-        <i class="fa fa-print"></i> @lang( 'messages.print' )
+        <i class="fa fa-print"></i> <?php echo app('translator')->get( 'messages.print' ); ?>
       </button>
-      <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal">@lang( 'messages.cancel' )</button>
+      <button type="button" class="tw-dw-btn tw-dw-btn-neutral tw-text-white" data-dismiss="modal"><?php echo app('translator')->get( 'messages.cancel' ); ?></button>
       
     </div>
-    {!! Form::close() !!}
+    <?php echo Form::close(); ?>
+
   </div>
   <style type="text/css">
           @media print {
@@ -314,3 +338,4 @@ $(document).on('input', '#physical_amount', function() {
 </div><!-- /.modal-dialog 
 
 
+<?php /**PATH C:\laragon\www\POS\alizazip\resources\views/cash_register/close_register_modal.blade.php ENDPATH**/ ?>

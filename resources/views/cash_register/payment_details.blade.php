@@ -479,6 +479,37 @@
                 @else
         <p class="text-muted">@lang('lang_v1.no_data')</p>
         @endif
+
+        @if(!empty($self_consumption_transactions) && count($self_consumption_transactions) > 0)
+        <hr>
+        <h4 style="color: #8e44ad;">Self-consumption <small>(Informational Only)</small></h4>
+        <table class="table table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Invoice</th>
+                    <th class="text-right">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($self_consumption_transactions as $self_consumption)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $self_consumption->customer_name ?? 'Walk-In Customer' }}</td>
+                        <td>{{ $self_consumption->invoice_no ?? 'N/A' }}</td>
+                        <td class="text-right">{{ @num_format($self_consumption->final_total ?? 0) }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+            <tfoot>
+                <tr class="active">
+                    <th colspan="3">@lang('sale.total')</th>
+                    <th class="text-right">{{ @num_format(collect($self_consumption_transactions)->sum('final_total')) }}</th>
+                </tr>
+            </tfoot>
+        </table>
+        @endif
     </div>
 </div>
 

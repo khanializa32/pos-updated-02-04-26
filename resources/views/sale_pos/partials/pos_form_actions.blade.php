@@ -157,6 +157,17 @@
                     </button>
                 @endcan
 
+                @can('admin')
+                    @if (empty($edit))
+                        <button type="button" 
+                            style="flex: 1; margin-right: 12px; font-size: 15px; background-color: #8e44ad !important; color: white !important; border: none;"
+                            class="tw-cursor-pointer tw-text-xs md:tw-text-sm tw-flex tw-flex-col tw-items-center tw-justify-center tw-gap-1 no-print pos-self-consumption col-xs-6"
+                            title="Self-consumption">
+                            @lang('lang_v1.self_consumption')
+                        </button>
+                    @endif
+                @endcan
+
 
                     </div>
                 </div>

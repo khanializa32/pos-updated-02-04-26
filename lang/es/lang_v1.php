@@ -23,6 +23,9 @@ return [
     'welcome_back' => 'BIENVENIDO A ZISCO PLUS',
     'login_to_your' => 'Sistemas de Colombia',
     'help' => 'Ayuda',
+
+    'self_consumption' => 'Autoconsumo / Invitación',
+
     'copy_quotation' => 'Duplicar Coizacion',
     'show_product_description' => 'Mostra Descripcion del Producto',
     'calendar' => 'Calendario',

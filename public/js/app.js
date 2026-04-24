@@ -1,102 +1,108 @@
 $(document).ready(function () {
     var loader = __fa_awesome();
-    $('.total_expense_card').html(loader);
-
-    getTotalUnreadNotifications();
-    $('body').on('click', 'label', function (e) {
-        var field_id = $(this).attr('for');
-        if (field_id) {
-            if ($('#' + field_id).hasClass('select2')) {
-                $('#' + field_id).select2('open');
-                return false;
-            }
-        }
-    });
-    fileinput_setting = {
-        showUpload: false,
-        showPreview: false,
-        browseLabel: LANG.file_browse_label,
-        removeLabel: LANG.remove,
-    };
-    $(document).ajaxStart(function () {
-        Pace.restart();
-    });
-
-    __select2($('.select2'));
-
-    // popover
-    $('body').on('mouseover', '[data-toggle="popover"]', function () {
-        if ($(this).hasClass('popover-default')) {
-            return false;
-        }
-        $(this).popover('show');
-    });
-
-    //Date picker
-    $('.start-date-picker').datepicker({
-        autoclose: true,
-        endDate: 'today',
-    });
-    $(document).on('click', '.btn-modal', function (e) {
-        e.preventDefault();
-        var container = $(this).data('container');
-
-        $.ajax({
-            url: $(this).data('href'),
-            dataType: 'html',
-            success: function (result) {
-                $(container)
-                    .html(result)
-                    .modal('show');
-            },
-        });
-    });
-
-    $(document).on('submit', 'form#brand_add_form', function (e) {
-        e.preventDefault();
-        var form = $(this);
-        var data = form.serialize();
-
-        $.ajax({
-            method: 'POST',
-            url: $(this).attr('action'),
-            dataType: 'json',
-            data: data,
-            beforeSend: function (xhr) {
-                __disable_submit_button(form.find('button[type="submit"]'));
-            },
-            success: function (result) {
-                if (result.success == true) {
-                    $('div.brands_modal').modal('hide');
-                    toastr.success(result.msg);
-                    if (typeof brands_table !== 'undefined') {
-                        brands_table.ajax.reload();
-                    }
-                    var evt = new CustomEvent("brandAdded", { detail: result.data });
-                    window.dispatchEvent(evt);
-                    //event can be listened as
-                    //window.addEventListener("brandAdded", function(evt) {}
-
-                } else {
-                    toastr.error(result.msg);
+    window.requestVerifiedPin = function (onVerified) {
+        swal({
+            title: 'INGRESE PIN',
+            content: {
+                element: 'div',
+                attributes: {
+                    innerHTML: `
+                       <div class="form-group" style="text-align:left;">
+                           <label for="pin_code">Ingrese el PIN de 4 dígitos.</label>
+                           <input id="pin_code"
+                            type="password"
+                            class="form-control"
+                            maxlength="4"
+                            minlength="4"
+                            pattern="[0-9]*"
+                            inputmode="numeric"
+                            placeholder="Ingrese PIN"
+                            autocomplete="off"
+                            autocorrect="off"
+                            autocapitalize="off"
+                            spellcheck="false">
+                       </div>
+                   `
                 }
             },
-        });
-    });
-
-    //Brands table
-    var brands_table = $('#brands_table').DataTable({
-        processing: true,
-        serverSide: true,
-        fixedHeader: false,
-        ajax: '/brands',
-        columnDefs: [
-            {
-                targets: 2,
-                orderable: false,
-                searchable: false,
+            buttons: {
+                cancel: {
+                    text: 'Cancelar',
+                    value: null,
+                    visible: true
+                },
+                confirm: {
+                    text: 'OK',
+                    value: true,
+                    visible: true,
+                    className: 'btn-danger'
+                }
             },
-        ],
+            dangerMode: true
+        }).then((value) => {
+            if (!value) {
+                return;
+            }
+
+            var pin = document.getElementById('pin_code').value;
+
+            if (!pin || pin.length !== 4) {
+                toastr.error('Please enter a valid 4-digit PIN.');
+                return;
+            }
+
+            $.ajax({
+                method: 'post',
+                url: '/verify-pin',
+                dataType: 'json',
+                data: { pin: pin },
+                success: function (result) {
+                    if (result.success === true) {
+                        if (typeof onVerified === 'function') {
+                            onVerified();
+                        }
+                    } else {
+                        toastr.error(result.mws || 'Invalid Pin');
+                    }
+                },
+            });
+        });
+    };
+
+    //Delete Sale
+    $(document).on('click', '.delete-sale', function (e) {
+        e.preventDefault();
+        $('.tw-dw-btn.tw-dw-btn-neutral.tw-text-white').trigger('click');
+        var href = $(e.currentTarget).attr('href');
+        var is_suspended = $(e.currentTarget).hasClass('is_suspended');
+
+        requestVerifiedPin(function () {
+            $.ajax({
+                method: 'DELETE',
+                url: href,
+                dataType: 'json',
+                success: function (result) {
+                    if (result.success == true) {
+                        toastr.success(result.msg);
+                        if (typeof sell_table !== 'undefined') {
+                            sell_table.ajax.reload();
+                        }
+                        if (typeof pending_repair_table !== 'undefined') {
+                            pending_repair_table.ajax.reload();
+                        }
+                        if (typeof get_recent_transactions !== 'undefined') {
+                            get_recent_transactions('final', $('div#tab_final'));
+                            get_recent_transactions('draft', $('div#tab_draft'));
+                        }
+                        if (is_suspended) {
+                            $('.view_modal').modal('hide');
+                        }
+                    } else {
+                        toastr.error(result.msg);
+                    }
+                },
+            });
+        });
     });
 
     $(document).on('click', 'button.edit_brand_button', function () {
@@ -2344,103 +2350,6 @@ $(document).ready(function () {
             }
         });
     });
-
-    //Delete Sale
-    $(document).on('click', '.delete-sale', function (e) {
-        e.preventDefault();
-        $('.tw-dw-btn.tw-dw-btn-neutral.tw-text-white').trigger('click');
-        var href = $(e.currentTarget).attr('href');
-
-        swal({
-            title: 'INGRESE PIN',
-            content: {
-                element: "div",
-                attributes: {
-                    innerHTML: `
-                       <div class="form-group" style="text-align:left;">
-                           <label for="pin_code">Ingrese el PIN de 4 dígitos.</label>
-                           <input id="pin_code" 
-                            type="password" 
-                            class="form-control" 
-                            maxlength="4" 
-                            minlength="4" 
-                            pattern="[0-9]*" 
-                            inputmode="numeric" 
-                            placeholder="Ingrese PIN"
-                            autocomplete="off"
-                            autocorrect="off"
-                            autocapitalize="off"
-                            spellcheck="false">
-                       </div>
-                   `
-                }
-            },
-            buttons: {
-                cancel: {
-                    text: 'Cancelar',
-                    value: null,
-                    visible: true
-                },
-                confirm: {
-                    text: 'OK',
-                    value: true,
-                    visible: true,
-                    className: 'btn-danger'
-                }
-            },
-            dangerMode: true
-        }).then((value) => {
-            if (value) {
-                let pin = document.getElementById('pin_code').value;
-
-                if (pin && pin.length === 4) {
-                    $.ajax({
-                        method: 'post',
-                        url: '/verify-pin',
-                        dataType: 'json',
-                        data: { pin: pin },
-                        success: function (result) {
-                            if (result.success === true) {
-                                console.log('PIN verified');
-                                // Proceed with delete request
-                                var is_suspended = $(e.currentTarget).hasClass('is_suspended');
-                                $.ajax({
-                                    method: 'DELETE',
-                                    url: href,
-                                    dataType: 'json',
-                                    success: function (result) {
-                                        if (result.success == true) {
-                                            toastr.success(result.msg);
-                                            if (typeof sell_table !== 'undefined') {
-                                                sell_table.ajax.reload();
-                                            }
-                                            if (typeof pending_repair_table !== 'undefined') {
-                                                pending_repair_table.ajax.reload();
-                                            }
-                                            if (typeof get_recent_transactions !== 'undefined') {
-                                                get_recent_transactions('final', $('div#tab_final'));
-                                                get_recent_transactions('draft', $('div#tab_draft'));
-                                            }
-                                            if (is_suspended) {
-                                                $('.view_modal').modal('hide');
-                                            }
-                                        } else {
-                                            toastr.error(result.msg);
-                                        }
-                                    },
-                                });
-                            } else {
-                                swal('PIN Incorrecto!', 'El PIN debe tener 4 dígitos y coincidir con el código de seguridad.', 'error');
-                            }
-                        }
-                    });
-                } else {
-                    swal('PIN Inválido', 'Introduzca un PIN válido de 4 dígitos', 'error');
-                }
-            }
-        });
-    });
-
 
     if ($('form#add_invoice_layout_form').length > 0) {
         $('select#design').change(function () {

@@ -87,7 +87,7 @@
                                             Crédito
                                         </button>
                                     @endif
-                                @endif
+                                @endif 
                             </div>
                             
                             <div  style="display: none;" class="tw-flex tw-flex-row tw-items-center tw-justify-center tw-gap-1" id="loading-gif">

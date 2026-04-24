@@ -1140,6 +1140,57 @@ class SellPosController extends Controller
                     $input['additional_expense_value_4'] = $request->input('additional_expense_value_4');
                 }
 
+                $is_self_consumption = !empty($input['is_self_consumption']);
+                if ($is_self_consumption) {
+                    $input['sub_status'] = 'self_consumption';
+
+                    if (empty($input['sale_note'])) {
+                        $input['sale_note'] = 'Self-consumption';
+                    }
+
+                    // Preserve actual product value on invoice, but keep payments at zero.
+                    $input['discount_type'] = 'fixed';
+                    $input['discount_amount'] = 0;
+                    $invoice_total = $this->productUtil->calculateInvoiceTotal(
+                        $input['products'],
+                        $input['tax_rate_id'],
+                        [
+                            'discount_type' => 'fixed',
+                            'discount_amount' => 0,
+                        ]
+                    );
+                    $input['final_total'] = $invoice_total['final_total'];
+                    $input['round_off_amount'] = 0;
+                    $input['shipping_charges'] = 0;
+                    $input['packing_charge'] = 0;
+                    $input['additional_expense_value_1'] = 0;
+                    $input['additional_expense_value_2'] = 0;
+                    $input['additional_expense_value_3'] = 0;
+                    $input['additional_expense_value_4'] = 0;
+
+                    if (empty($input['payment']) || !is_array($input['payment'])) {
+                        $input['payment'] = [];
+                    }
+
+                    if (empty($input['payment'])) {
+                        $input['payment'][] = [
+                            'method' => 'cash',
+                            'amount' => 0,
+                            'is_return' => 0,
+                        ];
+                    }
+
+                    foreach ($input['payment'] as &$payment_line) {
+                        $payment_line['amount'] = 0;
+                        $payment_line['is_return'] = 0;
+
+                        if (empty($payment_line['method'])) {
+                            $payment_line['method'] = 'cash';
+                        }
+                    }
+                    unset($payment_line);
+                }
+
                 $input['selling_price_group_id'] = $price_group_id;
 
                 if ($this->transactionUtil->isModuleEnabled('tables')) {

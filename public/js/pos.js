@@ -1671,6 +1671,10 @@ $(document).ready(function () {
 
   //Finalize without showing payment options
   $("button.pos-express-finalize").click(function () {
+    if ($("input#is_self_consumption").length) {
+      $("input#is_self_consumption").val(0);
+    }
+
     //Check if product is present or not.
     if ($("table#pos_table tbody").find(".product_row").length <= 0) {
       toastr.warning(LANG.no_products_added);
@@ -1729,6 +1733,34 @@ $(document).ready(function () {
       removeAllSelectedQtyBadges();
     }
   });
+
+  $(document).on("click", "button.pos-self-consumption", function () {
+    if ($("table#pos_table tbody").find(".product_row").length <= 0) {
+      toastr.warning(LANG.no_products_added);
+      removeAllSelectedQtyBadges();
+      return false;
+    }
+
+    if ($("#reward_point_enabled").length) {
+      var validate_rp = isValidatRewardPoint();
+      if (!validate_rp["is_valid"]) {
+        toastr.error(validate_rp["msg"]);
+        return false;
+      }
+    }
+
+    if (typeof window.requestVerifiedPin === 'function') {
+      window.requestVerifiedPin(function () {
+        prepareSelfConsumptionCheckout();
+        pos_form_obj.submit();
+        removeAllSelectedQtyBadges();
+      });
+    } else {  
+      prepareSelfConsumptionCheckout();
+      pos_form_obj.submit();
+      removeAllSelectedQtyBadges();
+    }
+  }); 
 
   $("div#card_details_modal").on("shown.bs.modal", function (e) {
     $("input#card_number").focus();
@@ -4123,6 +4155,49 @@ function calculate_balance_due() {
   saveFormDataToLocalStorage();
 }
 
+function get_gross_subtotal() {
+  var gross_total = 0;
+
+  $("table#pos_table tbody tr").each(function () {
+    gross_total += __read_number($(this).find("input.pos_line_total"));
+  });
+
+  $("input.modifiers_price").each(function () {
+    var modifier_price = __read_number($(this));
+    var modifier_quantity = $(this)
+      .closest(".product_modifier")
+      .find(".modifiers_quantity")
+      .val();
+    gross_total += modifier_price * modifier_quantity;
+  });
+
+  return gross_total;
+}
+
+function prepareSelfConsumptionCheckout() {
+  $("input#is_self_consumption").val(1);
+  $("input#is_credit_sale").val(0);
+  $("input#rp_redeemed").val(0);
+  $("input#rp_redeemed_amount").val(0);
+  $("input#shipping_charges").val(0);
+  $("input#change_return").val(0);
+  $("input#packing_charge").val(0);
+  $("input#round_off_amount").val(0);
+
+  $("input[id^='additional_expense_value_']").each(function () {
+    $(this).val(0);
+  });
+
+  $("input.payment-amount").each(function () {
+    $(this).val(0).trigger("change");
+  });
+
+  // Keep original product value on invoice for reporting/printing.
+  $("#discount_type").val("fixed");
+  $("#discount_amount").val(0);
+  pos_total_row();
+}
+
 function isValidPosForm() {
   flag = true;
   $("span.error").remove();
@@ -4179,6 +4254,10 @@ function reset_pos_form() {
 
   if ($("#is_credit_sale").length) {
     $("#is_credit_sale").val(0);
+  }
+
+  if ($("#is_self_consumption").length) {
+    $("#is_self_consumption").val(0);
   }
 
   //Reset discount

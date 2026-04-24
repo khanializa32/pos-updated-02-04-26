@@ -90,7 +90,7 @@
                                             Crédito
                                         </button>
                                     <?php endif; ?>
-                                <?php endif; ?>
+                                <?php endif; ?> 
                             </div>
                             
                             <div  style="display: none;" class="tw-flex tw-flex-row tw-items-center tw-justify-center tw-gap-1" id="loading-gif">

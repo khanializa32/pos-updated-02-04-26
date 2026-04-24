@@ -2008,7 +2008,7 @@ class ProductUtil extends Util
                                   })
                                   ->orWhere(function ($sq) use ($location_id) {
                                       $sq->where('t.type', 'production_sell')
-                                         ->where('t.location_id', $location_id);
+                                         ->where('sl.location_id', $location_id);
                                   });
                               });
                         });
@@ -2137,6 +2137,12 @@ class ProductUtil extends Util
                 $query->where('rsl.variation_id', $variation_id)
               ->where('rsl.location_id', $location_id);
              })
+        ->orWhere(function ($query) use ($variation_id, $location_id) {
+            // ✅ Production sell ingredient usage location check from transaction_sell_lines
+            $query->where('sl.variation_id', $variation_id)
+                  ->where('transactions.type', 'production_sell')
+                  ->where('sl.location_id', $location_id);
+        })
         ->orWhere(function ($query) use ($variation_id, $location_id) {
             $query->where('ip.variation_id', $variation_id)
                 ->where('transactions.type', 'inventory')

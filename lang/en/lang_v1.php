@@ -80,6 +80,9 @@ return [
     'no_products_to_display' => 'No Products to display',
     'item_out_of_stock' => 'Product out of stock',
     'go_back' => 'Go Back',
+
+    'self_consumption' => 'Self-Consumption/Invitation',
+
     'disable_pay_checkout' => 'Disable Multiple Pay',
     'disable_draft' => 'Disable Draft',
     'disable_express_checkout' => 'Disable Express Checkout',

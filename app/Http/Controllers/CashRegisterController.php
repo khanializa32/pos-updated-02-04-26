@@ -172,6 +172,22 @@ class CashRegisterController extends Controller
             return 0; // Si no hay variación, la utilidad de esa línea es 0
         });
     });
+
+        $self_consumption_transactions = \App\Transaction::leftJoin('contacts as c', 'transactions.contact_id', '=', 'c.id')
+            ->where('transactions.business_id', $business_id)
+            ->where('transactions.created_by', $user_id)
+            ->where('transactions.type', 'sell')
+            ->where('transactions.status', 'final')
+            ->where('transactions.sub_status', 'self_consumption')
+            ->whereBetween('transactions.transaction_date', [$open_time, $close_time])
+            ->orderBy('transactions.transaction_date', 'asc')
+            ->get([
+                'transactions.id',
+                'transactions.invoice_no',
+                'transactions.transaction_date',
+                'transactions.final_total',
+                'c.name as customer_name',
+            ]);
     
      //DELIO//
      
@@ -256,7 +272,7 @@ class CashRegisterController extends Controller
 
     //DELIO//
         return view('cash_register.register_details')
-            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund', 'modalRefundsByMethod', 'cashWithdrawalAmount', 'first_invoice', 'last_invoice',  'total_sales_count', 'total_profit', 'creditSalesDetails', 'backendPaymentsDetails', 'customerPaymentsByAccount'));
+            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund', 'modalRefundsByMethod', 'cashWithdrawalAmount', 'first_invoice', 'last_invoice',  'total_sales_count', 'total_profit', 'creditSalesDetails', 'backendPaymentsDetails', 'customerPaymentsByAccount', 'self_consumption_transactions'));
     }
 
     /**
@@ -294,6 +310,22 @@ class CashRegisterController extends Controller
         ->where('status', 'final')
         ->whereBetween('transaction_date', [$open_time, $close_time])
         ->count();
+
+        $self_consumption_transactions = \App\Transaction::leftJoin('contacts as c', 'transactions.contact_id', '=', 'c.id')
+            ->where('transactions.business_id', $business_id)
+            ->where('transactions.created_by', $user_id)
+            ->where('transactions.type', 'sell')
+            ->where('transactions.status', 'final')
+            ->where('transactions.sub_status', 'self_consumption')
+            ->whereBetween('transactions.transaction_date', [$open_time, $close_time])
+            ->orderBy('transactions.transaction_date', 'asc')
+            ->get([
+                'transactions.id',
+                'transactions.invoice_no',
+                'transactions.transaction_date',
+                'transactions.final_total',
+                'c.name as customer_name',
+            ]);
     //DELIO// 
 
         $is_types_of_service_enabled = $this->moduleUtil->isModuleEnabled('types_of_service');
@@ -342,7 +374,7 @@ class CashRegisterController extends Controller
        //DELIO//         
 
         return view('cash_register.register_details')
-            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'modalSellReturnRefundTotal', 'first_invoice', 'last_invoice', 'total_sales_count', 'modalCashSellReturnRefund', 'modalRefundsByMethod'));
+            ->with(compact('register_details', 'details', 'payment_types', 'close_time', 'modalSellReturnRefundTotal', 'first_invoice', 'last_invoice', 'total_sales_count', 'modalCashSellReturnRefund', 'modalRefundsByMethod', 'self_consumption_transactions'));
     }
 
     /**
@@ -560,8 +592,24 @@ class CashRegisterController extends Controller
             
         $customerPaymentsByAccount = $this->cashRegisterUtil->getCustomerPaymentsByAccount($user_id, $open_time, $close_time, $id);
 
+        $self_consumption_transactions = \App\Transaction::leftJoin('contacts as c', 'transactions.contact_id', '=', 'c.id')
+            ->where('transactions.business_id', $business_id)
+            ->where('transactions.created_by', $user_id)
+            ->where('transactions.type', 'sell')
+            ->where('transactions.status', 'final')
+            ->where('transactions.sub_status', 'self_consumption')
+            ->whereBetween('transactions.transaction_date', [$open_time, $close_time])
+            ->orderBy('transactions.transaction_date', 'asc')
+            ->get([
+                'transactions.id',
+                'transactions.invoice_no',
+                'transactions.transaction_date',
+                'transactions.final_total',
+                'c.name as customer_name',
+            ]);
+
         return view('cash_register.close_register_modal')
-                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund', 'modalRefundsByMethod', 'cashWithdrawalAmount', 'creditSalesDetails', 'backendPaymentsDetails', 'customerPaymentsByAccount'));
+                    ->with(compact('register_details', 'details', 'payment_types', 'pos_settings', 'backendPaymentAmount', 'modalSellReturnRefundTotal', 'modalCashSellReturnRefund', 'modalRefundsByMethod', 'cashWithdrawalAmount', 'creditSalesDetails', 'backendPaymentsDetails', 'customerPaymentsByAccount', 'self_consumption_transactions'));
     }
     
     /**
