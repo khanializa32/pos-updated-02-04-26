@@ -41,10 +41,10 @@
                         @if (count($business_locations) > 1)
                             @php
                                 $locOptions = [];
-                                foreach ($business_locations as $id => $name) {
+                                foreach($business_locations as $id => $name){
                                     $location = optional(\App\BusinessLocation::find($id));
                                     $locOptions[$id] = ['value' => $id, 'label' => $name, 'code' => $location->location_id, 'pgId' => $location->selling_price_group_id];
-                                }
+                               }
                             @endphp
                             <select name="select_location_id" id="select_location_id" class="control input-sm" required autofocus style="background:white;  width: 120px;">
                                 @foreach($locOptions as $id => $opt)
@@ -53,8 +53,8 @@
                             </select>
                         @else
                             <input type="hidden" value="{{ $business_locations->keys()->first() }}" name="select_location_id" id="select_location_id">
-                            {{ isset($business_locations) ? $business_locations->first() : '' }}
-
+                            {{ isset($business_locations)? $business_locations->first() : '' }}
+                        
                         @endif
                     </div>  
                     
@@ -89,19 +89,25 @@
                             </svg>
                         </button> --}}
                         {{-- Boton Verde Nuevo --}}
-                    <!-- @if (!Gate::check('disable_suspend_sale') || auth()->user()->can('superadmin') || auth()->user()->can('admin')) -->
-                        <button type="button" id="view_suspended_sales" title="{{ __('lang_v1.view_suspended_sales') }}"
-                            class="btn btn-success btn-modal pull-right" data-container=".view_modal"
-                            data-href="{{ $view_suspended_sell_url }}">
-
-                            <i class="bi bi-play-fill"></i>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill"
-                                viewBox="0 0 16 16">
-                                <path
-                                    d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393" />
-                            </svg>
-                        </button>
-                    <!-- @endif -->
+                        @if (!Gate::check('disable_suspend_sale') || auth()->user()->can('superadmin') || auth()->user()->can('admin'))
+                            {{-- <button type="button" class="btn btn-success  @if ($pos_settings['disable_draft'] != 0) hide @endif"
+                                id="pos-draft" @if (!empty($only_payment)) disabled @endif>
+                                <i class="bi bi-play-fill"></i> 
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+                                <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393"/>
+                                </svg>
+                            </button> --}}
+                            <button type="button" id="view_suspended_sales" title="{{ __('lang_v1.view_suspended_sales') }}"
+                                    class="btn btn-success btn-modal pull-right"
+                                    data-container=".view_modal" data-href="{{ $view_suspended_sell_url }}">
+                          
+                                <i class="bi bi-play-fill"></i> 
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+                                <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393"/>
+                                </svg>
+                           
+                            </button>
+                        @endif
 
                         
                     </div>
@@ -285,15 +291,15 @@
             <div  id="categories-container" style="display:flex;gap:10px; overflow-y: auto; padding-bottom: 10px;wid">
                 @foreach ($categories as $index => $category)
 
-                    <button type="button" class="col-md-1/3 tw-dw-btn btn-secondary tw-dw-btn-sm main-category" style="margin-top: 10px; ; height:5vh; font-size: 15px; background-color: white; border: none" data-value="{{ $category['id'] }}" data-parent="0">
-                        <div class=" col-xs-12 tw-mb-7 tw-w-auto tw-cursor-pointer main-category-div  no-print" style="margin-bottom: 0px"
-                            data-value="{{ $category['id'] }}" data-name="{{ $category['name'] }}" data-parent="1">
-                            <h4 style="align-text: center; font-size: inherit; font-weight: inherit; margin-bottom: 0px; margin-top: 0px">
-                                {{ $category['name'] }}</h4>
-                            <div class="tw-dw-card-actions tw-justify-center">
-                            </div>
+                <button type="button" class="col-md-1/3 tw-dw-btn btn-secondary tw-dw-btn-sm main-category" style="margin-top: 10px; ; height:5vh; font-size: 15px; background-color: white; border: none" data-value="{{ $category['id'] }}" data-parent="0">
+                    <div class=" col-xs-12 tw-mb-7 tw-w-auto tw-cursor-pointer main-category-div  no-print" style="margin-bottom: 0px"
+                        data-value="{{ $category['id'] }}" data-name="{{ $category['name'] }}" data-parent="1">
+                        <h4 style="align-text: center; font-size: inherit; font-weight: inherit; margin-bottom: 0px; margin-top: 0px">
+                            {{ $category['name'] }}</h4>
+                        <div class="tw-dw-card-actions tw-justify-center">
                         </div>
-                    </button>
+                    </div>
+                </button>
                 @endforeach
 
                 @if (in_array('pos_sale', $enabled_modules) && !empty($transaction_sub_type))
@@ -359,7 +365,6 @@
 <div class="modal fade" id="service_staff_modal" tabindex="-1" role="dialog"
     aria-labelledby="gridSystemModalLabel">
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
         const itemsPerPage = 6;

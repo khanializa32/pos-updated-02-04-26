@@ -1435,6 +1435,19 @@ $(document).ready(function () {
   ///hhhhh
   
   
+  // Modal handler for .btn-modal (enables view_suspended_sales button)
+  $(document).on('click', '.btn-modal', function(e) {
+    e.preventDefault();
+    var container = $($(this).data('container'));
+    var href = $(this).data('href');
+    if (container.length && href) {
+      container.html('<div class="text-center">Loading...</div>');
+      container.load(href, function() {
+        container.modal('show');
+      });
+    }
+  });
+
   // Function to send cart details via WhatsApp
   function sendCartToWhatsApp() {
     
