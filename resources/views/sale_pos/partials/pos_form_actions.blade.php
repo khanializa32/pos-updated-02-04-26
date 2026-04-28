@@ -1,6 +1,7 @@
 @php
-    $is_mobile = isMobile();
+$is_mobile = isMobile();
 @endphp
+<input type="hidden" name="final_total" id="final_total_input" value="0.00">
 {{-- <div class="row">
     <div class="pos-form-actions tw-rounded-tr-xl tw-rounded-tl-xl tw-shadow-[rgba(17,_17,_26,_0.1)_0px_0px_16px] tw-bg-white tw-cursor-pointer">
         <div class="tw-flex tw-items-center tw-justify-between tw-flex-col sm:tw-flex-row md:tw-flex-row lg:tw-flex-row xl:tw-flex-row tw-gap-2 tw-px-4 tw-py-0 tw-overflow-x-auto tw-w-full">
@@ -177,28 +178,28 @@
 
             @if (isset($transaction))
                 @include('sale_pos.partials.edit_discount_modal', [
-                    'sales_discount' => $transaction->discount_amount,
-                    'discount_type' => $transaction->discount_type,
-                    'rp_redeemed' => $transaction->rp_redeemed,
-                    'rp_redeemed_amount' => $transaction->rp_redeemed_amount,
-                    'max_available' => !empty($redeem_details['points']) ? $redeem_details['points'] : 0,
-                ])
+        'sales_discount' => $transaction->discount_amount,
+        'discount_type' => $transaction->discount_type,
+        'rp_redeemed' => $transaction->rp_redeemed,
+        'rp_redeemed_amount' => $transaction->rp_redeemed_amount,
+        'max_available' => !empty($redeem_details['points']) ? $redeem_details['points'] : 0,
+    ])
             @else
                 @include('sale_pos.partials.edit_discount_modal', [
-                    'sales_discount' => $business_details->default_sales_discount,
-                    'discount_type' => 'percentage',
-                    'rp_redeemed' => 0,
-                    'rp_redeemed_amount' => 0,
-                    'max_available' => 0,
-                ])
+        'sales_discount' => $business_details->default_sales_discount,
+        'discount_type' => 'percentage',
+        'rp_redeemed' => 0,
+        'rp_redeemed_amount' => 0,
+        'max_available' => 0,
+    ])
             @endif
             
             @if (isset($transaction))
                 @include('sale_pos.partials.edit_order_tax_modal', ['selected_tax' => $transaction->tax_id])
             @else
                 @include('sale_pos.partials.edit_order_tax_modal', [
-                    'selected_tax' => $business_details->default_sales_tax,
-                ])
+        'selected_tax' => $business_details->default_sales_tax,
+    ])
             @endif
 
 @include('sale_pos.partials.edit_shipping_modal')

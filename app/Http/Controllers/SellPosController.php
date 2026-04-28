@@ -218,7 +218,7 @@ class SellPosController extends Controller
         }
 
         $register_details = $this->cashRegisterUtil->getCurrentCashRegister(auth()->user()->id);
-        
+
         // return $register_details;
 
         $walk_in_customer = $this->contactUtil->getWalkInCustomer($business_id);
@@ -342,7 +342,7 @@ class SellPosController extends Controller
                 ->values()
                 ->toArray();
         }
-        
+
         $is_mobile = null;
 
         $cashRegister = CashRegister::where('user_id', auth()->user()->id)
@@ -742,7 +742,7 @@ class SellPosController extends Controller
     //             if ($request->filled('commission_agent') && !$request->has('is_direct_sale')) {
     //                 $agent = User::where('is_cmmsn_agnt', 1)->find($input['commission_agent']);
     //                 if ($agent) {
-                        
+
     //                     // ✅ Check pos_settings se activate_popup_agent_commission
     //                     $business_details = $this->businessUtil->getDetails($business_id);
     //                     $pos_settings = empty($business_details->pos_settings) 
@@ -927,8 +927,8 @@ class SellPosController extends Controller
     //         }
     //     }
     // }
-    
-     public function store(Request $request)
+
+    public function store(Request $request)
     {
         if (!auth()->user()->can('sell.create') && !auth()->user()->can('direct_sell.access') && !auth()->user()->can('so.create')) {
             abort(403, 'Unauthorized action.');
@@ -1017,6 +1017,21 @@ class SellPosController extends Controller
                 $change_return = $input['payment']['change_return'];
                 unset($input['payment']['change_return']);
             }
+
+
+
+            // if (!isset($input['final_total']) || empty($input['final_total'])) {
+            //     if (!empty($input['products'])) {
+            //         $discount = [
+            //             'discount_type' => $input['discount_type'] ?? 'fixed',
+            //             'discount_amount' => $input['discount_amount'] ?? 0,
+            //         ];
+            //         $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'] ?? null, $discount);
+            //         $input['final_total'] = $invoice_total['final_total'] ?? 0;
+            //     } else {
+            //         $input['final_total'] = 0;
+            //     }
+            // }
 
             //Check Customer credit limit
             $is_credit_limit_exeeded = $this->transactionUtil->isCustomerCreditLimitExeeded($input);
@@ -2320,6 +2335,7 @@ class SellPosController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $is_direct_sale = false;
         if (
             !auth()->user()->can('sell.update') && !auth()->user()->can('direct_sell.access') &&
             !auth()->user()->can('so.update') && !auth()->user()->can('edit_pos_payment')
@@ -2708,13 +2724,12 @@ class SellPosController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::emergency('File:' . $e->getFile() . 'Line:' . $e->getLine() . 'Message:' . $e->getMessage());
-            $output = [
-                'success' => 0,
-                'msg' => "Error al intentar actualizar la factura",
-                'error' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile(),
-            ];
+            dd([
+                'Message' => $e->getMessage(),
+                'Line' => $e->getLine(),
+                'File' => $e->getFile(),
+                'Trace' => $e->getTraceAsString()
+            ]);
         }
 
         if (!$is_direct_sale) {
@@ -2991,7 +3006,7 @@ class SellPosController extends Controller
 
     //     return $output;
     // }
-    
+
     //  private function getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell, $so_line = null)    {
     //     $business_id = request()->session()->get('user.business_id');
     //     $business_details = $this->businessUtil->getDetails($business_id);
@@ -3096,7 +3111,7 @@ class SellPosController extends Controller
 
     //     return $output;    
     // }
-   private function getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell, $so_line = null)
+    private function getSellLineRow($variation_id, $location_id, $quantity, $row_count, $is_direct_sell, $so_line = null)
     {
         $business_id = request()->session()->get('user.business_id');
         $business_details = $this->businessUtil->getDetails($business_id);
@@ -3643,7 +3658,7 @@ class SellPosController extends Controller
     //         if (!empty($request->get('repair_model_id'))) {
     //             $products->where('p.repair_model_id', $request->get('repair_model_id'));
     //         }
-            
+
     //         // Add rack filter
     //         $rack_filter = $request->get('rack_filter');
     //         if (!empty($rack_filter)) {
@@ -3665,7 +3680,7 @@ class SellPosController extends Controller
     //                 }
     //             );
     //         }
-            
+
     //         // Add product_racks join for rack, row, position
     //         $products->leftjoin(
     //             'product_racks AS PR',
@@ -3819,7 +3834,7 @@ class SellPosController extends Controller
     //             ->with(compact('products', 'allowed_group_prices', 'show_prices', 'price_group_id'));
     //     }
     // }
-    
+
     //   public function getProductSuggestion(Request $request)
     // {
     //     if ($request->ajax()) {
@@ -3881,8 +3896,8 @@ class SellPosController extends Controller
     //         if (!empty($brand_id) && ($brand_id != 'all')) {
     //             $products->where('p.brand_id', $brand_id);
     //         }
-            
-            
+
+
     //         // Add product_racks join for rack, row, position
     //         $products->leftjoin(
     //             'product_racks AS PR',
@@ -3894,8 +3909,8 @@ class SellPosController extends Controller
     //                 }
     //             }
     //         );
-            
-            
+
+
 
     //         $select_fields = [
     //             'p.id as product_id', 'p.name', 'p.type', 'p.enable_stock', 'p.image as product_image',
@@ -3952,7 +3967,7 @@ class SellPosController extends Controller
     //         return view('sale_pos.partials.product_list')
     //             ->with(compact('products', 'show_prices', 'price_group_id', 'allowed_group_prices'));
     //     }    
-        
+
     //     // Add rack filter
     //         $rack_filter = $request->get('rack_filter');
     //         if (!empty($rack_filter)) {
@@ -3963,12 +3978,12 @@ class SellPosController extends Controller
     //                 }
     //             });
     //         }
-        
-        
-        
-        
+
+
+
+
     // }
-     public function getProductSuggestion(Request $request)
+    public function getProductSuggestion(Request $request)
     {
         if ($request->ajax()) {
             $category_id = $request->get('category_id');
