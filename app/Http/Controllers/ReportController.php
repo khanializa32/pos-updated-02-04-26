@@ -1253,10 +1253,25 @@ class ReportController extends Controller
 
                     return '<span data-orig-value="' . $total . '" >' . $this->transactionUtil->num_f($total, true) . '</span>';
                 })
-                ->addColumn('action', '<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@show\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-warning tw-w-max btn-modal" 
-                    data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))
-                    <button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@getCloseRegister\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error tw-w-max btn-modal" 
-                        data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
+                // ->addColumn('action', '<button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@show\', [$id])}}" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline  tw-dw-btn-warning tw-w-max btn-modal" 
+                //     data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> @lang("messages.view")</button> @if($status != "close" && auth()->user()->can("close_cash_register"))
+                //     <button type="button" data-href="{{action(\'App\Http\Controllers\CashRegisterController@getCloseRegister\', [$id])}}" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error tw-w-max btn-modal" 
+                //         data-container=".view_register"><i class="fas fa-window-close"></i> @lang("messages.close")</button> @endif')
+                // ->filterColumn('user_name', function ($query, $keyword) {
+                //     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
+                // })
+                // ->rawColumns(['action', 'user_name', 'total_card_payment', 'total_cheque_payment', 'total_cash_payment', 'total_bank_transfer_payment', 'total_other_payment', 'total_advance_payment', 'total_custom_pay_1', 'total_custom_pay_2', 'total_custom_pay_3', 'total_custom_pay_4', 'total_custom_pay_5', 'total_custom_pay_6', 'total_custom_pay_7', 'total'])
+                // ->make(true);
+                 ->addColumn('action', function ($row) {
+                    $view_btn = '<button type="button" data-href="' . action('App\Http\Controllers\CashRegisterController@show', [$row->id]) . '" class="tw-dw-btn tw-dw-btn-xs tw-dw-btn-outline tw-dw-btn-warning tw-w-max btn-modal" data-container=".view_register"><i class="fas fa-eye" aria-hidden="true"></i> ' . __('messages.view') . '</button>';
+                    
+                    $close_btn = '';
+                    if ($row->status != 'close' && auth()->user()->can('close_cash_register')) {
+                        $close_btn = ' <button type="button" data-href="' . action('App\Http\Controllers\CashRegisterController@getCloseRegister', [$row->id]) . '" class="tw-dw-btn tw-dw-btn-outline tw-dw-btn-xs tw-dw-btn-error tw-w-max btn-modal" data-container=".view_register"><i class="fas fa-window-close"></i> ' . __('messages.close') . '</button>';
+                    }
+                    
+                    return $view_btn . $close_btn;
+                })
                 ->filterColumn('user_name', function ($query, $keyword) {
                     $query->whereRaw("CONCAT(COALESCE(surname, ''), ' ', COALESCE(first_name, ''), ' ', COALESCE(last_name, ''), '<br>', COALESCE(u.email, '')) like ?", ["%{$keyword}%"]);
                 })
@@ -3178,7 +3193,7 @@ class ReportController extends Controller
             ->leftJoin('variations as V', 'transaction_sell_lines.variation_id', '=', 'V.id')
             ->join('transactions as sale', 'transaction_sell_lines.transaction_id', '=', 'sale.id')
             ->where('sale.business_id', $business_id)
-            ->where('sale.is_suspend', 0)
+            ->where('sale.is_suspend', 0) 
             ->where('transaction_sell_lines.children_type', '!=', 'combo');
 
         /**

@@ -1,4 +1,18 @@
 $(document).ready(function() {
+    
+    $(document).on('click', '.btn-modal', function(e) {
+        // alert("Faizan Testing MOdal");
+        e.preventDefault();
+        var container = $($(this).data('container'));
+        var href = $(this).data('href');
+        if (container.length && href) {
+            container.html('<div class="text-center">Loading...</div>');
+            container.load(href, function() {
+                container.modal('show');
+            });
+        }
+    });
+    
     $('#stock_date').datepicker({
         autoclose: true,
         format: datepicker_date_format,
