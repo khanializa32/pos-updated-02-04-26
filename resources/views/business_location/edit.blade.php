@@ -31,10 +31,22 @@
                     </div>
                 </div>
                 <div class="clearfix"></div>
-                <div class="col-sm-6">
+                {{-- <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('city', __( 'business.city' ) . ':*') !!}
                         {!! Form::text('city', $location->city, ['class' => 'form-control', 'placeholder' => __( 'business.city'), 'required' ]); !!}
+                    </div>
+                </div> --}}
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        {!! Form::label('department_id', __('business.state') . ':*') !!} 
+                        {!! Form::select('department_id', $departments, null, ['class' => 'form-control', 'required','id' => 'department_id',]); !!}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        {!! Form::label('municipality_id', __('business.city') . ':*') !!} 
+                        {!! Form::select('municipality_id', $municipalities, null, ['class' => 'form-control', 'required']); !!}
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -44,7 +56,7 @@
                     </div>
                 </div>
                 <div class="clearfix"></div>
-                <div class="col-sm-6">
+                {{-- <div class="col-sm-6">
                     <div class="form-group">
                         {!! Form::label('state', __( 'business.state' ) . ':*') !!}
                         {!! Form::text('state', $location->state, ['class' => 'form-control', 'placeholder' => __( 'business.state'), 'required' ]); !!}
@@ -55,7 +67,7 @@
                         {!! Form::label('country', __( 'business.country' ) . ':*') !!}
                         {!! Form::text('country', $location->country, ['class' => 'form-control', 'placeholder' => __( 'business.country'), 'required' ]); !!}
                     </div>
-                </div>
+                </div> --}}
                 <div class="clearfix"></div>
                 <div class="col-sm-6">
                     <div class="form-group">

@@ -285,6 +285,7 @@ class DianService
             {
                 $customer = array(
                     "identification_number" => "222222222222",
+                    "dv" => "7",
                     "name" => "Consumidor Final",
                     "merchant_registration" => "0000000-00",
                 );
@@ -417,10 +418,23 @@ class DianService
                 "payable_amount" => self::round_number($payable_amount_inc_discount),
             );
 
+            $cash_register = CashRegister::where('business_id',session()->get('user.business_id'))->where('user_id',session()->get('user.id'))->where('status','open')->first();
+            $estatablisment = null;
+            if($cash_register)
+            {
+                $cash_register_information = CashRegisterInformation::find($cash_register->cash_information_id);
+                $estatablisment = BusinessLocation::find($cash_register_information->location_id);
+            }
+
             // Construcción del JSON dinámicamente
             $data = array(
                 "number" => $number,
                 "prefix" => $prefix,
+                "establishment_name"=> $estatablisment->name ?? '',
+                "establishment_address"=> $estatablisment->landmark ?? '',
+                "establishment_phone"=> $estatablisment->mobile ?? '',
+                "establishment_email"=> $estatablisment->email ?? '',
+                "establishment_municipality"=> $estatablisment->municipality_id ?? '',
                 "type_document_id" => 1,
                 "date" => $date,
                 "time" => $time,
@@ -837,6 +851,7 @@ class DianService
                 $customer = array(
                     "identification_number" => "222222222222",
                     "name" => "Consumidor Final",
+                    "dv" => "7",
                     "merchant_registration" => "0000000-00",
                 );
             }else{
@@ -940,12 +955,25 @@ class DianService
                 "payable_amount" => self::round_number($payable_amount),
             );
 
+            $cash_register = CashRegister::where('business_id',session()->get('user.business_id'))->where('user_id',session()->get('user.id'))->where('status','open')->first();
+            $estatablisment = null;
+            if($cash_register)
+            {
+                $cash_register_information = CashRegisterInformation::find($cash_register->cash_information_id);
+                $estatablisment = BusinessLocation::find($cash_register_information->location_id);
+            }
+
 
             // Construcción del JSON dinámicamente
             $data = array(
                 "number" => $invoiceNumber,
                 // "number" => 990000547,
                 "prefix" => $prefix,
+                "establishment_name"=> $estatablisment->name ?? '',
+                "establishment_address"=> $estatablisment->landmark ?? '',
+                "establishment_phone"=> $estatablisment->mobile ?? '',
+                "establishment_email"=> $estatablisment->email ?? '',
+                "establishment_municipality"=> $estatablisment->municipality_id ?? '',
                 "notes" => (isset($input['sale_note'])) ? $input['sale_note'] : '',
                 "foot_note" => (isset($input['staff_note'])) ? $input['staff_note'] : '',
                 "type_document_id" => $typeDocumentId,
@@ -1358,6 +1386,7 @@ class DianService
                 $customer = array(
                     "identification_number" => "222222222222",
                     "name" => "Consumidor Final",
+                    "dv" => "7",
                     "merchant_registration" => "0000000-00",
                 );
             }else{
@@ -1487,6 +1516,8 @@ class DianService
                 "subtotal" => self::round_number($line_extension_amount),//subtotal
             );
 
+            $estatablisment = BusinessLocation::find($cash_register_information->location_id);
+
 
             // Construcción del JSON dinámicamente
             $data = array(
@@ -1495,6 +1526,11 @@ class DianService
                 "software_manufacturer"=> $softwareManufacturer,
                 "buyer_benefits"=> $buyerBenefits,
                 "cash_information"=> $cashInformation,
+                "establishment_name"=> $estatablisment->name ?? '',
+                "establishment_address"=> $estatablisment->landmark ?? '',
+                "establishment_phone"=> $estatablisment->mobile ?? '',
+                "establishment_email"=> $estatablisment->email ?? '',
+                "establishment_municipality"=> $estatablisment->municipality_id ?? '',
                 "prefix" => $prefix,
                 "notes" => $input['sale_note'],
                 "foot_note" => $input['staff_note'],
@@ -1900,6 +1936,7 @@ class DianService
                 $customer = array(
                     "identification_number" => "222222222222",
                     "name" => "Consumidor Final",
+                    "dv" => "7",
                     "merchant_registration" => "0000000-00",
                 );
             }else{
@@ -2055,6 +2092,8 @@ class DianService
                 "subtotal" => self::round_number($line_extension_amount),//subtotal
             );
 
+            $estatablisment = BusinessLocation::find($cash_register_information->location_id);
+
             // Construcción del JSON dinámicamente
             $data = array(
                 "number" => $number,
@@ -2063,6 +2102,11 @@ class DianService
                 "software_manufacturer"=> $softwareManufacturer,
                 "buyer_benefits"=> $buyerBenefits,
                 "cash_information"=> $cashInformation,
+                "establishment_name"=> $estatablisment->name ?? '',
+                "establishment_address"=> $estatablisment->landmark ?? '',
+                "establishment_phone"=> $estatablisment->mobile ?? '',
+                "establishment_email"=> $estatablisment->email ?? '',
+                "establishment_municipality"=> $estatablisment->municipality_id ?? '',
                 "type_document_id" => 15,
                 "date" => $date,
                 "time" => $time,

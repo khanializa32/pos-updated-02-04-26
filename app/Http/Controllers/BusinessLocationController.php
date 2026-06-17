@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\BusinessLocation;
+use App\Department;
 use App\InvoiceLayout;
 use App\InvoiceScheme;
+use App\Municipality;
 use App\SellingPriceGroup;
 use App\Utils\ModuleUtil;
 use App\Utils\Util;
@@ -125,6 +127,9 @@ class BusinessLocationController extends Controller
 
         $price_groups = SellingPriceGroup::forDropdown($business_id);
 
+        $municipalities = Municipality::get()->pluck('name', 'id');
+        $departments = Department::get()->pluck('name', 'id');
+
         $payment_types = $this->commonUtil->payment_types(null, false, $business_id);
 
         //Accounts
@@ -139,6 +144,8 @@ class BusinessLocationController extends Controller
                         'invoice_schemes',
                         'price_groups',
                         'payment_types',
+                        'municipalities',
+                        'departments',
                         'accounts'
                     ));
     }
@@ -165,10 +172,19 @@ class BusinessLocationController extends Controller
                 return $this->moduleUtil->quotaExpiredResponse('locations', $business_id);
             }
 
-            $input = $request->only(['name', 'landmark', 'city', 'state', 'country', 'zip_code', 'invoice_scheme_id',
+            $input = $request->only(['name', 'department_id', 'municipality_id', 'country_id', 'landmark', 'city', 'state', 'country', 'zip_code', 'invoice_scheme_id',
                 'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_id', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id']);
 
             $input['business_id'] = $business_id;
+
+            if($input['department_id']){
+                $input['state'] = Department::where('id', $input['department_id'])->value('name');
+            }
+            if($input['municipality_id']){
+                $input['city'] = Municipality::where('id', $input['municipality_id'])->value('name');
+            }
+            $input['country'] = 'Colombia';
+            $input['country_id'] = 46;
 
             $input['default_payment_accounts'] = ! empty($input['default_payment_accounts']) ? json_encode($input['default_payment_accounts']) : null;
 
@@ -233,6 +249,10 @@ class BusinessLocationController extends Controller
 
         $price_groups = SellingPriceGroup::forDropdown($business_id);
 
+
+        $municipalities = Municipality::get()->pluck('name', 'id');
+        $departments = Department::get()->pluck('name', 'id');
+
         $payment_types = $this->commonUtil->payment_types(null, false, $business_id);
 
         //Accounts
@@ -250,7 +270,9 @@ class BusinessLocationController extends Controller
                     'price_groups',
                     'payment_types',
                     'accounts',
-                    'featured_products'
+                    'featured_products',
+                    'municipalities',
+                    'departments',
                 ));
     }
 
@@ -268,11 +290,20 @@ class BusinessLocationController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'landmark', 'city', 'state', 'country',
+            $input = $request->only(['name', 'department_id', 'municipality_id', 'country_id', 'landmark', 'city', 'state', 'country',
                 'zip_code', 'invoice_scheme_id',
                 'invoice_layout_id', 'mobile', 'alternate_number', 'email', 'website', 'custom_field1', 'custom_field2', 'custom_field3', 'custom_field4', 'location_id', 'selling_price_group_id', 'default_payment_accounts', 'featured_products', 'sale_invoice_layout_id', 'sale_invoice_scheme_id' ]);
 
             $business_id = $request->session()->get('user.business_id');
+
+            if($input['department_id']){
+                $input['state'] = Department::where('id', $input['department_id'])->value('name');
+            }
+            if($input['municipality_id']){
+                $input['city'] = Municipality::where('id', $input['municipality_id'])->value('name');
+            }
+            $input['country'] = 'Colombia';
+            $input['country_id'] = 46;
 
             $input['default_payment_accounts'] = ! empty($input['default_payment_accounts']) ? json_encode($input['default_payment_accounts']) : null;
 
